@@ -121,6 +121,90 @@ describe("core/workspace", () => {
       });
     });
 
+    describe("with base", () => {
+      it("parses absolute base with simple target", () => {
+        const result = parse("simple:task", "/path/to/root");
+        expect(result.absolute).to.be.true;
+        expect(result.path).to.equal("/path/to/root/simple");
+        expect(result.segments).to.deep.equal(["path", "to", "root", "simple"]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("/path/to/root/simple:task");
+      });
+      it("parses absolute base with nested target", () => {
+        const result = parse("simple/project:task", "/path/to/root");
+        expect(result.absolute).to.be.true;
+        expect(result.path).to.equal("/path/to/root/simple/project");
+        expect(result.segments).to.deep.equal([
+          "path",
+          "to",
+          "root",
+          "simple",
+          "project",
+        ]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("/path/to/root/simple/project:task");
+      });
+      it("parses absolute base with parent-relative target", () => {
+        const result = parse("../project:task", "/path/to/root");
+        expect(result.absolute).to.be.true;
+        expect(result.path).to.equal("/path/to/project");
+        expect(result.segments).to.deep.equal(["path", "to", "project"]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("/path/to/project:task");
+      });
+      it("parses absolute base with self-relative target", () => {
+        const result = parse("./project:task", "/path/to/root");
+        expect(result.absolute).to.be.true;
+        expect(result.path).to.equal("/path/to/root/project");
+        expect(result.segments).to.deep.equal([
+          "path",
+          "to",
+          "root",
+          "project",
+        ]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("/path/to/root/project:task");
+      });
+
+      it("parses relative base with simple target", () => {
+        const result = parse("simple:task", "relative/base");
+        expect(result.absolute).to.be.false;
+        expect(result.path).to.equal("relative/base/simple");
+        expect(result.segments).to.deep.equal(["relative", "base", "simple"]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("relative/base/simple:task");
+      });
+      it("parses relative base with nested target", () => {
+        const result = parse("simple/project:task", "relative/base");
+        expect(result.absolute).to.be.false;
+        expect(result.path).to.equal("relative/base/simple/project");
+        expect(result.segments).to.deep.equal([
+          "relative",
+          "base",
+          "simple",
+          "project",
+        ]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("relative/base/simple/project:task");
+      });
+      it("parses relative base with parent-relative target", () => {
+        const result = parse("../project:task", "relative/base");
+        expect(result.absolute).to.be.false;
+        expect(result.path).to.equal("relative/project");
+        expect(result.segments).to.deep.equal(["relative", "project"]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("relative/project:task");
+      });
+      it("parses relative base with self-relative target", () => {
+        const result = parse("./project:task", "relative/base");
+        expect(result.absolute).to.be.false;
+        expect(result.path).to.equal("relative/base/project");
+        expect(result.segments).to.deep.equal(["relative", "base", "project"]);
+        expect(result.task).to.equal("task");
+        expect(result.toString()).to.equal("relative/base/project:task");
+      });
+    });
+
     it("parses an empty string", () => {
       const result = parse("");
       expect(result.absolute).to.be.false;

@@ -11,7 +11,12 @@ export interface Target {
   toString(): string;
 }
 
-export function parse(target: string): Target {
+export function parse(target: string, base?: string): Target {
+  if (!target.startsWith("/") && !!base) {
+    // apply base if target is not absolute
+    target = base + "/" + target;
+  }
+
   // TODO: optimize this
   // walk target backward into segments
   let segments: string[] = [];
@@ -60,13 +65,15 @@ export function parse(target: string): Target {
   }, []);
 
   // populate fields
-  const fullPath = (absolute ? "/" : "") + segments.join("/"); 
+  const fullPath = (absolute ? "/" : "") + segments.join("/");
   return {
     path: fullPath,
     task,
     absolute,
     segments,
 
-    toString() { return `${fullPath}:${task}`; }
+    toString() {
+      return `${fullPath}:${task}`;
+    },
   };
 }
