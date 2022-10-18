@@ -1,7 +1,6 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { InvalidNameError } from "../../src/util/errs.ts";
-import { check, validate } from "../../src/util/naming.ts";
+import { check, InvalidNameError, validate } from "../../src/util/naming.ts";
 
 describe("util/naming", () => {
   describe("validate()", () => {
@@ -104,7 +103,7 @@ describe("util/naming", () => {
     describe("successes", () => {
       it("supports a simple name", () => {
         const result = check("simple");
-        expect(result).to.equal("simple")
+        expect(result).to.equal("simple");
       });
       it("supports a name with digits", () => {
         const result = check("simple42");
@@ -171,32 +170,54 @@ describe("util/naming", () => {
 
     describe("failures", () => {
       it("falis on spaces", () => {
-        expect(() => check("invalid name")).
-            to.throw(InvalidNameError).
-            and.have.property("value", "invalid name");
+        expect(() => check("invalid name"))
+          .to.throw(InvalidNameError)
+          .and.have.property("value", "invalid name");
       });
       it("fails on leading spaces", () => {
-        expect(() => check("  invalid-name")).
-            to.throw(InvalidNameError).
-            and.have.property("value", "  invalid-name");
+        expect(() => check("  invalid-name"))
+          .to.throw(InvalidNameError)
+          .and.have.property("value", "  invalid-name");
       });
       it("fails on too many symbols", () => {
-        expect(() => check("$$")).
-            to.throw(InvalidNameError).
-            and.have.property("value", "$$");
+        expect(() => check("$$"))
+          .to.throw(InvalidNameError)
+          .and.have.property("value", "$$");
       });
     });
 
     describe("empty", () => {
       it("fails if empty", () => {
-        expect(() => check("")).
-            to.throw(InvalidNameError).
-            and.have.property("value", "");
+        expect(() => check(""))
+          .to.throw(InvalidNameError)
+          .and.have.property("value", "");
       });
       it("succeeds if allowEmpty is true", () => {
         const result = check("", true);
         expect(result).to.equal("");
       });
+    });
+  });
+
+  describe("InvalidNameError", () => {
+    it("creates an InvalidNameError", () => {
+      const result = new InvalidNameError("invalid name");
+      expect(result).to.be.an.instanceof(Error);
+      expect(result.message).to.equal("invalid name: [ value=invalid name ]");
+      expect(result.value).to.equal("invalid name");
+      expect(result.name).to.equal("InvalidNameError");
+    });
+    it("creates an InvalidNameError with custom message", () => {
+      const result = new InvalidNameError(
+        "invalid name",
+        "something went wrong",
+      );
+      expect(result).to.be.an.instanceof(Error);
+      expect(result.message).to.equal(
+        "something went wrong: [ value=invalid name ]",
+      );
+      expect(result.value).to.equal("invalid name");
+      expect(result.name).to.equal("InvalidNameError");
     });
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { format, InvalidNameError } from "../../src/util/errs.ts";
+import { ErrBase, format } from "../../src/util/errs.ts";
 
 describe("util/errs", () => {
   describe("format()", () => {
@@ -43,25 +43,31 @@ describe("util/errs", () => {
     });
   });
 
-  describe("InvalidNameError", () => {
-    it("creates an InvalidNameError", () => {
-      const result = new InvalidNameError("invalid name");
+  describe("ErrBase", () => {
+    class TestError extends ErrBase {
+      // deno-lint-ignore no-explicit-any
+      constructor(msg: string, extra?: Record<string, any>) {
+        super(msg, extra);
+      }
+    }
+    it("creates an ErrBase subclass with no extra", () => {
+      const result = new TestError("testing error");
       expect(result).to.be.an.instanceof(Error);
-      expect(result.message).to.equal("invalid name: [ value=invalid name ]");
-      expect(result.value).to.equal("invalid name");
-      expect(result.name).to.equal("InvalidNameError");
+      expect(result.message).to.equal("testing error");
+      expect(result.name).to.equal("TestError");
     });
-    it("creates an InvalidNameError with custom message", () => {
-      const result = new InvalidNameError(
-        "invalid name",
+    it("creates an ErrBase subclass with an extra", () => {
+      const result = new TestError(
         "something went wrong",
+        {
+          "key": "value",
+        },
       );
       expect(result).to.be.an.instanceof(Error);
       expect(result.message).to.equal(
-        "something went wrong: [ value=invalid name ]",
+        "something went wrong: [ key=value ]",
       );
-      expect(result.value).to.equal("invalid name");
-      expect(result.name).to.equal("InvalidNameError");
+      expect(result.name).to.equal("TestError");
     });
   });
 });
