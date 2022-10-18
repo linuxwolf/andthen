@@ -12,6 +12,7 @@ test:
 	deno test
 
 coverage:
+	git clean -dfx coverage
 	deno test --coverage=coverage/.profile
 	deno coverage --exclude='(test/deps\.ts)|(test\.(js|mjs|ts|jsx|tsx))$$' --lcov --output=coverage/.lcov coverage/.profile
 	genhtml --output-directory=coverage coverage/.lcov
