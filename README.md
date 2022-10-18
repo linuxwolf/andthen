@@ -69,3 +69,13 @@ targets:
       - init
     act: docker build -t ${TAG} .
 ```
+# Key Concepts
+
+## Variables
+
+&then's parameterization is through variables.  A variable is a string key and string value.  Variables can be defined at the following levels (and in the following precedence order):
+
+* Within a target, accessible within only that target's action
+* Within a project, accessible to any target within that project, and overridden if defined on the task
+* As an operating system environment variable, accessible to any target in any project in the execution, and overridden if defined in a project or on a task
+
