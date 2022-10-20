@@ -1,3 +1,4 @@
+import { ErrBase } from "../util/errs.ts";
 import { checkName as checkName } from "../util/naming.ts";
 import { Project } from "./project.ts";
 import { Context, Variables } from "./vars.ts";
@@ -60,5 +61,14 @@ export class TaskBuilder implements TaskConfig {
 
   build(parent: Project): Task {
     return new Task(parent, this);
+  }
+}
+
+export class DuplicateTaskError  extends ErrBase {
+  readonly task: string;
+
+  constructor(task: string, msg = "duplicate task") {
+    super(msg, { task });
+    this.task = task;
   }
 }

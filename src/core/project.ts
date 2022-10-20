@@ -1,4 +1,4 @@
-import { Task, TaskConfig } from "./task.ts";
+import { DuplicateTaskError, Task, TaskConfig } from "./task.ts";
 import { Context, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 
@@ -37,8 +37,6 @@ export class ProjectBuilder implements ProjectConfig {
     this.path = path;
   }
 
-  get parent(): Project | undefined { return undefined; }
-
   get variables(): Record<string, string> { return { ...this._vars }; }
   withVariable(key: string, val: string): ProjectBuilder {
     this._vars[key] = val;
@@ -47,7 +45,14 @@ export class ProjectBuilder implements ProjectConfig {
 
   get tasks(): Record<string, TaskConfig> { return { ...this._tasks }; }
   withTask(task: TaskConfig): ProjectBuilder {
+    if (task.name in this._tasks)  {
+      throw new DuplicateTaskError(task.name);
+    }
     this._tasks[task.name] = task;
     return this;
+  }
+
+  build(parent?: Project): Project {
+    return new Project(this, parent);
   }
 }

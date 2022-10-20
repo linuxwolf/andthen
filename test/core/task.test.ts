@@ -1,7 +1,7 @@
 import { describe, expect, it } from "../deps.ts";
 
 import { Project } from "../../src/core/project.ts";
-import { Task, TaskBuilder, TaskConfig } from "../../src/core/task.ts";
+import { DuplicateTaskError, Task, TaskBuilder, TaskConfig } from "../../src/core/task.ts";
 import { InvalidNameError } from "../../src/util/naming.ts";
 import { Variables } from "../../src/core/vars.ts";
 import { beforeEach } from "https://deno.land/std@0.159.0/testing/bdd.ts";
@@ -169,6 +169,16 @@ describe("core/task", () => {
           "SIMPLE": "a simple value",
         }));
       });
+    });
+  });
+
+  describe("DuplicateTaskError", () => {
+    it("constructs the error", () => {
+      const err = new DuplicateTaskError("dup-task");
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal("duplicate task: [ task=dup-task ]");
+      expect(err.task).to.equal("dup-task");
+      expect(err.name).to.equal("DuplicateTaskError");
     });
   });
 });
