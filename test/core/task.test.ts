@@ -2,7 +2,7 @@ import { describe, expect, it } from "../deps.ts";
 
 import { Task, TaskConfig } from "../../src/core/task.ts";
 import { InvalidNameError } from "../../src/util/naming.ts";
-import { VariableContext } from "../../src/util/vars.ts";
+import { Variables } from "../../src/core/vars.ts";
 
 describe("core/task", () => {
   describe("Task", () => {
@@ -21,15 +21,15 @@ describe("core/task", () => {
           name: "test-task",
           description: "test task description",
           dependencies: ["dep-1", "dep-2"],
-          variables: new VariableContext({
+          variables: {
             "SIMPLE": "a simple value",
-          }),
+          },
         } as TaskConfig;
         const result = new Task(cfg);
         expect(result.name).to.equal("test-task");
         expect(result.description).to.equal("test task description");
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2"]);
-        expect(result.variables).to.deep.equal(new VariableContext({
+        expect(result.variables).to.deep.equal(new Variables({
           "SIMPLE": "a simple value",
         }));
       });
@@ -41,7 +41,7 @@ describe("core/task", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.be.empty;
         expect(result.dependencies).to.be.empty;
-        expect(result.variables).to.deep.equal(new VariableContext({}));
+        expect(result.variables).to.deep.equal(new Variables({}));
       });
       it("fails on invalid name", () => {
         const cfg = {

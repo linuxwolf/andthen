@@ -1,23 +1,23 @@
 import { checkName as checkName } from "../util/naming.ts";
-import { VariableContext } from "../util/vars.ts";
+import { Context, Variables } from "./vars.ts";
 
 export interface TaskConfig {
   readonly name: string;
   readonly description?: string;
   readonly dependencies?: string[];
-  readonly variables?: VariableContext;
+  readonly variables?: Record<string, string>;
 }
 
-export class Task implements TaskConfig {
+export class Task implements Context {
   readonly name: string;
   readonly description: string;
   readonly dependencies: string[];
-  readonly variables?: VariableContext;
+  readonly variables: Variables;
 
   constructor(cfg: TaskConfig) {
     this.name = checkName(cfg.name);
     this.description = cfg.description || "";
     this.dependencies = [...cfg.dependencies || []];
-    this.variables = new VariableContext(cfg.variables?.all() || {});
+    this.variables = new Variables(cfg.variables || {});
   }
 }
