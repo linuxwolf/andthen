@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
-import { Context, Variables, evaluate } from "../../src/core/vars.ts";
+import { Context, Variables, evaluate, DuplicateVariableError } from "../../src/core/vars.ts";
 
 describe("util/vars", () => {
   describe("Variables", () => {
@@ -120,6 +120,16 @@ describe("util/vars", () => {
         );
         expect(result).to.equal("this is ${a default} to eval");
       });
+    });
+  });
+
+  describe("DuplicateVariableError", () => {
+    it("Constructs a DuplicateVariableError", () => {
+      const err = new DuplicateVariableError("dup_var");
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal("duplicate variable: [ variable=dup_var ]");
+      expect(err.variable).to.equal("dup_var");
+      expect(err.name).to.equal("DuplicateVariableError");
     });
   });
 });

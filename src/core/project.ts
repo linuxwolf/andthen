@@ -1,5 +1,5 @@
 import { DuplicateTaskError, Task, TaskConfig } from "./task.ts";
-import { Context, Variables } from "./vars.ts";
+import { Context, DuplicateVariableError, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 
 export interface ProjectConfig {
@@ -39,6 +39,8 @@ export class ProjectBuilder implements ProjectConfig {
 
   get variables(): Record<string, string> { return { ...this._vars }; }
   withVariable(key: string, val: string): ProjectBuilder {
+    if (key in this._vars) { throw new DuplicateVariableError(key); }
+
     this._vars[key] = val;
     return this;
   }

@@ -44,3 +44,12 @@ export function evaluate(input: string, ctx: Context): string {
 
   return input.replaceAll(VARDEF_PTN, replacer);
 }
+
+export class DuplicateVariableError extends ErrBase {
+  readonly variable: string;
+
+  constructor(variable: string, msg = "duplicate variable") {
+    super(msg, { variable });
+    this.variable = variable;
+  }
+}

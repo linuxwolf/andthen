@@ -1,7 +1,7 @@
 import { beforeEach, expect, describe, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
-import { Variables } from "../../src/core/vars.ts";
+import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
 import { DuplicateTaskError, Task, TaskBuilder } from "../../src/core/task.ts";
 describe("core/project", () => {
   describe("Project", () => {
@@ -109,13 +109,13 @@ describe("core/project", () => {
           "MixedCase": "a mixed-case variable",
         });
       });
-      it("overrides previously set variables", () => {
-        const result = builder.withVariable("SIMPLE", "a simple value").
-                               withVariable("SIMPLE", "a simple override").
-                               withVariable("SIMPLE", "another simple override of a value");
-        expect(result).to.equal(builder);
+      it("fails if variable previously set", () => {
+        const result = builder.withVariable("SIMPLE", "a simple value");
+        expect(() => result.withVariable("SIMPLE", "a simple override")).
+            to.throw(DuplicateVariableError).
+            to.have.property("variable", "SIMPLE");
         expect(result.variables).to.deep.equal({
-          "SIMPLE": "another simple override of a value",
+          "SIMPLE": "a simple value",
         });
       });
     });
