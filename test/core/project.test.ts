@@ -1,10 +1,8 @@
-import { expect, describe, it } from "../deps.ts";
+import { beforeEach, expect, describe, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { Variables } from "../../src/core/vars.ts";
-import { Task } from "../../src/core/task.ts";
-import { beforeEach } from "https://deno.land/std@0.159.0/testing/bdd.ts";
-
+import { DuplicateTaskError, Task, TaskBuilder } from "../../src/core/task.ts";
 describe("core/project", () => {
   describe("Project", () => {
     describe("ctor", () => {
@@ -14,9 +12,9 @@ describe("core/project", () => {
           variables: {
             "SIMPLE": "a simple value",
           },
-          tasks: {
-            "test-task": { name: "test-task" },
-          },
+          tasks: [
+            { name: "test-task" },
+          ],
         };
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
@@ -27,7 +25,7 @@ describe("core/project", () => {
 
         const tasks = {
           "test-task": new Task(result, { name: "test-task" }),
-        }
+        };
         expect(result.tasks).to.deep.equal(tasks);
       });
       it("constructs with a parent from a full ProjectConfig", () => {
@@ -37,9 +35,9 @@ describe("core/project", () => {
           variables: {
             "SIMPLE": "a simple value",
           },
-          tasks: {
-            "test-task": { name: "test-task" },
-          },
+          tasks: [
+            { name: "test-task" },
+          ],
         };
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
@@ -50,7 +48,7 @@ describe("core/project", () => {
 
         const tasks = {
           "test-task": new Task(result, { name: "test-task" }),
-        }
+        };
         expect(result.tasks).to.deep.equal(tasks);
       });
       it("constructs from a minimal ProjectConfig", () => {
@@ -88,7 +86,7 @@ describe("core/project", () => {
       it("constructs an empty ProjectBuilder", () => {
         expect(builder.path).to.equal("test-project");
         expect(builder.variables).to.deep.equal({});
-        expect(builder.tasks).to.deep.equal({});
+        expect(builder.tasks).to.deep.equal([]);
       });
     });
 
@@ -122,6 +120,27 @@ describe("core/project", () => {
       });
     });
 
+    describe("build task", () => {
+      it("adds a minimal task", () => {
+        const result = builder.withTask({
+          name: "test-task",
+        });
+        expect(result).to.equal(builder);
+        expect(result.tasks).to.deep.equal([
+          { name: "test-task" },
+        ]);
+      });
+      it("fails on duplicate-named task", ()  => {
+        const result = builder.withTask({ name: "test-task" });
+        expect(() => result.withTask({ name: "test-task" })).
+            to.throw(DuplicateTaskError).
+            to.have.property("task", "test-task");
+        expect(result.tasks).to.deep.equal([
+          { name: "test-task" },
+        ]);
+      });
+    });
+
     describe("build()", () => {
       it("builds an empty Project", () => {
         const result = builder.build();
@@ -137,6 +156,57 @@ describe("core/project", () => {
         expect(result.path).to.equal("test-project");
         expect(result.variables).to.deep.equal(new Variables({}));
         expect(result.tasks).to.deep.equal({} as Record<string, Task>);
+      });
+      it("builds a populated project", () => {
+        const result = builder.
+                       withVariable("SIMPLE", "a simple value").
+                       withTask(new TaskBuilder("test-task").
+                          withDescription("a test task").
+                          withVariable("MAPPED", "a mapped value").
+                          dependsOn("dep-1", "dep-2")
+                       ).
+                       build();
+        expect(result.parent).to.be.undefined;
+        expect(result.path).to.equal("test-project");
+        expect(result.variables).to.deep.equal(new Variables({
+          "SIMPLE": "a simple value",
+        }));
+        expect(result.tasks).to.deep.equal({
+          "test-task": new Task(result, {
+            name: "test-task",
+            description: "a test task",
+            variables: {
+              "MAPPED": "a mapped value",
+            },
+            dependencies: ["dep-1", "dep-2"],
+          }),
+        });
+      });
+      it("builds a populated project with a parent", () => {
+        const parent = new Project({ path: "root" });
+        const result = builder.
+                       withVariable("SIMPLE", "a simple value").
+                       withTask(new TaskBuilder("test-task").
+                          withDescription("a test task").
+                          withVariable("MAPPED", "a mapped value").
+                          dependsOn("dep-1", "dep-2")
+                       ).
+                       build(parent);
+        expect(result.parent).to.equal(parent);
+        expect(result.path).to.equal("test-project");
+        expect(result.variables).to.deep.equal(new Variables({
+          "SIMPLE": "a simple value",
+        }));
+        expect(result.tasks).to.deep.equal({
+          "test-task": new Task(result, {
+            name: "test-task",
+            description: "a test task",
+            variables: {
+              "MAPPED": "a mapped value",
+            },
+            dependencies: ["dep-1", "dep-2"],
+          }),
+        });
       });
     });
   });

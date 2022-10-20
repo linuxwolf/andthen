@@ -5,7 +5,7 @@ import { checkName } from "../util/naming.ts";
 export interface ProjectConfig {
   readonly path: string;
   readonly variables?: Record<string, string>;
-  readonly tasks?: Record<string, TaskConfig>;
+  readonly tasks?: TaskConfig[];
 }
 
 export class Project implements Context {
@@ -19,8 +19,8 @@ export class Project implements Context {
     this.parent = parent;
     this.variables = new Variables(cfg.variables || {});
 
-    const tasks = Object.entries(cfg.tasks || {}).reduce((acc, [name, cfg]) => {
-      acc[name] = new Task(this, cfg);
+    const tasks = (cfg.tasks || []).reduce((acc, cfg) => {
+      acc[cfg.name] = new Task(this, cfg);
       return acc;
     }, {} as Record<string, Task>);
     this.tasks = Object.freeze(tasks);
@@ -31,7 +31,7 @@ export class ProjectBuilder implements ProjectConfig {
   readonly path: string;
 
   private _vars: Record<string, string> = {};
-  private _tasks: Record<string, TaskConfig> = {};
+  private _tasks: Map<string, TaskConfig> = new Map();
 
   constructor(path: string) {
     this.path = path;
@@ -43,12 +43,12 @@ export class ProjectBuilder implements ProjectConfig {
     return this;
   }
 
-  get tasks(): Record<string, TaskConfig> { return { ...this._tasks }; }
+  get tasks(): TaskConfig[] { return [ ...this._tasks.values() ]; }
   withTask(task: TaskConfig): ProjectBuilder {
-    if (task.name in this._tasks)  {
+    if (this._tasks.has(task.name))  {
       throw new DuplicateTaskError(task.name);
     }
-    this._tasks[task.name] = task;
+    this._tasks.set(task.name, task);
     return this;
   }
 
