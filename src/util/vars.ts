@@ -8,7 +8,7 @@ export class TerminalContextError extends ErrBase {
   }
 }
 
-type Mapping = Map<string, string> | Record<string, string>;
+export type Mapping = Map<string, string> | Record<string, string>;
 
 export class VariableContext {
   readonly parent?: VariableContext;
