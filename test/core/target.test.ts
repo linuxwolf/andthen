@@ -1,8 +1,8 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { target } from "../../src/core/workspace.ts";
+import { target } from "../../src/core/target.ts";
 
-describe("core/workspace", () => {
+describe("core/target", () => {
   describe("Target", () => {
     describe("simple cases", () => {
       it("parses a single path task", () => {
