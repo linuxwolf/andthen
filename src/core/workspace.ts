@@ -2,16 +2,25 @@ import { path } from "../deps.ts";
 
 const { posix } = path;
 
-export interface Target {
+export class Target {
   readonly path: string;
   readonly task: string;
   readonly absolute: boolean;
   readonly segments: string[];
 
-  toString(): string;
+  constructor(path: string, task: string, absolute: boolean, segments: string[]) {
+    this.path = path;
+    this.task = task;
+    this.absolute = absolute;
+    this.segments = segments;
+  }
+
+  toString(): string {
+    return `${this.path}:${this.task}`;
+  }
 }
 
-export function parse(target: string, base?: string): Target {
+export function target(target: string, base?: string): Target {
   if (!target.startsWith("/") && !!base) {
     // apply base if target is not absolute
     target = base + "/" + target;
@@ -66,14 +75,10 @@ export function parse(target: string, base?: string): Target {
 
   // populate fields
   const fullPath = (absolute ? "/" : "") + segments.join("/");
-  return {
-    path: fullPath,
+  return new Target(
+    fullPath,
     task,
     absolute,
     segments,
-
-    toString() {
-      return `${fullPath}:${task}`;
-    },
-  };
+  );
 }

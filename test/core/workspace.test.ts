@@ -1,12 +1,12 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { parse } from "../../src/core/workspace.ts";
+import { target } from "../../src/core/workspace.ts";
 
 describe("core/workspace", () => {
   describe("Target", () => {
     describe("simple cases", () => {
       it("parses a single path task", () => {
-        const result = parse("simple:task");
+        const result = target("simple:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("simple");
         expect(result.segments).to.deep.equal(["simple"]);
@@ -14,7 +14,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("simple:task");
       });
       it("parses a simple path task", () => {
-        const result = parse("simple/path:task");
+        const result = target("simple/path:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("simple/path");
         expect(result.segments).to.deep.equal(["simple", "path"]);
@@ -22,7 +22,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("simple/path:task");
       });
       it("parses a single implied task", () => {
-        const result = parse("simple");
+        const result = target("simple");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("simple");
         expect(result.segments).to.deep.equal(["simple"]);
@@ -30,7 +30,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("simple:default");
       });
       it("parses a simple implied task", () => {
-        const result = parse("simple/path");
+        const result = target("simple/path");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("simple/path");
         expect(result.segments).to.deep.equal(["simple", "path"]);
@@ -41,7 +41,7 @@ describe("core/workspace", () => {
 
     describe("absolute paths", () => {
       it("parses a single absolute target", () => {
-        const result = parse("/root:task");
+        const result = target("/root:task");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/root");
         expect(result.segments).to.deep.equal(["root"]);
@@ -49,7 +49,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/root:task");
       });
       it("parses a nested absolute target", () => {
-        const result = parse("/root/path/project:task");
+        const result = target("/root/path/project:task");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/root/path/project");
         expect(result.segments).to.deep.equal(["root", "path", "project"]);
@@ -57,7 +57,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/root/path/project:task");
       });
       it("parses single absolute implied task", () => {
-        const result = parse("/root");
+        const result = target("/root");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/root");
         expect(result.segments).to.deep.equal(["root"]);
@@ -65,7 +65,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/root:default");
       });
       it("parses a nested absolute implied target", () => {
-        const result = parse("/root/path/project");
+        const result = target("/root/path/project");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/root/path/project");
         expect(result.segments).to.deep.equal(["root", "path", "project"]);
@@ -76,7 +76,7 @@ describe("core/workspace", () => {
 
     describe("simple relative", () => {
       it("parses a relative-parent path task", () => {
-        const result = parse("../simple:task");
+        const result = target("../simple:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("../simple");
         expect(result.segments).to.deep.equal(["..", "simple"]);
@@ -85,7 +85,7 @@ describe("core/workspace", () => {
       });
 
       it("parses a relative-self path task", () => {
-        const result = parse("./simple:task");
+        const result = target("./simple:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("simple");
         expect(result.segments).to.deep.equal(["simple"]);
@@ -96,7 +96,7 @@ describe("core/workspace", () => {
 
     describe("complex relative", () => {
       it("collapses intermediate relative paths", () => {
-        const result = parse("complex/./path/../project:task");
+        const result = target("complex/./path/../project:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("complex/project");
         expect(result.segments).to.deep.equal(["complex", "project"]);
@@ -104,7 +104,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("complex/project:task");
       });
       it("keeps deep parent-relative paths", () => {
-        const result = parse("../../complex/path:task");
+        const result = target("../../complex/path:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("../../complex/path");
         expect(result.segments).to.deep.equal(["..", "..", "complex", "path"]);
@@ -112,7 +112,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("../../complex/path:task");
       });
       it("strips intermediate self-relative between parent-relatives", () => {
-        const result = parse(".././../complex/path:task");
+        const result = target(".././../complex/path:task");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("../../complex/path");
         expect(result.segments).to.deep.equal(["..", "..", "complex", "path"]);
@@ -123,7 +123,7 @@ describe("core/workspace", () => {
 
     describe("with base", () => {
       it("parses absolute base with simple target", () => {
-        const result = parse("simple:task", "/path/to/root");
+        const result = target("simple:task", "/path/to/root");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/path/to/root/simple");
         expect(result.segments).to.deep.equal(["path", "to", "root", "simple"]);
@@ -131,7 +131,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/path/to/root/simple:task");
       });
       it("parses absolute base with nested target", () => {
-        const result = parse("simple/project:task", "/path/to/root");
+        const result = target("simple/project:task", "/path/to/root");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/path/to/root/simple/project");
         expect(result.segments).to.deep.equal([
@@ -145,7 +145,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/path/to/root/simple/project:task");
       });
       it("parses absolute base with parent-relative target", () => {
-        const result = parse("../project:task", "/path/to/root");
+        const result = target("../project:task", "/path/to/root");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/path/to/project");
         expect(result.segments).to.deep.equal(["path", "to", "project"]);
@@ -153,7 +153,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("/path/to/project:task");
       });
       it("parses absolute base with self-relative target", () => {
-        const result = parse("./project:task", "/path/to/root");
+        const result = target("./project:task", "/path/to/root");
         expect(result.absolute).to.be.true;
         expect(result.path).to.equal("/path/to/root/project");
         expect(result.segments).to.deep.equal([
@@ -167,7 +167,7 @@ describe("core/workspace", () => {
       });
 
       it("parses relative base with simple target", () => {
-        const result = parse("simple:task", "relative/base");
+        const result = target("simple:task", "relative/base");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("relative/base/simple");
         expect(result.segments).to.deep.equal(["relative", "base", "simple"]);
@@ -175,7 +175,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("relative/base/simple:task");
       });
       it("parses relative base with nested target", () => {
-        const result = parse("simple/project:task", "relative/base");
+        const result = target("simple/project:task", "relative/base");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("relative/base/simple/project");
         expect(result.segments).to.deep.equal([
@@ -188,7 +188,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("relative/base/simple/project:task");
       });
       it("parses relative base with parent-relative target", () => {
-        const result = parse("../project:task", "relative/base");
+        const result = target("../project:task", "relative/base");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("relative/project");
         expect(result.segments).to.deep.equal(["relative", "project"]);
@@ -196,7 +196,7 @@ describe("core/workspace", () => {
         expect(result.toString()).to.equal("relative/project:task");
       });
       it("parses relative base with self-relative target", () => {
-        const result = parse("./project:task", "relative/base");
+        const result = target("./project:task", "relative/base");
         expect(result.absolute).to.be.false;
         expect(result.path).to.equal("relative/base/project");
         expect(result.segments).to.deep.equal(["relative", "base", "project"]);
@@ -206,7 +206,7 @@ describe("core/workspace", () => {
     });
 
     it("parses an empty string", () => {
-      const result = parse("");
+      const result = target("");
       expect(result.absolute).to.be.false;
       expect(result.path).to.equal("");
       expect(result.segments).to.deep.equal([]);
@@ -214,7 +214,7 @@ describe("core/workspace", () => {
       expect(result.toString()).to.equal(":default");
     });
     it("parses just  '/'", () => {
-      const result = parse("/");
+      const result = target("/");
       expect(result.absolute).to.be.true;
       expect(result.path).to.equal("/");
       expect(result.segments).to.deep.equal([]);
