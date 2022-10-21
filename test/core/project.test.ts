@@ -1,4 +1,4 @@
-import { beforeEach, expect, describe, it } from "../deps.ts";
+import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
@@ -19,9 +19,11 @@ describe("core/project", () => {
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
         expect(result.path).to.equal(cfg.path);
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
 
         const tasks = {
           "test-task": new Task(result, { name: "test-task" }),
@@ -42,9 +44,11 @@ describe("core/project", () => {
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal(cfg.path);
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
 
         const tasks = {
           "test-task": new Task(result, { name: "test-task" }),
@@ -99,9 +103,9 @@ describe("core/project", () => {
         });
       });
       it("adds multiple variables", () => {
-        const result = builder.withVariable("SIMPLE", "a simple value").
-                              withVariable("MAPPED", "a mapped value").
-                              withVariable("MixedCase", "a mixed-case variable");
+        const result = builder.withVariable("SIMPLE", "a simple value")
+          .withVariable("MAPPED", "a mapped value")
+          .withVariable("MixedCase", "a mixed-case variable");
         expect(result).to.equal(builder);
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -111,9 +115,9 @@ describe("core/project", () => {
       });
       it("fails if variable previously set", () => {
         const result = builder.withVariable("SIMPLE", "a simple value");
-        expect(() => result.withVariable("SIMPLE", "a simple override")).
-            to.throw(DuplicateVariableError).
-            to.have.property("variable", "SIMPLE");
+        expect(() => result.withVariable("SIMPLE", "a simple override"))
+          .to.throw(DuplicateVariableError)
+          .to.have.property("variable", "SIMPLE");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -130,11 +134,11 @@ describe("core/project", () => {
           { name: "test-task" },
         ]);
       });
-      it("fails on duplicate-named task", ()  => {
+      it("fails on duplicate-named task", () => {
         const result = builder.withTask({ name: "test-task" });
-        expect(() => result.withTask({ name: "test-task" })).
-            to.throw(DuplicateTaskError).
-            to.have.property("task", "test-task");
+        expect(() => result.withTask({ name: "test-task" }))
+          .to.throw(DuplicateTaskError)
+          .to.have.property("task", "test-task");
         expect(result.tasks).to.deep.equal([
           { name: "test-task" },
         ]);
@@ -158,19 +162,22 @@ describe("core/project", () => {
         expect(result.tasks).to.deep.equal({} as Record<string, Task>);
       });
       it("builds a populated project", () => {
-        const result = builder.
-                       withVariable("SIMPLE", "a simple value").
-                       withTask(new TaskBuilder("test-task").
-                          withDescription("a test task").
-                          withVariable("MAPPED", "a mapped value").
-                          dependsOn("dep-1", "dep-2")
-                       ).
-                       build();
+        const result = builder
+          .withVariable("SIMPLE", "a simple value")
+          .withTask(
+            new TaskBuilder("test-task")
+              .withDescription("a test task")
+              .withVariable("MAPPED", "a mapped value")
+              .dependsOn("dep-1", "dep-2"),
+          )
+          .build();
         expect(result.parent).to.be.undefined;
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
         expect(result.tasks).to.deep.equal({
           "test-task": new Task(result, {
             name: "test-task",
@@ -184,19 +191,22 @@ describe("core/project", () => {
       });
       it("builds a populated project with a parent", () => {
         const parent = new Project({ path: "root" });
-        const result = builder.
-                       withVariable("SIMPLE", "a simple value").
-                       withTask(new TaskBuilder("test-task").
-                          withDescription("a test task").
-                          withVariable("MAPPED", "a mapped value").
-                          dependsOn("dep-1", "dep-2")
-                       ).
-                       build(parent);
+        const result = builder
+          .withVariable("SIMPLE", "a simple value")
+          .withTask(
+            new TaskBuilder("test-task")
+              .withDescription("a test task")
+              .withVariable("MAPPED", "a mapped value")
+              .dependsOn("dep-1", "dep-2"),
+          )
+          .build(parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
         expect(result.tasks).to.deep.equal({
           "test-task": new Task(result, {
             name: "test-task",

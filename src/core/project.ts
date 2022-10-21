@@ -37,17 +37,21 @@ export class ProjectBuilder implements ProjectConfig {
     this.path = path;
   }
 
-  get variables(): Record<string, string> { return { ...this._vars }; }
+  get variables(): Record<string, string> {
+    return { ...this._vars };
+  }
   withVariable(key: string, val: string): ProjectBuilder {
-    if (key in this._vars) { throw new DuplicateVariableError(key); }
+    if (key in this._vars) throw new DuplicateVariableError(key);
 
     this._vars[key] = val;
     return this;
   }
 
-  get tasks(): TaskConfig[] { return [ ...this._tasks.values() ]; }
+  get tasks(): TaskConfig[] {
+    return [...this._tasks.values()];
+  }
   withTask(task: TaskConfig): ProjectBuilder {
-    if (this._tasks.has(task.name))  {
+    if (this._tasks.has(task.name)) {
       throw new DuplicateTaskError(task.name);
     }
     this._tasks.set(task.name, task);

@@ -37,25 +37,31 @@ export class TaskBuilder implements TaskConfig {
     this.name = checkName(name);
   }
 
-  get description(): string { return this._desc; }
+  get description(): string {
+    return this._desc;
+  }
   withDescription(desc: string): TaskBuilder {
     this._desc = desc;
     return this;
   }
 
-  get dependencies(): string[] { return [...this._deps]; }
+  get dependencies(): string[] {
+    return [...this._deps];
+  }
   dependsOn(...deps: string[]): TaskBuilder {
     const all = new Set(this._deps);
     for (const d of deps) {
       all.add(d);
     }
-    this._deps = [ ...all.values() ];
+    this._deps = [...all.values()];
     return this;
   }
 
-  get variables(): Record<string, string> { return { ...this._vars }; }
+  get variables(): Record<string, string> {
+    return { ...this._vars };
+  }
   withVariable(key: string, val: string): TaskBuilder {
-    if (key in this._vars) { throw new DuplicateVariableError(key); }
+    if (key in this._vars) throw new DuplicateVariableError(key);
 
     this._vars[key] = val;
     return this;
@@ -66,7 +72,7 @@ export class TaskBuilder implements TaskConfig {
   }
 }
 
-export class DuplicateTaskError  extends ErrBase {
+export class DuplicateTaskError extends ErrBase {
   readonly task: string;
 
   constructor(task: string, msg = "duplicate task") {

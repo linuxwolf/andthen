@@ -1,7 +1,12 @@
 import { describe, expect, it } from "../deps.ts";
 
 import { Project } from "../../src/core/project.ts";
-import { DuplicateTaskError, Task, TaskBuilder, TaskConfig } from "../../src/core/task.ts";
+import {
+  DuplicateTaskError,
+  Task,
+  TaskBuilder,
+  TaskConfig,
+} from "../../src/core/task.ts";
 import { InvalidNameError } from "../../src/util/naming.ts";
 import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
 import { beforeEach } from "https://deno.land/std@0.159.0/testing/bdd.ts";
@@ -35,9 +40,11 @@ describe("core/task", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.equal("test task description");
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2"]);
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
       });
       it("constructs from a minimal TaskConfig", () => {
         const cfg = {
@@ -75,7 +82,9 @@ describe("core/task", () => {
         expect(builder.variables).to.be.empty;
       });
       it("fails on invalid name", () => {
-        expect(() => new TaskBuilder("invalid name")).to.throw(InvalidNameError);
+        expect(() => new TaskBuilder("invalid name")).to.throw(
+          InvalidNameError,
+        );
       });
     });
 
@@ -98,16 +107,16 @@ describe("core/task", () => {
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2", "dep-3"]);
       });
       it("adds multiple dependencies individually", () => {
-        const result = builder.dependsOn("dep-1").
-                               dependsOn("dep-2").
-                               dependsOn("dep-3");
+        const result = builder.dependsOn("dep-1")
+          .dependsOn("dep-2")
+          .dependsOn("dep-3");
         expect(result).to.equal(builder);
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2", "dep-3"]);
       });
       it("dedups depdendencies", () => {
-        const result = builder.dependsOn("dep-1", "dep-2").
-                               dependsOn("dep-2", "dep-3").
-                               dependsOn("dep-1", "dep-4");
+        const result = builder.dependsOn("dep-1", "dep-2")
+          .dependsOn("dep-2", "dep-3")
+          .dependsOn("dep-1", "dep-4");
         expect(result).to.equal(builder);
         expect(result.dependencies).to.deep.equal([
           "dep-1",
@@ -126,9 +135,9 @@ describe("core/task", () => {
         });
       });
       it("adds multiple variables", () => {
-        const result = builder.withVariable("SIMPLE", "a simple value").
-                               withVariable("MAPPED", "a mapped value").
-                               withVariable("MixedCase", "a mixed-case variable");
+        const result = builder.withVariable("SIMPLE", "a simple value")
+          .withVariable("MAPPED", "a mapped value")
+          .withVariable("MixedCase", "a mixed-case variable");
         expect(result).to.equal(builder);
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -138,10 +147,10 @@ describe("core/task", () => {
       });
       it("fails if variable previously set", () => {
         const result = builder.withVariable("SIMPLE", "a simple value");
-        
-        expect(() => result.withVariable("SIMPLE", "a simple override")).
-            to.throw(DuplicateVariableError).
-            to.have.property("variable", "SIMPLE");
+
+        expect(() => result.withVariable("SIMPLE", "a simple override"))
+          .to.throw(DuplicateVariableError)
+          .to.have.property("variable", "SIMPLE");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -158,17 +167,19 @@ describe("core/task", () => {
         expect(result.variables).to.deep.equal(new Variables({}));
       });
       it("builds a full Task", () => {
-        const result = builder.withDescription("a test task").
-                               dependsOn("dep-1", "dep-2").
-                               withVariable("SIMPLE", "a simple value").
-                               build(context);
+        const result = builder.withDescription("a test task")
+          .dependsOn("dep-1", "dep-2")
+          .withVariable("SIMPLE", "a simple value")
+          .build(context);
         expect(result.parent).to.equal(context);
         expect(result.name).to.equal("test-task");
         expect(result.description).to.equal("a test task");
-        expect(result.dependencies).to.deep.equal([ "dep-1", "dep-2" ]);
-        expect(result.variables).to.deep.equal(new Variables({
-          "SIMPLE": "a simple value",
-        }));
+        expect(result.dependencies).to.deep.equal(["dep-1", "dep-2"]);
+        expect(result.variables).to.deep.equal(
+          new Variables({
+            "SIMPLE": "a simple value",
+          }),
+        );
       });
     });
   });

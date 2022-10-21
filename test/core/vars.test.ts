@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
-import { Context, Variables, evaluate, DuplicateVariableError } from "../../src/core/vars.ts";
+import {
+  Context,
+  DuplicateVariableError,
+  evaluate,
+  Variables,
+} from "../../src/core/vars.ts";
 
 describe("util/vars", () => {
   describe("Variables", () => {
@@ -13,7 +18,9 @@ describe("util/vars", () => {
         const result = new Variables(all);
         expect(result.all).to.deep.equal(all);
         expect(result.all).to.not.equal(all);
-        expect(() => { result.all["SIMPLE"] = "a new simple value"; }).to.throw();
+        expect(() => {
+          result.all["SIMPLE"] = "a new simple value";
+        }).to.throw();
       });
     });
   });

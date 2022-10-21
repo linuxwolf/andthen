@@ -8,7 +8,12 @@ export class Target {
   readonly absolute: boolean;
   readonly segments: string[];
 
-  constructor(path: string, task: string, absolute: boolean, segments: string[]) {
+  constructor(
+    path: string,
+    task: string,
+    absolute: boolean,
+    segments: string[],
+  ) {
     this.path = path;
     this.task = task;
     this.absolute = absolute;

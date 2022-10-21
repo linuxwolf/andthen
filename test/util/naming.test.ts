@@ -1,6 +1,10 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { checkName, InvalidNameError, validateName } from "../../src/util/naming.ts";
+import {
+  checkName,
+  InvalidNameError,
+  validateName,
+} from "../../src/util/naming.ts";
 
 describe("util/naming", () => {
   describe("validateName()", () => {
