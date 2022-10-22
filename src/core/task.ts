@@ -1,7 +1,7 @@
 import { ErrBase } from "../util/errs.ts";
 import { checkName as checkName } from "../util/naming.ts";
 import { Project } from "./project.ts";
-import { Context, DuplicateVariableError, Variables } from "./vars.ts";
+import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
 
 export interface TaskConfig {
   readonly name: string;
@@ -26,7 +26,7 @@ export class Task implements Context {
   }
 }
 
-export class TaskBuilder implements TaskConfig {
+export class TaskBuilder implements TaskConfig, VariableBuiler {
   readonly name: string;
 
   private _desc = "";

@@ -1,4 +1,5 @@
 import { path } from "../deps.ts";
+import { Optional } from "../util/types.ts";
 
 const { posix } = path;
 
@@ -55,7 +56,7 @@ export function target(target: string, base?: string): Target {
 
   // simplify segments
   segments = segments.reduce((acc: string[], segment: string): string[] => {
-    let prev: string | undefined;
+    let prev: Optional<string>;
     switch (segment) {
       case "..":
         // lose parent and current segments; unless ...

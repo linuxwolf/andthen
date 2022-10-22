@@ -1,4 +1,5 @@
 import { ErrBase } from "../util/errs.ts";
+import { Optional } from "../util/types.ts";
 
 const VARDEF_PTN = /(\$\$)|\${([_a-zA-Z][_a-zA-Z0-9]*)(?:(?:\:=)([\s\S]*))?}/g;
 
@@ -7,8 +8,10 @@ export interface Context {
   readonly variables: Variables;
 }
 
+export type Vars = Record<string, string>;
+
 export class Variables {
-  readonly all: Record<string, string>;
+  readonly all: Vars;
 
   constructor(all: Record<string, string>) {
     this.all = Object.freeze({
@@ -16,7 +19,7 @@ export class Variables {
     });
   }
 
-  get(key: string, ctx?: Context): string | undefined {
+  get(key: string, ctx?: Context): Optional<string> {
     const parent = ctx?.parent;
     const result = this.all[key];
     if (result === undefined && parent !== undefined) {
@@ -43,6 +46,10 @@ export function evaluate(input: string, ctx: Context): string {
   };
 
   return input.replaceAll(VARDEF_PTN, replacer);
+}
+
+export interface VariableBuiler {
+  withVariable(key: string, value: string): VariableBuiler;
 }
 
 export class DuplicateVariableError extends ErrBase {

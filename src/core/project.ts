@@ -1,5 +1,5 @@
 import { DuplicateTaskError, Task, TaskConfig } from "./task.ts";
-import { Context, DuplicateVariableError, Variables } from "./vars.ts";
+import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 
 export interface ProjectConfig {
@@ -27,7 +27,7 @@ export class Project implements Context {
   }
 }
 
-export class ProjectBuilder implements ProjectConfig {
+export class ProjectBuilder implements ProjectConfig, VariableBuiler {
   readonly path: string;
 
   private _vars: Record<string, string> = {};
