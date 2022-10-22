@@ -1,21 +1,75 @@
 import { path } from "../deps.ts";
 import { Optional } from "../util/types.ts";
+import { ErrBase } from "../util/errs.ts";
+import { checkName as checkName } from "../util/naming.ts";
+import { Project } from "./project.ts";
+import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
 
 const { posix } = path;
 
-export class Target {
+export class TargetPath {
   readonly path: string;
   readonly task: string;
   readonly absolute: boolean;
   readonly segments: string[];
 
-  constructor(
-    path: string,
-    task: string,
-    absolute: boolean,
-    segments: string[],
-  ) {
-    this.path = path;
+  constructor(target: string, base?: string) {
+    if (!target.startsWith("/") && !!base) {
+      // apply base if target is not absolute
+      target = base + "/" + target;
+    }
+  
+    // TODO: optimize this
+    // walk target backward into segments
+    let segments: string[] = [];
+    let absolute = false;
+    let remainder = target;
+    while (remainder !== "") {
+      const p = posix.parse(remainder);
+      remainder = p.dir;
+      if (p.base !== "") {
+        segments.unshift(p.base);
+      }
+      absolute = p.dir === "/";
+      remainder = absolute ? "" : p.dir;
+    }
+  
+    // extract task (or use default)
+    let [endPath, task] = (segments.pop() || "").split(":", 2);
+    if (!task) {
+      task = "default";
+    }
+    segments.push(endPath);
+  
+    // simplify segments
+    segments = segments.reduce((acc: string[], segment: string): string[] => {
+      let prev: Optional<string>;
+      switch (segment) {
+        case "..":
+          // lose parent and current segments; unless ...
+          prev = acc.pop();
+          if (prev === undefined || prev === "..") {
+            // parent is relative or no parent yet, then keep ".."
+            prev && acc.push(prev);
+            acc.push("..");
+          }
+          break;
+        case ".":
+          // lose current segment
+          break;
+        case "":
+          // lose empty
+          break;
+        default:
+          acc.push(segment);
+      }
+      return acc;
+    }, []);
+  
+    // populate fields
+    const fullPath = (absolute ? "/" : "") + segments.join("/");
+
+    this.path = fullPath;
     this.task = task;
     this.absolute = absolute;
     this.segments = segments;
@@ -26,65 +80,80 @@ export class Target {
   }
 }
 
-export function target(target: string, base?: string): Target {
-  if (!target.startsWith("/") && !!base) {
-    // apply base if target is not absolute
-    target = base + "/" + target;
+export interface TargetConfig {
+  readonly name: string;
+  readonly description?: string;
+  readonly dependencies?: string[];
+  readonly variables?: Record<string, string>;
+}
+
+export class Target implements Context {
+  readonly parent: Project;
+  readonly name: string;
+  readonly description: string;
+  readonly dependencies: string[];
+  readonly variables: Variables;
+
+  constructor(parent: Project, cfg: TargetConfig) {
+    this.name = checkName(cfg.name);
+    this.parent = parent;
+    this.description = cfg.description || "";
+    this.dependencies = (cfg.dependencies || []).slice();
+    this.variables = new Variables(cfg.variables || {});
+  }
+}
+
+export class TargetBuilder implements TargetConfig, VariableBuiler {
+  readonly name: string;
+
+  private _desc = "";
+  private _deps: string[] = [];
+  private _vars: Record<string, string> = {};
+
+  constructor(name: string) {
+    this.name = checkName(name);
   }
 
-  // TODO: optimize this
-  // walk target backward into segments
-  let segments: string[] = [];
-  let absolute = false;
-  let remainder = target;
-  while (remainder !== "") {
-    const p = posix.parse(remainder);
-    remainder = p.dir;
-    if (p.base !== "") {
-      segments.unshift(p.base);
+  get description(): string {
+    return this._desc;
+  }
+  withDescription(desc: string): TargetBuilder {
+    this._desc = desc;
+    return this;
+  }
+
+  get dependencies(): string[] {
+    return [...this._deps];
+  }
+  dependsOn(...deps: string[]): TargetBuilder {
+    const all = new Set(this._deps);
+    for (const d of deps) {
+      all.add(d);
     }
-    absolute = p.dir === "/";
-    remainder = absolute ? "" : p.dir;
+    this._deps = [...all.values()];
+    return this;
   }
 
-  // extract task (or use default)
-  let [endPath, task] = (segments.pop() || "").split(":", 2);
-  if (!task) {
-    task = "default";
+  get variables(): Record<string, string> {
+    return { ...this._vars };
   }
-  segments.push(endPath);
+  withVariable(key: string, val: string): TargetBuilder {
+    if (key in this._vars) throw new DuplicateVariableError(key);
 
-  // simplify segments
-  segments = segments.reduce((acc: string[], segment: string): string[] => {
-    let prev: Optional<string>;
-    switch (segment) {
-      case "..":
-        // lose parent and current segments; unless ...
-        prev = acc.pop();
-        if (prev === undefined || prev === "..") {
-          // parent is relative or no parent yet, then keep ".."
-          prev && acc.push(prev);
-          acc.push("..");
-        }
-        break;
-      case ".":
-        // lose current segment
-        break;
-      case "":
-        // lose empty
-        break;
-      default:
-        acc.push(segment);
-    }
-    return acc;
-  }, []);
+    this._vars[key] = val;
+    return this;
+  }
 
-  // populate fields
-  const fullPath = (absolute ? "/" : "") + segments.join("/");
-  return new Target(
-    fullPath,
-    task,
-    absolute,
-    segments,
-  );
+  build(parent: Project): Target {
+    return new Target(parent, this);
+  }
+}
+
+export class DuplicateTargetError extends ErrBase {
+  readonly task: string;
+
+  constructor(task: string, msg = "duplicate task") {
+    super(msg, { task });
+    this.task = task;
+  }
 }

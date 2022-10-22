@@ -1,18 +1,18 @@
-import { DuplicateTaskError, Task, TaskConfig } from "./task.ts";
+import { DuplicateTargetError, Target, TargetConfig } from "./target.ts";
 import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 
 export interface ProjectConfig {
   readonly path: string;
   readonly variables?: Record<string, string>;
-  readonly tasks?: TaskConfig[];
+  readonly tasks?: TargetConfig[];
 }
 
 export class Project implements Context {
   readonly parent?: Project;
   readonly path: string;
   readonly variables: Variables;
-  readonly tasks: Record<string, Task>;
+  readonly tasks: Record<string, Target>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
     this.path = checkName(cfg.path);
@@ -20,9 +20,9 @@ export class Project implements Context {
     this.variables = new Variables(cfg.variables || {});
 
     const tasks = (cfg.tasks || []).reduce((acc, cfg) => {
-      acc[cfg.name] = new Task(this, cfg);
+      acc[cfg.name] = new Target(this, cfg);
       return acc;
-    }, {} as Record<string, Task>);
+    }, {} as Record<string, Target>);
     this.tasks = Object.freeze(tasks);
   }
 }
@@ -31,7 +31,7 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
   readonly path: string;
 
   private _vars: Record<string, string> = {};
-  private _tasks: Map<string, TaskConfig> = new Map();
+  private _tasks: Map<string, TargetConfig> = new Map();
 
   constructor(path: string) {
     this.path = path;
@@ -47,12 +47,12 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
     return this;
   }
 
-  get tasks(): TaskConfig[] {
+  get tasks(): TargetConfig[] {
     return [...this._tasks.values()];
   }
-  withTask(task: TaskConfig): ProjectBuilder {
+  withTarget(task: TargetConfig): ProjectBuilder {
     if (this._tasks.has(task.name)) {
-      throw new DuplicateTaskError(task.name);
+      throw new DuplicateTargetError(task.name);
     }
     this._tasks.set(task.name, task);
     return this;
