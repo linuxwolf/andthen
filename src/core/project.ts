@@ -4,19 +4,25 @@ import { checkName } from "../util/naming.ts";
 
 export interface ProjectConfig {
   readonly path: string;
+  readonly root?: boolean;
+  readonly default?: string;
   readonly variables?: Record<string, string>;
   readonly tasks?: TargetConfig[];
 }
 
 export class Project implements Context {
-  readonly parent?: Project;
   readonly path: string;
+  readonly root: boolean;
+  readonly default: string;
+  readonly parent?: Project;
   readonly variables: Variables;
   readonly tasks: Record<string, Target>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
     this.path = checkName(cfg.path);
     this.parent = parent;
+    this.root = (cfg.root !== undefined) ? cfg.root : false;
+    this.default = cfg.default || "default";
     this.variables = new Variables(cfg.variables || {});
 
     const tasks = (cfg.tasks || []).reduce((acc, cfg) => {
@@ -30,11 +36,29 @@ export class Project implements Context {
 export class ProjectBuilder implements ProjectConfig, VariableBuiler {
   readonly path: string;
 
+  private _root = false;
+  private _default = "default";
   private _vars: Record<string, string> = {};
   private _tasks: Map<string, TargetConfig> = new Map();
 
   constructor(path: string) {
     this.path = path;
+  }
+
+  get root(): boolean {
+    return this._root;
+  }
+  asRoot(root = true): ProjectBuilder {
+    this._root = root;
+    return this;
+  }
+
+  get default(): string {
+    return this._default;
+  }
+  withDefault(target: string): ProjectBuilder {
+    this._default = checkName(target);
+    return this;
   }
 
   get variables(): Record<string, string> {

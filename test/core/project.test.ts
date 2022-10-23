@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "../deps.ts";
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
 import { DuplicateTargetError, Target, TargetBuilder } from "../../src/core/target.ts";
+import { InvalidNameError } from "../../src/util/naming.ts";
 
 describe("core/project", () => {
   describe("Project", () => {
@@ -19,6 +20,8 @@ describe("core/project", () => {
         };
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
+        expect(result.root).to.be.false;
+        expect(result.default).to.equal("default");
         expect(result.path).to.equal(cfg.path);
         expect(result.variables).to.deep.equal(
           new Variables({
@@ -34,6 +37,8 @@ describe("core/project", () => {
       it("constructs with a parent from a full ProjectConfig", () => {
         const parent = new Project({ path: "root" });
         const cfg = {
+          root: true,
+          default: "test-task",
           path: "test-project",
           variables: {
             "SIMPLE": "a simple value",
@@ -45,6 +50,8 @@ describe("core/project", () => {
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal(cfg.path);
+        expect(result.root).to.be.true;
+        expect(result.default).to.equal("test-task");
         expect(result.variables).to.deep.equal(
           new Variables({
             "SIMPLE": "a simple value",
@@ -92,6 +99,41 @@ describe("core/project", () => {
         expect(builder.path).to.equal("test-project");
         expect(builder.variables).to.deep.equal({});
         expect(builder.tasks).to.deep.equal([]);
+      });
+    });
+
+    describe("build root", () => {
+      it("sets Project as root implicitly", () => {
+        const result = builder.asRoot();
+        expect(result).to.equal(builder);
+        expect(result.root).to.be.true;
+      });
+
+      it("sets Project as root explicitly", () => {
+        const result = builder.asRoot(true);
+        expect(result).to.equal(builder);
+        expect(result.root).to.be.true;
+      });
+      it("does not set Project as root explicitly", () => {
+        const result = builder.asRoot(false);
+        expect(result).to.equal(builder);
+        expect(result.root).to.be.false;
+      });
+    });
+
+    describe("buld default target", () => {
+      it("sets the default target", () => {
+        const result = builder.withDefault("test-task");
+        expect(result).to.equal(builder);
+        expect(result.default).to.equal("test-task");
+      });
+      it("fails if default is not a valid target name", () => {
+        expect(() => builder.withDefault("")).
+            to.throw(InvalidNameError).
+            to.have.property("value", "");
+        expect(() => builder.withDefault("invalid name")).
+            to.throw(InvalidNameError).
+            to.have.property("value", "invalid name");
       });
     });
 
