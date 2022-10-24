@@ -24,7 +24,8 @@ A project is defined in a `andthen.yaml` (or `.yml`) file, and consists of (proj
 A sample project definition:
 
 ```yaml
-default: help
+root: true      # denotes this as the "root" in a multi-project layout
+default: help   # the default target if none is specified
 
 vars:
   PROJECT_NAME: "my-project"
@@ -76,6 +77,10 @@ targets:
 &then's parameterization is through variables.  A variable is a string key and string value.  Variables can be defined at the following levels (and in the following precedence order):
 
 * Within a target, accessible within only that target's action
-* Within a project, accessible to any target within that project, and overridden if defined on the task
-* As an operating system environment variable, accessible to any target in any project in the execution, and overridden if defined in a project or on a task
+* Within a project, accessible to any target within that project
+* Within a project's parent/ancestor, accessible to any target within the current project
+* As an operating system environment variable, accessible to any target in any project in the execution
 
+Considerations:
+* Variables are only resolved within a target's action; they do not apply to any other properties of a target (e.g., dependencies)
+* Variables are resolved at the moment a target is executed; if any previous target modifies a variable before the current target is executed, that variable's new value is used
