@@ -85,6 +85,7 @@ export interface TargetConfig {
   readonly description?: string;
   readonly dependencies?: string[];
   readonly variables?: Record<string, string>;
+  readonly action?: string;
 }
 
 export class Target implements Context {
@@ -93,6 +94,7 @@ export class Target implements Context {
   readonly description: string;
   readonly dependencies: string[];
   readonly variables: Variables;
+  readonly action: string;
 
   constructor(parent: Project, cfg: TargetConfig) {
     this.name = checkName(cfg.name);
@@ -100,6 +102,7 @@ export class Target implements Context {
     this.description = cfg.description || "";
     this.dependencies = (cfg.dependencies || []).slice();
     this.variables = new Variables(cfg.variables || {});
+    this.action = cfg.action || "";
   }
 }
 
@@ -109,6 +112,7 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
   private _desc = "";
   private _deps: string[] = [];
   private _vars: Record<string, string> = {};
+  private _act = "";
 
   constructor(name: string) {
     this.name = checkName(name);
@@ -141,6 +145,14 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
     if (key in this._vars) throw new DuplicateVariableError(key);
 
     this._vars[key] = val;
+    return this;
+  }
+
+  get action(): string {
+    return this._act;
+  }
+  withAction(act: string): TargetBuilder {
+    this._act = act;
     return this;
   }
 

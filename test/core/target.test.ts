@@ -232,15 +232,6 @@ describe("core/target", () => {
 
   describe("Target", () => {
     describe("ctor", () => {
-      it("constructs from minimal TaskConfig", () => {
-        const cfg = {
-          name: "test-task",
-        } as TargetConfig;
-        const result = new Target(context, cfg);
-        expect(result.name).to.equal("test-task");
-        expect(result.description).to.be.empty;
-        expect(result.dependencies).to.be.empty;
-      });
       it("constructs from full TaskConfig", () => {
         const cfg = {
           name: "test-task",
@@ -249,6 +240,7 @@ describe("core/target", () => {
           variables: {
             "SIMPLE": "a simple value",
           },
+          action: "echo 'hello, world!'",
         } as TargetConfig;
         const result = new Target(context, cfg);
         expect(result.name).to.equal("test-task");
@@ -259,6 +251,7 @@ describe("core/target", () => {
             "SIMPLE": "a simple value",
           }),
         );
+        expect(result.action).to.equal("echo 'hello, world!'");
       });
       it("constructs from a minimal TaskConfig", () => {
         const cfg = {
@@ -269,6 +262,7 @@ describe("core/target", () => {
         expect(result.description).to.be.empty;
         expect(result.dependencies).to.be.empty;
         expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.action).to.be.empty;
       });
       it("fails on invalid name", () => {
         const cfg = {
@@ -340,7 +334,7 @@ describe("core/target", () => {
         ]);
       });
     });
-    describe("buld variables", () => {
+    describe("build variables", () => {
       it("adds a variable", () => {
         const result = builder.withVariable("SIMPLE", "a simple value");
         expect(result).to.equal(builder);
@@ -370,6 +364,13 @@ describe("core/target", () => {
         });
       });
     });
+    describe("build action", () => {
+      it("sets an action", () => {
+        const result = builder.withAction("echo 'hello, world'");
+        expect(result).to.equal(builder);
+        expect(result.action).to.equal("echo 'hello, world'");
+      });
+    });
 
     describe("build()", () => {
       it("builds an empty Task", () => {
@@ -384,6 +385,7 @@ describe("core/target", () => {
         const result = builder.withDescription("a test task")
           .dependsOn("dep-1", "dep-2")
           .withVariable("SIMPLE", "a simple value")
+          .withAction("echo hello there, ${SIMPLE}")
           .build(context);
         expect(result.parent).to.equal(context);
         expect(result.name).to.equal("test-task");
@@ -394,6 +396,7 @@ describe("core/target", () => {
             "SIMPLE": "a simple value",
           }),
         );
+        expect(result.action).to.deep.equal("echo hello there, ${SIMPLE}");
       });
     });
   });
