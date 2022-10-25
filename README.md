@@ -84,3 +84,28 @@ targets:
 Considerations:
 * Variables are only resolved within a target's action; they do not apply to any other properties of a target (e.g., dependencies)
 * Variables are resolved at the moment a target is executed; if any previous target modifies a variable before the current target is executed, that variable's new value is used
+
+# How it Works
+
+1. Initialize
+  a. capture environment variables
+  b. Read project configuration from current directory ("current project")
+    * if not found; ascend directories until a project configuration is found
+  c. ascend directories until "root" project configuration is found ("root project")
+    * if no explicit root is found; treat "highest" found project configuration as root
+2. Resolve
+  a. Build execution chain from requested target(s)
+    * if no explicit targets requested, use "default"
+    * recursively walk targets' and their dependencies, depth-first in order
+  b. remove duplicates
+3. Execute
+  a. Walk resolved execution chain in-order
+    1. Wait for Target's dependencies to complete (if any)
+    2. Evaluate variables in target's action
+    3. execute action within platform's default shell
+      * `stderr` is logged
+      * `stdout` is captured and logged
+    4. record results
+      a. if non-zero (0), treat target as failed and end execution
+      b. if `output` is specified, update target's owning project's variable with `stdout` contents
+4. Report
