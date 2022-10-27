@@ -241,6 +241,7 @@ describe("core/target", () => {
             "SIMPLE": "a simple value",
           },
           action: "echo 'hello, world!'",
+          output: "TARGET_RESULT",
         } as TargetConfig;
         const result = new Target(context, cfg);
         expect(result.name).to.equal("test-task");
@@ -252,6 +253,7 @@ describe("core/target", () => {
           }),
         );
         expect(result.action).to.equal("echo 'hello, world!'");
+        expect(result.output).to.equal("TARGET_RESULT");
       });
       it("constructs from a minimal TaskConfig", () => {
         const cfg = {
@@ -263,6 +265,7 @@ describe("core/target", () => {
         expect(result.dependencies).to.be.empty;
         expect(result.variables).to.deep.equal(new Variables({}));
         expect(result.action).to.be.empty;
+        expect(result.output).to.be.empty;
       });
       it("fails on invalid name", () => {
         const cfg = {
@@ -371,6 +374,13 @@ describe("core/target", () => {
         expect(result.action).to.equal("echo 'hello, world'");
       });
     });
+    describe("build output", () => {
+      it("sets an output", () => {
+        const result = builder.withOutput("TARGET_RESULT");
+        expect(result).to.equal(builder);
+        expect(result.output).to.equal("TARGET_RESULT");
+      });
+    });
 
     describe("build()", () => {
       it("builds an empty Task", () => {
@@ -380,12 +390,15 @@ describe("core/target", () => {
         expect(result.description).to.be.empty;
         expect(result.dependencies).to.be.empty;
         expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.action).to.be.empty;
+        expect(result.output).to.be.empty;
       });
       it("builds a full Task", () => {
         const result = builder.withDescription("a test task")
           .dependsOn("dep-1", "dep-2")
           .withVariable("SIMPLE", "a simple value")
           .withAction("echo hello there, ${SIMPLE}")
+          .withOutput("TARGET_RESULT")
           .build(context);
         expect(result.parent).to.equal(context);
         expect(result.name).to.equal("test-task");
@@ -396,7 +409,8 @@ describe("core/target", () => {
             "SIMPLE": "a simple value",
           }),
         );
-        expect(result.action).to.deep.equal("echo hello there, ${SIMPLE}");
+        expect(result.action).to.equal("echo hello there, ${SIMPLE}");
+        expect(result.output).to.equal("TARGET_RESULT");
       });
     });
   });
