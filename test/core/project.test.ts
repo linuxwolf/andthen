@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
-import { DuplicateTargetError, Target, TargetBuilder } from "../../src/core/target.ts";
+import {
+  DuplicateTargetError,
+  Target,
+  TargetBuilder,
+} from "../../src/core/target.ts";
 import { InvalidNameError } from "../../src/util/naming.ts";
 
 describe("core/project", () => {
@@ -128,12 +132,12 @@ describe("core/project", () => {
         expect(result.default).to.equal("test-task");
       });
       it("fails if default is not a valid target name", () => {
-        expect(() => builder.withDefault("")).
-            to.throw(InvalidNameError).
-            to.have.property("value", "");
-        expect(() => builder.withDefault("invalid name")).
-            to.throw(InvalidNameError).
-            to.have.property("value", "invalid name");
+        expect(() => builder.withDefault(""))
+          .to.throw(InvalidNameError)
+          .to.have.property("value", "");
+        expect(() => builder.withDefault("invalid name"))
+          .to.throw(InvalidNameError)
+          .to.have.property("value", "invalid name");
       });
     });
 

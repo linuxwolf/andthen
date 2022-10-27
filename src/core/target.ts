@@ -3,7 +3,12 @@ import { Optional } from "../util/types.ts";
 import { ErrBase } from "../util/errs.ts";
 import { checkName as checkName } from "../util/naming.ts";
 import { Project } from "./project.ts";
-import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
+import {
+  Context,
+  DuplicateVariableError,
+  VariableBuiler,
+  Variables,
+} from "./vars.ts";
 
 const { posix } = path;
 
@@ -18,7 +23,7 @@ export class TargetPath {
       // apply base if target is not absolute
       target = base + "/" + target;
     }
-  
+
     // TODO: optimize this
     // walk target backward into segments
     let segments: string[] = [];
@@ -33,14 +38,14 @@ export class TargetPath {
       absolute = p.dir === "/";
       remainder = absolute ? "" : p.dir;
     }
-  
+
     // extract task (or use default)
     let [endPath, task] = (segments.pop() || "").split(":", 2);
     if (!task) {
       task = "default";
     }
     segments.push(endPath);
-  
+
     // simplify segments
     segments = segments.reduce((acc: string[], segment: string): string[] => {
       let prev: Optional<string>;
@@ -65,7 +70,7 @@ export class TargetPath {
       }
       return acc;
     }, []);
-  
+
     // populate fields
     const fullPath = (absolute ? "/" : "") + segments.join("/");
 

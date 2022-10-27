@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project } from "../../src/core/project.ts";
-import { DuplicateTargetError, Target, TargetBuilder, TargetConfig, TargetPath } from "../../src/core/target.ts";
+import {
+  DuplicateTargetError,
+  Target,
+  TargetBuilder,
+  TargetConfig,
+  TargetPath,
+} from "../../src/core/target.ts";
 import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
 import { InvalidNameError } from "../../src/util/naming.ts";
 
@@ -424,5 +430,4 @@ describe("core/target", () => {
       expect(err.name).to.equal("DuplicateTargetError");
     });
   });
-
 });

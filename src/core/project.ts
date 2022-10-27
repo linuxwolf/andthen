@@ -1,5 +1,10 @@
 import { DuplicateTargetError, Target, TargetConfig } from "./target.ts";
-import { Context, DuplicateVariableError, VariableBuiler, Variables } from "./vars.ts";
+import {
+  Context,
+  DuplicateVariableError,
+  VariableBuiler,
+  Variables,
+} from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 
 export interface ProjectConfig {
