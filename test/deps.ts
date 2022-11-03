@@ -5,7 +5,7 @@ import {
   beforeEach,
   describe,
   it,
-} from "https://deno.land/std@0.159.0/testing/bdd.ts";
+} from "https://deno.land/std@0.161.0/testing/bdd.ts";
 
 import chai from "https://cdn.skypack.dev/chai@4.3.4?dts";
 import sinon from "https://cdn.skypack.dev/sinon@14.0.1?dts";
