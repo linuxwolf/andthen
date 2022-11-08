@@ -1,11 +1,7 @@
-import { DuplicateTargetError, Target, TargetConfig } from "./target.ts";
-import {
-  Context,
-  DuplicateVariableError,
-  VariableBuiler,
-  Variables,
-} from "./vars.ts";
+import { Target, TargetConfig } from "./target.ts";
+import { Context, VariableBuiler, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
+import * as errors from "../errors.ts";
 
 export interface ProjectConfig {
   readonly path: string;
@@ -70,7 +66,7 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
     return { ...this._vars };
   }
   withVariable(key: string, val: string): ProjectBuilder {
-    if (key in this._vars) throw new DuplicateVariableError(key);
+    if (key in this._vars) throw new errors.DuplicateVariable(key);
 
     this._vars[key] = val;
     return this;
@@ -81,7 +77,7 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
   }
   withTarget(task: TargetConfig): ProjectBuilder {
     if (this._tasks.has(task.name)) {
-      throw new DuplicateTargetError(task.name);
+      throw new errors.DuplicateTarget(task.name);
     }
     this._tasks.set(task.name, task);
     return this;

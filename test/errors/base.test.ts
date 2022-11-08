@@ -1,8 +1,8 @@
 import { describe, expect, it } from "../deps.ts";
 
-import { ErrBase, format } from "../../src/util/errs.ts";
+import { ErrBase, format } from "../../src/errors/base.ts";
 
-describe("util/errs", () => {
+describe("errs", () => {
   describe("format()", () => {
     it("returns a simple message", () => {
       const result = format("this is the message");

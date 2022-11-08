@@ -1,14 +1,9 @@
 import { path } from "../deps.ts";
 import { Optional } from "../util/types.ts";
-import { ErrBase } from "../util/errs.ts";
 import { checkName as checkName } from "../util/naming.ts";
 import { Project } from "./project.ts";
-import {
-  Context,
-  DuplicateVariableError,
-  VariableBuiler,
-  Variables,
-} from "./vars.ts";
+import { Context, VariableBuiler, Variables } from "./vars.ts";
+import * as errors from "../errors.ts";
 
 const { posix } = path;
 
@@ -151,7 +146,7 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
     return { ...this._vars };
   }
   withVariable(key: string, val: string): TargetBuilder {
-    if (key in this._vars) throw new DuplicateVariableError(key);
+    if (key in this._vars) throw new errors.DuplicateVariable(key);
 
     this._vars[key] = val;
     return this;
@@ -175,14 +170,5 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
 
   build(parent: Project): Target {
     return new Target(parent, this);
-  }
-}
-
-export class DuplicateTargetError extends ErrBase {
-  readonly task: string;
-
-  constructor(task: string, msg = "duplicate task") {
-    super(msg, { task });
-    this.task = task;
   }
 }

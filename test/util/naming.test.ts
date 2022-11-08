@@ -1,10 +1,7 @@
 import { describe, expect, it } from "../deps.ts";
 
-import {
-  checkName,
-  InvalidNameError,
-  validateName,
-} from "../../src/util/naming.ts";
+import { checkName, validateName } from "../../src/util/naming.ts";
+import * as errors from "../../src/errors.ts";
 
 describe("util/naming", () => {
   describe("validateName()", () => {
@@ -175,17 +172,17 @@ describe("util/naming", () => {
     describe("failures", () => {
       it("falis on spaces", () => {
         expect(() => checkName("invalid name"))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .and.have.property("value", "invalid name");
       });
       it("fails on leading spaces", () => {
         expect(() => checkName("  invalid-name"))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .and.have.property("value", "  invalid-name");
       });
       it("fails on too many symbols", () => {
         expect(() => checkName("$$"))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .and.have.property("value", "$$");
       });
     });
@@ -193,35 +190,13 @@ describe("util/naming", () => {
     describe("empty", () => {
       it("fails if empty", () => {
         expect(() => checkName(""))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .and.have.property("value", "");
       });
       it("succeeds if allowEmpty is true", () => {
         const result = checkName("", true);
         expect(result).to.equal("");
       });
-    });
-  });
-
-  describe("InvalidNameError", () => {
-    it("creates an InvalidNameError", () => {
-      const result = new InvalidNameError("invalid name");
-      expect(result).to.be.an.instanceof(Error);
-      expect(result.message).to.equal("invalid name: [ value=invalid name ]");
-      expect(result.value).to.equal("invalid name");
-      expect(result.name).to.equal("InvalidNameError");
-    });
-    it("creates an InvalidNameError with custom message", () => {
-      const result = new InvalidNameError(
-        "invalid name",
-        "something went wrong",
-      );
-      expect(result).to.be.an.instanceof(Error);
-      expect(result.message).to.equal(
-        "something went wrong: [ value=invalid name ]",
-      );
-      expect(result.value).to.equal("invalid name");
-      expect(result.name).to.equal("InvalidNameError");
     });
   });
 });

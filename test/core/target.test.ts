@@ -2,14 +2,13 @@ import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project } from "../../src/core/project.ts";
 import {
-  DuplicateTargetError,
   Target,
   TargetBuilder,
   TargetConfig,
   TargetPath,
 } from "../../src/core/target.ts";
-import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
-import { InvalidNameError } from "../../src/util/naming.ts";
+import { Variables } from "../../src/core/vars.ts";
+import * as errors from "../../src/errors.ts";
 
 describe("core/target", () => {
   const context = new Project({
@@ -278,7 +277,7 @@ describe("core/target", () => {
           name: "invalid name",
         };
         expect(() => new Target(context, cfg))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .to.have.property("value", "invalid name");
       });
     });
@@ -300,7 +299,7 @@ describe("core/target", () => {
       });
       it("fails on invalid name", () => {
         expect(() => new TargetBuilder("invalid name")).to.throw(
-          InvalidNameError,
+          errors.InvalidName,
         );
       });
     });
@@ -366,7 +365,7 @@ describe("core/target", () => {
         const result = builder.withVariable("SIMPLE", "a simple value");
 
         expect(() => result.withVariable("SIMPLE", "a simple override"))
-          .to.throw(DuplicateVariableError)
+          .to.throw(errors.DuplicateVariable)
           .to.have.property("variable", "SIMPLE");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -418,16 +417,6 @@ describe("core/target", () => {
         expect(result.action).to.equal("echo hello there, ${SIMPLE}");
         expect(result.output).to.equal("TARGET_RESULT");
       });
-    });
-  });
-
-  describe("DuplicateTargetError", () => {
-    it("constructs the error", () => {
-      const err = new DuplicateTargetError("dup-task");
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal("duplicate task: [ task=dup-task ]");
-      expect(err.task).to.equal("dup-task");
-      expect(err.name).to.equal("DuplicateTargetError");
     });
   });
 });

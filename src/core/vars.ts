@@ -1,4 +1,3 @@
-import { ErrBase } from "../util/errs.ts";
 import { Optional } from "../util/types.ts";
 
 const VARDEF_PTN = /(\$\$)|\${([_a-zA-Z][_a-zA-Z0-9]*)(?:(?:\:=)([\s\S]*))?}/g;
@@ -50,13 +49,4 @@ export function evaluate(input: string, ctx: Context): string {
 
 export interface VariableBuiler {
   withVariable(key: string, value: string): VariableBuiler;
-}
-
-export class DuplicateVariableError extends ErrBase {
-  readonly variable: string;
-
-  constructor(variable: string, msg = "duplicate variable") {
-    super(msg, { variable });
-    this.variable = variable;
-  }
 }

@@ -1,13 +1,9 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
-import { DuplicateVariableError, Variables } from "../../src/core/vars.ts";
-import {
-  DuplicateTargetError,
-  Target,
-  TargetBuilder,
-} from "../../src/core/target.ts";
-import { InvalidNameError } from "../../src/util/naming.ts";
+import { Variables } from "../../src/core/vars.ts";
+import { Target, TargetBuilder } from "../../src/core/target.ts";
+import * as errors from "../../src/errors.ts";
 
 describe("core/project", () => {
   describe("Project", () => {
@@ -133,10 +129,10 @@ describe("core/project", () => {
       });
       it("fails if default is not a valid target name", () => {
         expect(() => builder.withDefault(""))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .to.have.property("value", "");
         expect(() => builder.withDefault("invalid name"))
-          .to.throw(InvalidNameError)
+          .to.throw(errors.InvalidName)
           .to.have.property("value", "invalid name");
       });
     });
@@ -163,7 +159,7 @@ describe("core/project", () => {
       it("fails if variable previously set", () => {
         const result = builder.withVariable("SIMPLE", "a simple value");
         expect(() => result.withVariable("SIMPLE", "a simple override"))
-          .to.throw(DuplicateVariableError)
+          .to.throw(errors.DuplicateVariable)
           .to.have.property("variable", "SIMPLE");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -184,7 +180,7 @@ describe("core/project", () => {
       it("fails on duplicate-named task", () => {
         const result = builder.withTarget({ name: "test-task" });
         expect(() => result.withTarget({ name: "test-task" }))
-          .to.throw(DuplicateTargetError)
+          .to.throw(errors.DuplicateTarget)
           .to.have.property("task", "test-task");
         expect(result.tasks).to.deep.equal([
           { name: "test-task" },

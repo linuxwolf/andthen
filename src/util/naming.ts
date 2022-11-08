@@ -1,15 +1,6 @@
-import { ErrBase } from "./errs.ts";
+import * as errors from "../errors.ts";
 
 const NAME_PTN = /^([\.\-_$:]|[a-zA-Z0-9])([a-zA-Z0-9]+[\.\-_$:]*)*$/u;
-
-export class InvalidNameError extends ErrBase {
-  readonly value: string;
-
-  constructor(value: string, msg = "invalid name") {
-    super(msg, { value });
-    this.value = value;
-  }
-}
 
 export function validateName(name: string, allowEmpty = false): boolean {
   if (!name && allowEmpty) return true;
@@ -18,7 +9,7 @@ export function validateName(name: string, allowEmpty = false): boolean {
 
 export function checkName(name: string, allowEmpty = false): string {
   if (!validateName(name, allowEmpty)) {
-    throw new InvalidNameError(name);
+    throw new errors.InvalidName(name);
   }
   return name;
 }
