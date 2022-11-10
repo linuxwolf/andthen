@@ -41,6 +41,70 @@ describe("errs", () => {
       const result = format("something went wrong", extra);
       expect(result).to.equal("something went wrong");
     });
+
+    describe("extra data types", () => {
+      it("renders an undefined extra", () => {
+        const extra = {
+          value: undefined,
+        };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal("something went wrong: [ value=undefined ]");
+      });
+      it("renders a null extra", () => {
+        const extra = {
+          value: null,
+        };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal("something went wrong: [ value=null ]");
+      });
+      it("renders a Date extra", () => {
+        const now = new Date();
+        const extra = {
+          timestamp: now,
+        };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal(
+          `something went wrong: [ timestamp=${now.toISOString()} ]`,
+        );
+      });
+      it("renders an Array extra", () => {
+        const values = ["foo", "bar", "baz"];
+        const extra = { values };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal(
+          "something went wrong: [ values=[foo, bar, baz] ]",
+        );
+      });
+      it("renders a plain object", () => {
+        const values = {
+          foo: "foo value",
+          bar: 42,
+        };
+        const extra = { values };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal(
+          "something went wrong: [ values={foo: foo value, bar: 42} ]",
+        );
+      });
+    });
+    describe("extra nested", () => {
+      it("nests an object in an array", () => {
+        const now = new Date();
+        const details = {
+          timestamp: now,
+          file: "foo.txt",
+        };
+        const values = [
+          "contrived",
+          details,
+        ];
+        const extra = { values };
+        const result = format("something went wrong", extra);
+        expect(result).to.equal(
+          `something went wrong: [ values=[contrived, {timestamp: ${now.toISOString()}, file: foo.txt}] ]`
+        );
+      });
+    });
   });
 
   describe("ErrBase", () => {

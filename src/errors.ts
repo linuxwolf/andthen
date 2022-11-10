@@ -26,3 +26,22 @@ export class InvalidName extends ErrBase {
     this.value = value;
   }
 }
+
+export class ConfigNotFound extends ErrBase {
+  readonly cause?: Error[];
+
+  constructor(cause?: Error[], msg = "configuration not found") {
+    super(msg, (cause !== undefined) ? {
+      cause,
+    } : undefined);
+    this.cause = cause;
+  }
+}
+export class InvalidFile extends ErrBase {
+  readonly file: string;
+
+  constructor(file: string, msg = "invalid file") {
+    super(msg, { file });
+    this.file = file;
+  }
+}
