@@ -1,7 +1,7 @@
 import { describe, expect, it } from "./deps.ts";
 
 import {
-  ConfigNotFound,
+  ConfigMissing,
   DuplicateTarget,
   DuplicateVariable,
   InvalidFile,
@@ -47,50 +47,36 @@ describe("errors", () => {
     });
   });
 
-  describe("ConfigNotFound", () => {
-    it("creates a minimal ConfigNotFound", () => {
-      const result = new ConfigNotFound();
-      expect(result.message).to.equal("configuration not found");
-      expect(result.cause).to.be.undefined;
-      expect(result.name).to.equal("ConfigNotFound");
+  describe("ConfigMissing", () => {
+    it("creates a ConfigMissing", () => {
+      const result = new ConfigMissing("bad/path");
+      expect(result.message).to.equal(
+        "configuration not found: [ filepath=bad/path ]",
+      );
+      expect(result.filepath).to.equal("bad/path");
+      expect(result.name).to.equal("ConfigMissing");
     });
-    it("creates a minimal ConfigNotFound with message", () => {
-      const result = new ConfigNotFound(undefined, "bad config file");
-      expect(result.message).to.equal("bad config file");
-      expect(result.cause).to.be.undefined;
-      expect(result.name).to.equal("ConfigNotFound");
-    });
-    it("creates a ConfigNotFound with cause", () => {
-      const cause = [
-        new Error("unspecified error"),
-      ]
-      const result = new ConfigNotFound(cause);
-      expect(result.message).to.equal("configuration not found: [ cause=[Error: unspecified error] ]");
-      expect(result.cause).to.equal(cause);
-      expect(result.name).to.equal("ConfigNotFound");
-    });
-    it("creates a ConfigNotFound with cause and message", () => {
-      const cause = [
-        new Error("unspecified error"),
-      ]
-      const result = new ConfigNotFound(cause, "bad config file");
-      expect(result.message).to.equal("bad config file: [ cause=[Error: unspecified error] ]");
-      expect(result.cause).to.equal(cause);
-      expect(result.name).to.equal("ConfigNotFound");
+    it("creates a ConfigMissing with message", () => {
+      const result = new ConfigMissing("bad/path", "bad config file");
+      expect(result.message).to.equal("bad config file: [ filepath=bad/path ]");
+      expect(result.filepath).to.equal("bad/path");
+      expect(result.name).to.equal("ConfigMissing");
     });
   });
 
   describe("InvalidFile", () => {
     it("constructs a InvalidFile", () => {
       const result = new InvalidFile("badfilepath");
-      expect(result.message).to.equal("invalid file: [ file=badfilepath ]");
-      expect(result.file).to.equal("badfilepath");
+      expect(result.message).to.equal("invalid file: [ filepath=badfilepath ]");
+      expect(result.filepath).to.equal("badfilepath");
       expect(result.name).to.equal("InvalidFile");
     });
     it("constructs a InvalidFile with custom message", () => {
       const result = new InvalidFile("badfilepath", "bad file object");
-      expect(result.message).to.equal("bad file object: [ file=badfilepath ]");
-      expect(result.file).to.equal("badfilepath");
+      expect(result.message).to.equal(
+        "bad file object: [ filepath=badfilepath ]",
+      );
+      expect(result.filepath).to.equal("badfilepath");
       expect(result.name).to.equal("InvalidFile");
     });
   });

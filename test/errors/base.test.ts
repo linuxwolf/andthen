@@ -101,7 +101,7 @@ describe("errs", () => {
         const extra = { values };
         const result = format("something went wrong", extra);
         expect(result).to.equal(
-          `something went wrong: [ values=[contrived, {timestamp: ${now.toISOString()}, file: foo.txt}] ]`
+          `something went wrong: [ values=[contrived, {timestamp: ${now.toISOString()}, file: foo.txt}] ]`,
         );
       });
     });

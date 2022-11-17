@@ -15,9 +15,9 @@ function asString(input: any): string | undefined {
   }
   if (input?.constructor === Object) {
     const entries = Object.entries(input).map(
-      ([k, v]) => `${k}: ${asString(v)}`
+      ([k, v]) => `${k}: ${asString(v)}`,
     );
-    return `{${entries.join(", ")}}`
+    return `{${entries.join(", ")}}`;
   }
 
   return input.toString();
