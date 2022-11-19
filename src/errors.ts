@@ -1,11 +1,11 @@
 import { ErrBase } from "./errors/base.ts";
 
 export class DuplicateTarget extends ErrBase {
-  readonly task: string;
+  readonly target: string;
 
-  constructor(task: string, msg = "duplicate task") {
-    super(msg, { task });
-    this.task = task;
+  constructor(target: string, msg = "duplicate target") {
+    super(msg, { target });
+    this.target = target;
   }
 }
 

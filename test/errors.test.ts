@@ -11,9 +11,9 @@ import {
 describe("errors", () => {
   describe("DuplicateTarget", () => {
     it("constructs the error", () => {
-      const err = new DuplicateTarget("dup-task");
-      expect(err.message).to.equal("duplicate task: [ task=dup-task ]");
-      expect(err.task).to.equal("dup-task");
+      const err = new DuplicateTarget("dup-target");
+      expect(err.message).to.equal("duplicate target: [ target=dup-target ]");
+      expect(err.target).to.equal("dup-target");
       expect(err.name).to.equal("DuplicateTarget");
     });
   });

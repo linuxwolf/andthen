@@ -282,7 +282,7 @@ targets:
 `);
 
           const result = await parser.load();
-          expect(result.tasks).to.deep.equal(builder.tasks);
+          expect(result.targets).to.deep.equal(builder.targets);
         });
         describe("with description", () => {
           beforeEach(() => {
@@ -334,7 +334,7 @@ targets:
   `);
 
             const result = await parser.load();
-            expect(result.tasks).to.deep.equal(builder.tasks);
+            expect(result.targets).to.deep.equal(builder.targets);
           });
         });
         describe("with output", () => {
@@ -351,7 +351,7 @@ targets:
   `);
 
             const result = await parser.load();
-            expect(result.tasks).to.deep.equal(builder.tasks);
+            expect(result.targets).to.deep.equal(builder.targets);
           });
           it("parses a target `output`", async () => {
             stubReadTextFile.resolves(`
@@ -361,7 +361,7 @@ targets:
   `);
 
             const result = await parser.load();
-            expect(result.tasks).to.deep.equal(builder.tasks);
+            expect(result.targets).to.deep.equal(builder.targets);
           });
         });
         describe("with dependencies", () => {

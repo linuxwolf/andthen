@@ -8,7 +8,7 @@ export interface ProjectConfig {
   readonly root?: boolean;
   readonly default?: string;
   readonly variables?: Record<string, string>;
-  readonly tasks?: TargetConfig[];
+  readonly targets?: TargetConfig[];
 }
 
 export class Project implements Context {
@@ -17,7 +17,7 @@ export class Project implements Context {
   readonly default: string;
   readonly parent?: Project;
   readonly variables: Variables;
-  readonly tasks: Record<string, Target>;
+  readonly targets: Record<string, Target>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
     this.path = checkName(cfg.path);
@@ -26,11 +26,11 @@ export class Project implements Context {
     this.default = cfg.default || "default";
     this.variables = new Variables(cfg.variables || {});
 
-    const tasks = (cfg.tasks || []).reduce((acc, cfg) => {
+    const targets = (cfg.targets || []).reduce((acc, cfg) => {
       acc[cfg.name] = new Target(this, cfg);
       return acc;
     }, {} as Record<string, Target>);
-    this.tasks = Object.freeze(tasks);
+    this.targets = Object.freeze(targets);
   }
 }
 
@@ -40,7 +40,7 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
   private _root = false;
   private _default = "default";
   private _vars: Record<string, string> = {};
-  private _tasks: Map<string, TargetConfig> = new Map();
+  private _targets: Map<string, TargetConfig> = new Map();
 
   constructor(path: string) {
     this.path = path;
@@ -72,14 +72,14 @@ export class ProjectBuilder implements ProjectConfig, VariableBuiler {
     return this;
   }
 
-  get tasks(): TargetConfig[] {
-    return [...this._tasks.values()];
+  get targets(): TargetConfig[] {
+    return [...this._targets.values()];
   }
-  withTarget(task: TargetConfig): ProjectBuilder {
-    if (this._tasks.has(task.name)) {
-      throw new errors.DuplicateTarget(task.name);
+  withTarget(target: TargetConfig): ProjectBuilder {
+    if (this._targets.has(target.name)) {
+      throw new errors.DuplicateTarget(target.name);
     }
-    this._tasks.set(task.name, task);
+    this._targets.set(target.name, target);
     return this;
   }
 
