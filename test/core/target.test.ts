@@ -7,7 +7,6 @@ import {
   TargetConfig,
   TargetPath,
 } from "../../src/core/target.ts";
-import { Variables } from "../../src/core/vars.ts";
 import * as errors from "../../src/errors.ts";
 
 describe("core/target", () => {
@@ -252,11 +251,9 @@ describe("core/target", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.equal("test task description");
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2"]);
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
         expect(result.action).to.equal("echo 'hello, world!'");
         expect(result.output).to.equal("TARGET_RESULT");
       });
@@ -268,7 +265,7 @@ describe("core/target", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.be.empty;
         expect(result.dependencies).to.be.empty;
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.action).to.be.empty;
         expect(result.output).to.be.empty;
       });
@@ -394,7 +391,7 @@ describe("core/target", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.be.empty;
         expect(result.dependencies).to.be.empty;
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.action).to.be.empty;
         expect(result.output).to.be.empty;
       });
@@ -409,11 +406,9 @@ describe("core/target", () => {
         expect(result.name).to.equal("test-task");
         expect(result.description).to.equal("a test task");
         expect(result.dependencies).to.deep.equal(["dep-1", "dep-2"]);
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
         expect(result.action).to.equal("echo hello there, ${SIMPLE}");
         expect(result.output).to.equal("TARGET_RESULT");
       });

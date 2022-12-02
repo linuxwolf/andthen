@@ -4,7 +4,7 @@ import { fs } from "../internals.ts";
 import { ProjectBuilder } from "../core/project.ts";
 import { TargetBuilder, TargetConfig } from "../core/target.ts";
 import { Optional } from "../util/types.ts";
-import { VariableBuiler, Vars } from "../core/vars.ts";
+import { VariableBuiler, Variables } from "../core/vars.ts";
 import * as errors from "../errors.ts";
 
 export type ConfigInfo = {
@@ -96,7 +96,7 @@ export class Parser {
     }
 
     // process variables
-    this.parseVariables((doc.vars || doc.variables) as Vars, builder);
+    this.parseVariables((doc.vars || doc.variables) as Variables, builder);
 
     //  process targets
     for (const entry of (doc.targets || []) as ConfigRecord[]) {
@@ -114,7 +114,7 @@ export class Parser {
 
     return doc as Record<string, unknown>;
   }
-  private parseVariables(vars: Vars = {}, builder: VariableBuiler) {
+  private parseVariables(vars: Variables = {}, builder: VariableBuiler) {
     for (const [key, value] of Object.entries(vars)) {
       builder.withVariable(key, value);
     }
@@ -127,7 +127,7 @@ export class Parser {
     const cfg: TargetConfig = {
       name,
       description: (entry.desc || entry.description) as Optional<string>,
-      variables: (entry.vars || entry.variables) as Optional<Vars>,
+      variables: (entry.vars || entry.variables) as Optional<Variables>,
       dependencies: (entry.deps || entry.dependencies) as Optional<string[]>,
       action: (entry.act || entry.action) as string,
       output: (entry.out || entry.output) as string,

@@ -24,7 +24,7 @@ export class Project implements Context {
     this.parent = parent;
     this.root = (cfg.root !== undefined) ? cfg.root : false;
     this.default = cfg.default || "default";
-    this.variables = new Variables(cfg.variables || {});
+    this.variables = cfg.variables || {};
 
     const targets = (cfg.targets || []).reduce((acc, cfg) => {
       acc[cfg.name] = new Target(this, cfg);

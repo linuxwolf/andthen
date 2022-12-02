@@ -1,5 +1,3 @@
-import { Optional } from "../util/types.ts";
-
 const VARDEF_PTN = /(\$\$)|\${([_a-zA-Z][_a-zA-Z0-9]*)(?:(?:\:=)([\s\S]*))?}/g;
 
 export interface Context {
@@ -7,29 +5,13 @@ export interface Context {
   readonly variables: Variables;
 }
 
-export type Vars = Record<string, string>;
-
-export class Variables {
-  readonly all: Vars;
-
-  constructor(all: Record<string, string>) {
-    this.all = Object.freeze({
-      ...all,
-    });
-  }
-
-  get(key: string, ctx?: Context): Optional<string> {
-    const parent = ctx?.parent;
-    const result = this.all[key];
-    if (result === undefined && parent !== undefined) {
-      return parent.variables.get(key, parent);
-    }
-    return result;
-  }
+export interface VariableBuiler {
+  withVariable(key: string, value: string): VariableBuiler;
 }
 
-export function evaluate(input: string, ctx: Context): string {
-  const vars = ctx.variables;
+export type Variables = Record<string, string>;
+
+export function evaluate(input: string, vars: Variables): string {
   const replacer = (
     _: string,
     escaped: string,
@@ -41,12 +23,28 @@ export function evaluate(input: string, ctx: Context): string {
     }
 
     // QUESTION: recursive substitution?
-    return vars.get(varname, ctx) || defval || "";
+    if (varname in vars) {
+      return vars[varname];
+    }
+    return defval || "";
   };
 
   return input.replaceAll(VARDEF_PTN, replacer);
 }
 
-export interface VariableBuiler {
-  withVariable(key: string, value: string): VariableBuiler;
+export function environ(ctx: Context, env: Variables): Variables {
+  const result = (ctx.parent) ? environ(ctx.parent, env) : {} as Variables;
+
+  const resolved: Variables = {};
+  for (const [key, value] of Object.entries(ctx.variables)) {
+    const sources = {
+      ...env,
+      ...result,
+    };
+    result[key] = evaluate(value, sources);
+    // make sure values resolved stay resolved!
+    resolved[key] = result[key];
+  }
+
+  return result;
 }

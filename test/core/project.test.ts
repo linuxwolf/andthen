@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
-import { Variables } from "../../src/core/vars.ts";
 import { Target, TargetBuilder } from "../../src/core/target.ts";
 import * as errors from "../../src/errors.ts";
 
@@ -23,11 +22,9 @@ describe("core/project", () => {
         expect(result.root).to.be.false;
         expect(result.default).to.equal("default");
         expect(result.path).to.equal(cfg.path);
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
 
         const targets = {
           "test-target": new Target(result, { name: "test-target" }),
@@ -52,11 +49,9 @@ describe("core/project", () => {
         expect(result.path).to.equal(cfg.path);
         expect(result.root).to.be.true;
         expect(result.default).to.equal("test-target");
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
 
         const targets = {
           "test-target": new Target(result, { name: "test-target" }),
@@ -70,7 +65,7 @@ describe("core/project", () => {
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
         expect(result.path).to.equal(cfg.path);
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
       });
       it("constructs with a parent from a minimal ProjectConfi", () => {
@@ -81,7 +76,7 @@ describe("core/project", () => {
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal(cfg.path);
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
       });
     });
@@ -193,7 +188,7 @@ describe("core/project", () => {
         const result = builder.build();
         expect(result.parent).to.be.undefined;
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
       it("builds an empty project with a parent", () => {
@@ -201,7 +196,7 @@ describe("core/project", () => {
         const result = builder.build(parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(new Variables({}));
+        expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
       it("builds a populated project", () => {
@@ -216,11 +211,9 @@ describe("core/project", () => {
           .build();
         expect(result.parent).to.be.undefined;
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
         expect(result.targets).to.deep.equal({
           "test-target": new Target(result, {
             name: "test-target",
@@ -245,11 +238,9 @@ describe("core/project", () => {
           .build(parent);
         expect(result.parent).to.equal(parent);
         expect(result.path).to.equal("test-project");
-        expect(result.variables).to.deep.equal(
-          new Variables({
-            "SIMPLE": "a simple value",
-          }),
-        );
+        expect(result.variables).to.deep.equal({
+          "SIMPLE": "a simple value",
+        });
         expect(result.targets).to.deep.equal({
           "test-target": new Target(result, {
             name: "test-target",

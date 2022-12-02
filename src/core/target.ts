@@ -103,7 +103,7 @@ export class Target implements Context {
     this.parent = parent;
     this.description = cfg.description || "";
     this.dependencies = (cfg.dependencies || []).slice();
-    this.variables = new Variables(cfg.variables || {});
+    this.variables = cfg.variables || {};
     this.action = cfg.action || "";
     this.output = cfg.output || "";
   }
