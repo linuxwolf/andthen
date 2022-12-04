@@ -15,222 +15,152 @@ describe("core/target", () => {
   });
 
   describe("TargetPath", () => {
-    describe("simple cases", () => {
-      it("parses a single path task", () => {
-        const result = new TargetPath("simple:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("simple");
-        expect(result.segments).to.deep.equal(["simple"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("simple:task");
-      });
-      it("parses a simple path task", () => {
-        const result = new TargetPath("simple/path:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("simple/path");
-        expect(result.segments).to.deep.equal(["simple", "path"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("simple/path:task");
-      });
-      it("parses a single implied task", () => {
-        const result = new TargetPath("simple");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("simple");
-        expect(result.segments).to.deep.equal(["simple"]);
-        expect(result.task).to.equal("default");
-        expect(result.toString()).to.equal("simple:default");
-      });
-      it("parses a simple implied task", () => {
-        const result = new TargetPath("simple/path");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("simple/path");
-        expect(result.segments).to.deep.equal(["simple", "path"]);
-        expect(result.task).to.equal("default");
-        expect(result.toString()).to.equal("simple/path:default");
-      });
-    });
+    describe(".parse()", () => {
+      const vectors = [
+        {
+          name: "parses just a target",
+          input: "task",
+          expected: {
+            target: "task",
+            path: "./",
+            segments: ["."],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses a target with a relative path",
+          input: "./project:task",
+          expected: {
+            target: "task",
+            path: "./project/",
+            segments: [".", "project"],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses a relative back path to target",
+          input: "../:task",
+          expected: {
+            target: "task",
+            path: "../",
+            segments: [".."],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses a deeply relative back path to target",
+          input: "../../../another:task",
+          expected: {
+            target: "task",
+            path: "../../../another/",
+            segments: ["..", "..", "..", "another"],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses an absolute path to target",
+          input: "/root/path/project:task",
+          expected: {
+            target: "task",
+            path: "/root/path/project/",
+            segments: ["root", "path", "project"],
+            root: false,
+            absolute: true,
+          },
+        },
+        {
+          name: "parses a root path to target",
+          input: "//root/project:task",
+          expected: {
+            target: "task",
+            path: "/root/project/",
+            segments: ["root", "project"],
+            root: true,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses a root target",
+          input: "//:task",
+          expected: {
+            target: "task",
+            path: "/",
+            segments: [],
+            root: true,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses a meandering path to target",
+          input: "./project/../other//./elsewhere/../:task",
+          expected: {
+            target: "task",
+            path: "./other/",
+            segments: [".", "other"],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "pares a path with implicit target",
+          input: "./project",
+          expected: {
+            target: "default",
+            path: "./project/",
+            segments: [".", "project"],
+            root: false,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses an absolute path with implicit target",
+          input: "/root/project",
+          expected: {
+            target: "default",
+            path: "/root/project/",
+            segments: ["root", "project"],
+            root: false,
+            absolute: true,
+          },
+        },
+        {
+          name: "parses a root path with implicit target",
+          input: "//root/project",
+          expected: {
+            target: "default",
+            path: "/root/project/",
+            segments: ["root", "project"],
+            root: true,
+            absolute: false,
+          },
+        },
+        {
+          name: "parses empty string as implicit target in current directory",
+          input: "",
+          expected: {
+            target: "default",
+            path: "./",
+            segments: ["."],
+            root: false,
+            absolute: false,
+          },
+        },
+      ];
 
-    describe("absolute paths", () => {
-      it("parses a single absolute target", () => {
-        const result = new TargetPath("/root:task");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/root");
-        expect(result.segments).to.deep.equal(["root"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/root:task");
-      });
-      it("parses a nested absolute target", () => {
-        const result = new TargetPath("/root/path/project:task");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/root/path/project");
-        expect(result.segments).to.deep.equal(["root", "path", "project"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/root/path/project:task");
-      });
-      it("parses single absolute implied task", () => {
-        const result = new TargetPath("/root");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/root");
-        expect(result.segments).to.deep.equal(["root"]);
-        expect(result.task).to.equal("default");
-        expect(result.toString()).to.equal("/root:default");
-      });
-      it("parses a nested absolute implied target", () => {
-        const result = new TargetPath("/root/path/project");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/root/path/project");
-        expect(result.segments).to.deep.equal(["root", "path", "project"]);
-        expect(result.task).to.equal("default");
-        expect(result.toString()).to.equal("/root/path/project:default");
-      });
-    });
-
-    describe("simple relative", () => {
-      it("parses a relative-parent path task", () => {
-        const result = new TargetPath("../simple:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("../simple");
-        expect(result.segments).to.deep.equal(["..", "simple"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("../simple:task");
-      });
-
-      it("parses a relative-self path task", () => {
-        const result = new TargetPath("./simple:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("simple");
-        expect(result.segments).to.deep.equal(["simple"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("simple:task");
-      });
-    });
-
-    describe("complex relative", () => {
-      it("collapses intermediate relative paths", () => {
-        const result = new TargetPath("complex/./path/../project:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("complex/project");
-        expect(result.segments).to.deep.equal(["complex", "project"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("complex/project:task");
-      });
-      it("keeps deep parent-relative paths", () => {
-        const result = new TargetPath("../../complex/path:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("../../complex/path");
-        expect(result.segments).to.deep.equal(["..", "..", "complex", "path"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("../../complex/path:task");
-      });
-      it("strips intermediate self-relative between parent-relatives", () => {
-        const result = new TargetPath(".././../complex/path:task");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("../../complex/path");
-        expect(result.segments).to.deep.equal(["..", "..", "complex", "path"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("../../complex/path:task");
-      });
-    });
-
-    describe("with base", () => {
-      it("parses absolute base with simple target", () => {
-        const result = new TargetPath("simple:task", "/path/to/root");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/path/to/root/simple");
-        expect(result.segments).to.deep.equal(["path", "to", "root", "simple"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/path/to/root/simple:task");
-      });
-      it("parses absolute base with nested target", () => {
-        const result = new TargetPath("simple/project:task", "/path/to/root");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/path/to/root/simple/project");
-        expect(result.segments).to.deep.equal([
-          "path",
-          "to",
-          "root",
-          "simple",
-          "project",
-        ]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/path/to/root/simple/project:task");
-      });
-      it("parses absolute base with parent-relative target", () => {
-        const result = new TargetPath("../project:task", "/path/to/root");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/path/to/project");
-        expect(result.segments).to.deep.equal(["path", "to", "project"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/path/to/project:task");
-      });
-      it("parses absolute base with self-relative target", () => {
-        const result = new TargetPath("./project:task", "/path/to/root");
-        expect(result.absolute).to.be.true;
-        expect(result.path).to.equal("/path/to/root/project");
-        expect(result.segments).to.deep.equal([
-          "path",
-          "to",
-          "root",
-          "project",
-        ]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("/path/to/root/project:task");
-      });
-
-      it("parses relative base with simple target", () => {
-        const result = new TargetPath("simple:task", "relative/base");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("relative/base/simple");
-        expect(result.segments).to.deep.equal(["relative", "base", "simple"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("relative/base/simple:task");
-      });
-      it("parses relative base with nested target", () => {
-        const result = new TargetPath("simple/project:task", "relative/base");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("relative/base/simple/project");
-        expect(result.segments).to.deep.equal([
-          "relative",
-          "base",
-          "simple",
-          "project",
-        ]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("relative/base/simple/project:task");
-      });
-      it("parses relative base with parent-relative target", () => {
-        const result = new TargetPath("../project:task", "relative/base");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("relative/project");
-        expect(result.segments).to.deep.equal(["relative", "project"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("relative/project:task");
-      });
-      it("parses relative base with self-relative target", () => {
-        const result = new TargetPath("./project:task", "relative/base");
-        expect(result.absolute).to.be.false;
-        expect(result.path).to.equal("relative/base/project");
-        expect(result.segments).to.deep.equal(["relative", "base", "project"]);
-        expect(result.task).to.equal("task");
-        expect(result.toString()).to.equal("relative/base/project:task");
-      });
-    });
-
-    it("parses an empty string", () => {
-      const result = new TargetPath("");
-      expect(result.absolute).to.be.false;
-      expect(result.path).to.equal("");
-      expect(result.segments).to.deep.equal([]);
-      expect(result.task).to.equal("default");
-      expect(result.toString()).to.equal(":default");
-    });
-    it("parses just  '/'", () => {
-      const result = new TargetPath("/");
-      expect(result.absolute).to.be.true;
-      expect(result.path).to.equal("/");
-      expect(result.segments).to.deep.equal([]);
-      expect(result.task).to.equal("default");
-      expect(result.toString()).to.equal("/:default");
+      for (const v of vectors) {
+        it(v.name, () => {
+          const result = TargetPath.parse(v.input);
+          console.log(result);
+          expect(result).to.deep.equal(v.expected);
+          expect(result.toString()).to.equal(
+            `${v.expected.path}:${v.expected.target}`,
+          );
+        });
+      }
     });
   });
 
