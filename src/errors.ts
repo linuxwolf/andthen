@@ -43,3 +43,11 @@ export class InvalidFile extends ErrBase {
     this.filepath = filepath;
   }
 }
+export class ShellError extends ErrBase {
+  readonly code: number;
+
+  constructor(code: number, msg = "shell errored") {
+    super(msg, { code });
+    this.code = code;
+  }
+}

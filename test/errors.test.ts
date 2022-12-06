@@ -6,6 +6,7 @@ import {
   DuplicateVariable,
   InvalidFile,
   InvalidName,
+  ShellError,
 } from "../src/errors.ts";
 
 describe("errors", () => {
@@ -78,6 +79,21 @@ describe("errors", () => {
       );
       expect(result.filepath).to.equal("badfilepath");
       expect(result.name).to.equal("InvalidFile");
+    });
+  });
+
+  describe("ShellError", () => {
+    it("constructs a ShellError", () => {
+      const result = new ShellError(12);
+      expect(result.message).to.equal("shell errored: [ code=12 ]");
+      expect(result.code).to.equal(12);
+      expect(result.name).to.equal("ShellError");
+    });
+    it("constructs a ShellError with custom message", () => {
+      const result = new ShellError(12, "failure in shell");
+      expect(result.message).to.equal("failure in shell: [ code=12 ]");
+      expect(result.code).to.equal(12);
+      expect(result.name).to.equal("ShellError");
     });
   });
 });
