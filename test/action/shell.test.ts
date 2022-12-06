@@ -4,7 +4,7 @@ import log from "../../src/log.ts";
 import { io } from "../../src/deps.ts";
 
 import { ShellAction } from "../../src/action/shell.ts";
-import { ShellError } from "../../src/errors.ts";
+import { ShellError } from "../../src/errors/mod.ts";
 
 interface ProcOptions {
   code?: number,

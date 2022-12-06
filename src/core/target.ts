@@ -3,7 +3,7 @@ import { Optional } from "../util/types.ts";
 import { checkName as checkName } from "../util/naming.ts";
 import { Project } from "./project.ts";
 import { Context, VariableBuiler, Variables } from "./vars.ts";
-import * as errors from "../errors.ts";
+import * as errors from "../errors/mod.ts";
 
 const { posix } = path;
 

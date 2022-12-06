@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, sinon } from "../deps.ts";
 import { fs } from "../../src/internals.ts";
 import { ProjectBuilder } from "../../src/core/project.ts";
 import { Parser } from "../../src/parser/yaml.ts";
-import * as errors from "../../src/errors.ts";
+import * as errors from "../../src/errors/mod.ts";
 import { TargetBuilder } from "../../src/core/target.ts";
 
 describe("parser/yaml", () => {

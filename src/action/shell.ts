@@ -1,6 +1,6 @@
 import { io } from "../deps.ts";
 import log from "../log.ts";
-import { ShellError } from "../errors.ts";
+import { ShellError } from "../errors/mod.ts";
 
 export interface ShellActionOpts {
   command: string;

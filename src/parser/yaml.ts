@@ -5,7 +5,7 @@ import { ProjectBuilder } from "../core/project.ts";
 import { TargetBuilder, TargetConfig } from "../core/target.ts";
 import { Optional } from "../util/types.ts";
 import { VariableBuiler, Variables } from "../core/vars.ts";
-import * as errors from "../errors.ts";
+import * as errors from "../errors/mod.ts";
 
 export type ConfigInfo = {
   basepath: string;

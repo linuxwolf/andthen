@@ -1,4 +1,4 @@
-import { ErrBase } from "./errors/base.ts";
+import { ErrBase } from "./base.ts";
 
 export class DuplicateTarget extends ErrBase {
   readonly target: string;

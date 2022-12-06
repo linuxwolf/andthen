@@ -1,7 +1,7 @@
 import { describe, expect, it } from "../deps.ts";
 
 import { checkName, validateName } from "../../src/util/naming.ts";
-import * as errors from "../../src/errors.ts";
+import * as errors from "../../src/errors/mod.ts";
 
 describe("util/naming", () => {
   describe("validateName()", () => {

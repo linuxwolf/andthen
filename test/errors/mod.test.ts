@@ -1,4 +1,4 @@
-import { describe, expect, it } from "./deps.ts";
+import { describe, expect, it } from "../deps.ts";
 
 import {
   ConfigMissing,
@@ -7,7 +7,7 @@ import {
   InvalidFile,
   InvalidName,
   ShellError,
-} from "../src/errors.ts";
+} from "../../src/errors/mod.ts";
 
 describe("errors", () => {
   describe("DuplicateTarget", () => {

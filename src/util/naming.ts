@@ -1,4 +1,4 @@
-import * as errors from "../errors.ts";
+import * as errors from "../errors/mod.ts";
 
 const NAME_PTN = /^([\.\-_$:]|[a-zA-Z0-9])([a-zA-Z0-9]+[\.\-_$:]*)*$/u;
 

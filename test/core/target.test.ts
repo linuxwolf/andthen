@@ -7,7 +7,7 @@ import {
   TargetConfig,
   TargetPath,
 } from "../../src/core/target.ts";
-import * as errors from "../../src/errors.ts";
+import * as errors from "../../src/errors/mod.ts";
 
 describe("core/target", () => {
   const context = new Project({

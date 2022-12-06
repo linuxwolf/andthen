@@ -1,7 +1,7 @@
 import { Target, TargetConfig } from "./target.ts";
 import { Context, VariableBuiler, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
-import * as errors from "../errors.ts";
+import * as errors from "../errors/mod.ts";
 
 export interface ProjectConfig {
   readonly path: string;

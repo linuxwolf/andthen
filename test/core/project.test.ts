@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "../deps.ts";
 
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { Target, TargetBuilder } from "../../src/core/target.ts";
-import * as errors from "../../src/errors.ts";
+import * as errors from "../../src/errors/mod.ts";
 
 describe("core/project", () => {
   describe("Project", () => {
