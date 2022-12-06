@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, sinon, expect } from "../deps.ts";
+import { afterEach, beforeEach, describe, expect, it, sinon } from "../deps.ts";
 
 import log from "../../src/log.ts";
 import { io } from "../../src/deps.ts";
@@ -7,9 +7,9 @@ import { ShellAction } from "../../src/action/shell.ts";
 import { ShellError } from "../../src/errors/mod.ts";
 
 interface ProcOptions {
-  code?: number,
-  stdout?: string,
-  stderr?: string,
+  code?: number;
+  stdout?: string;
+  stderr?: string;
 }
 function createProc(opts: ProcOptions): [io.StringWriter, Deno.Process] {
   const stdin = new io.StringWriter();
@@ -19,7 +19,7 @@ function createProc(opts: ProcOptions): [io.StringWriter, Deno.Process] {
     rid: 10,
     stdin: createStdin(stdin),
     stderr: new io.StringReader(opts.stderr || ""),
-    stdout: new io.StringReader(opts.stdout|| ""),
+    stdout: new io.StringReader(opts.stdout || ""),
 
     status() {
       return Promise.resolve({
@@ -32,7 +32,7 @@ function createProc(opts: ProcOptions): [io.StringWriter, Deno.Process] {
     },
     stderrOutput() {
       return Promise.resolve(this.stderr.bytes());
-    }
+    },
   });
 
   return [stdin, proc];
@@ -47,35 +47,41 @@ function createStdin(w: io.StringWriter): Deno.Writer | Deno.Closer {
 describe("action/shell", () => {
   describe("ShellAction", () => {
     let stubLogWarning: sinon.SinonSpy;
-    let stubRun: sinon.SinonStub | undefined;
+    let stubRun: sinon.SinonStub;
 
     beforeEach(() => {
       stubLogWarning = sinon.stub(log, "warning");
+      stubRun = sinon.stub(Deno, "run");
     });
     afterEach(() => {
       stubLogWarning.restore();
-      stubRun && stubRun.restore();
+      stubRun.restore();
     });
 
     describe(".exec()", () => {
+      const action = new ShellAction({
+        command: "echo hello",
+      });
       it("records a successful execution", async () => {
         const [stdin, proc] = createProc({
           stdout: "hello",
         });
-        stubRun = sinon.stub(Deno, "run")
-                  .returns(proc);
-        const action = new ShellAction({
-          command: "echo hello",
+        stubRun.returns(proc);
+
+        const result = await action.exec({
+          cwd: "/usr/local/project",
+          env: {},
         });
-        const result = await action.exec({});
         expect(result).to.equal("hello");
+        expect(stubRun).to.be.calledOnce;
         expect(stubRun).to.be.calledWith({
           cmd: ["bash", "-s"],
           stdin: "piped",
-          stdout: "piped",
           stderr: "piped",
+          stdout: "piped",
           clearEnv: true,
           env: {},
+          cwd: "/usr/local/project",
         });
         expect(stdin.toString()).to.equal(`set -euo pipefail
 
@@ -84,35 +90,89 @@ function andthen_log() {
 }
 
 echo hello`);
+        stubRun.restore();
       });
+
+      it("calls with environment variables", async () => {
+        const [_, proc] = createProc({
+          stdout: "hello",
+        });
+        stubRun.returns(proc);
+
+        const result = await action.exec({
+          cwd: "/usr/local/project",
+          env: {
+            "FOO": "foo value",
+            "BAR": "bar value",
+          },
+        });
+        expect(result).to.equal("hello");
+        expect(stubRun).to.be.calledOnce;
+        expect(stubRun).to.be.calledWith({
+          cmd: ["bash", "-s"],
+          stdin: "piped",
+          stderr: "piped",
+          stdout: "piped",
+          clearEnv: true,
+          env: {
+            "FOO": "foo value",
+            "BAR": "bar value",
+          },
+          cwd: "/usr/local/project",
+        });
+      });
+
       it("logs stderr", async () => {
         const [_, proc] = createProc({
-          stderr:`log line 1
+          stderr: `log line 1
 log line 2`,
           stdout: "hello",
         });
-        stubRun = sinon.stub(Deno, "run")
-            .returns(proc);
-        const action = new ShellAction({
-          command: "echo hello",
+        stubRun.returns(proc);
+
+        const result = await action.exec({
+          env: {},
+          cwd: "/usr/local/project",
         });
-        const result = await action.exec({});
+        stubRun.restore();
+        expect(stubRun).to.be.calledOnce;
+        expect(stubRun).to.be.calledWith({
+          cmd: ["bash", "-s"],
+          stdin: "piped",
+          stderr: "piped",
+          stdout: "piped",
+          clearEnv: true,
+          env: {},
+          cwd: "/usr/local/project",
+        });
         expect(stubLogWarning).to.be.calledWith("log line 1");
         expect(stubLogWarning).to.be.calledWith("log line 2");
         expect(result).to.equal("hello");
       });
+
       it("throws on failed execution", async () => {
         const [_, proc] = createProc({
           code: 10,
         });
-        stubRun = sinon.stub(Deno, "run").returns(proc);
-        const action = new ShellAction({
-          command: "echo hello",
-        });
+        stubRun.returns(proc);
 
-        await expect(action.exec({}))
-            .to.eventually.be.rejectedWith(ShellError)
-            .with.property("code", 10);
+        await expect(action.exec({
+          env: {},
+          cwd: "/usr/local/project",
+        }))
+          .to.eventually.be.rejectedWith(ShellError)
+          .with.property("code", 10);
+        expect(stubRun).to.be.calledOnce;
+        expect(stubRun).to.be.calledWith({
+          cmd: ["bash", "-s"],
+          stdin: "piped",
+          stderr: "piped",
+          stdout: "piped",
+          clearEnv: true,
+          env: {},
+          cwd: "/usr/local/project",
+        });
+        stubRun.restore();
       });
     });
   });

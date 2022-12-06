@@ -1,6 +1,7 @@
 import { io } from "../deps.ts";
 import log from "../log.ts";
 import { ShellError } from "../errors/mod.ts";
+import { ActionContext } from "./types.ts";
 
 export interface ShellActionOpts {
   command: string;
@@ -14,14 +15,16 @@ export class ShellAction {
     this.command = opts.command;
   }
 
-  async exec(env: Record<string, string>): Promise<string> {
+  async exec(ctx: ActionContext): Promise<string> {
     const script = `set -euo pipefail
 
 function andthen_log() {
   echo "$@" >&2
 }
 
-${this.command}`
+${this.command}`;
+
+    const { env, cwd } = ctx;
     const proc = Deno.run({
       cmd: SHELL_CMD,
       stdin: "piped",
@@ -29,6 +32,7 @@ ${this.command}`
       stdout: "piped",
       clearEnv: true,
       env,
+      cwd,
     });
     await proc.stdin.write(new TextEncoder().encode(script));
     proc.stdin.close();
