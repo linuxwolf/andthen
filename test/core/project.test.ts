@@ -7,9 +7,9 @@ import * as errors from "../../src/errors/mod.ts";
 describe("core/project", () => {
   describe("Project", () => {
     describe("ctor", () => {
-      it("constructs from a full ProjectConfig", () => {
+      it("constructs from a full ProjectConfig but no parent", () => {
         const cfg = {
-          path: "test-project",
+          filepath: "/usr/local/src/test-project",
           variables: {
             "SIMPLE": "a simple value",
           },
@@ -18,10 +18,12 @@ describe("core/project", () => {
           ],
         };
         const result = new Project(cfg);
+        expect(result.name).to.equal("test-project");
+        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.path).to.equal("//");
         expect(result.parent).to.be.undefined;
-        expect(result.root).to.be.false;
+        expect(result.root).to.be.true;
         expect(result.default).to.equal("default");
-        expect(result.path).to.equal(cfg.path);
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -32,11 +34,10 @@ describe("core/project", () => {
         expect(result.targets).to.deep.equal(targets);
       });
       it("constructs with a parent from a full ProjectConfig", () => {
-        const parent = new Project({ path: "root" });
+        const parent = new Project({ filepath: "/usr/local/src/root" });
         const cfg = {
-          root: true,
           default: "test-target",
-          path: "test-project",
+          filepath: "/usr/local/src/root/test-project/",
           variables: {
             "SIMPLE": "a simple value",
           },
@@ -46,8 +47,10 @@ describe("core/project", () => {
         };
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
-        expect(result.path).to.equal(cfg.path);
-        expect(result.root).to.be.true;
+        expect(result.filepath).to.equal(cfg.filepath);
+        expect(result.name).to.equal("test-project");
+        expect(result.root).to.be.false;
+        expect(result.path).to.equal("//test-project");
         expect(result.default).to.equal("test-target");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -60,22 +63,26 @@ describe("core/project", () => {
       });
       it("constructs from a minimal ProjectConfig", () => {
         const cfg = {
-          path: "test-project",
+          filepath: "/usr/local/src/test-project",
         };
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
-        expect(result.path).to.equal(cfg.path);
+        expect(result.name).to.equal("test-project");
+        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.path).to.equal("//");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
       });
-      it("constructs with a parent from a minimal ProjectConfi", () => {
-        const parent = new Project({ path: "root" });
+      it("constructs with a parent from a minimal ProjectConfig", () => {
+        const parent = new Project({ filepath: "/usr/local/src/root" });
         const cfg = {
-          path: "test-project",
+          filepath: "/usr/local/src/root/test-project",
         };
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
-        expect(result.path).to.equal(cfg.path);
+        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.path).to.equal("//test-project");
+        expect(result.name).to.equal("test-project");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
       });
@@ -86,14 +93,46 @@ describe("core/project", () => {
     let builder: ProjectBuilder;
 
     beforeEach(() => {
-      builder = new ProjectBuilder("test-project");
+      builder = new ProjectBuilder("/usr/local/src/test-project");
     });
 
     describe("ctor", () => {
       it("constructs an empty ProjectBuilder", () => {
-        expect(builder.path).to.equal("test-project");
+        expect(builder.filepath).to.equal("/usr/local/src/test-project");
         expect(builder.variables).to.deep.equal({});
         expect(builder.targets).to.deep.equal([]);
+      });
+      it("constructs a ProjectBuilder from a minimal ProjectConfig", () => {
+        const cfg = {
+          filepath: "/usr/local/src/test-project",
+        };
+        const builder = new ProjectBuilder(cfg);
+        expect(builder.filepath).to.equal(cfg.filepath);
+        expect(builder.root).to.equal(false);
+        expect(builder.default).to.equal("default");
+        expect(builder.variables).to.deep.equal({});
+        expect(builder.targets).to.deep.equal([]);
+      });
+      it("constructs a ProjectBuilder from a complete ProjectConfig", () => {
+        const cfg = {
+          filepath: "/usr/local/src/test-project",
+          root: false,
+          default: "help",
+          variables: {
+            "FOO": "foo value",
+            "BAR": "bar value",
+          },
+          targets: [
+            new TargetBuilder("help"),
+            new TargetBuilder("build"),
+          ],
+        };
+        const builder = new ProjectBuilder(cfg);
+        expect(builder.filepath).to.equal(cfg.filepath);
+        expect(builder.root).to.equal(cfg.root);
+        expect(builder.default).to.equal(cfg.default);
+        expect(builder.variables).to.deep.equal(cfg.variables);
+        expect(builder.targets).to.deep.equal(cfg.targets);
       });
     });
 
@@ -187,15 +226,15 @@ describe("core/project", () => {
       it("builds an empty Project", () => {
         const result = builder.build();
         expect(result.parent).to.be.undefined;
-        expect(result.path).to.equal("test-project");
+        expect(result.filepath).to.equal("/usr/local/src/test-project/");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
       it("builds an empty project with a parent", () => {
-        const parent = new Project({ path: "root" });
+        const parent = new Project({ filepath: "/usr/local/src/root" });
         const result = builder.build(parent);
         expect(result.parent).to.equal(parent);
-        expect(result.path).to.equal("test-project");
+        expect(result.filepath).to.equal("/usr/local/src/test-project/");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
@@ -210,7 +249,7 @@ describe("core/project", () => {
           )
           .build();
         expect(result.parent).to.be.undefined;
-        expect(result.path).to.equal("test-project");
+        expect(result.filepath).to.equal("/usr/local/src/test-project/");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -226,7 +265,7 @@ describe("core/project", () => {
         });
       });
       it("builds a populated project with a parent", () => {
-        const parent = new Project({ path: "root" });
+        const parent = new Project({ filepath: "/usr/local/src/root" });
         const result = builder
           .withVariable("SIMPLE", "a simple value")
           .withTarget(
@@ -237,7 +276,7 @@ describe("core/project", () => {
           )
           .build(parent);
         expect(result.parent).to.equal(parent);
-        expect(result.path).to.equal("test-project");
+        expect(result.filepath).to.equal("/usr/local/src/test-project/");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });

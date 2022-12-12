@@ -31,7 +31,21 @@ export class TargetPath {
   }
 
   toString(): string {
-    return `${this.path}:${this.target}`;
+    const tpath = (() => {
+      if (this.path === "//" || this.path === "/" || this.path.endsWith("./")) {
+        return this.path;
+      }
+      return this.path.substring(0, this.path.length - 1);
+    })();
+    return `${tpath}:${this.target}`;
+  }
+
+  relativeTo(base: TargetPath): TargetPath {
+    if (this.absolute || this.root) {
+      return this;
+    }
+
+    return TargetPath.parse(`${base.path}/${this.path}:${this.target}`);
   }
 
   static parse(input: string): TargetPath {
@@ -96,10 +110,10 @@ export class TargetPath {
         case ".":
           // lose current segment; unless ...
           prev = acc.pop();
-          if (prev === undefined) {
-            // no parent yet, then keep "."
+          if (prev === undefined && !root && !absolute) {
+            // no parent yet, then keep "." if NOT root or absolute
             acc.push(".");
-          } else {
+          } else if (prev) {
             // if parent, keep just the parent!
             acc.push(prev);
           }
@@ -114,10 +128,10 @@ export class TargetPath {
     // recreate and fixup path
     path = segments.join("/");
     if (segments.length === 0 || !segments[0].startsWith(".")) {
-      path = "/" + path;
+      path = ((root && "//") || (absolute && "/")) + path;
     }
     if (!path.endsWith("/")) {
-      path = path + "/";
+      path += "/";
     }
 
     return new TargetPath({
@@ -142,6 +156,7 @@ export interface TargetConfig {
 export class Target implements Context {
   readonly parent: Project;
   readonly name: string;
+  readonly path: string;
   readonly description: string;
   readonly dependencies: string[];
   readonly variables: Variables;
@@ -151,6 +166,7 @@ export class Target implements Context {
   constructor(parent: Project, cfg: TargetConfig) {
     this.name = checkName(cfg.name);
     this.parent = parent;
+    this.path = `${parent.path}:${this.name}`;
     this.description = cfg.description || "";
     this.dependencies = (cfg.dependencies || []).slice();
     this.variables = cfg.variables || {};
@@ -168,8 +184,20 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
   private _act = "";
   private _out = "";
 
-  constructor(name: string) {
-    this.name = checkName(name);
+  constructor(name: string);
+  constructor(cfg: TargetConfig);
+  constructor(nameOrCfg: string | TargetConfig) {
+    const cfg = (typeof nameOrCfg === "string")
+      ? {
+        name: nameOrCfg,
+      }
+      : nameOrCfg;
+    this.name = checkName(cfg.name);
+    this._desc = cfg.description || "";
+    this._deps = cfg.dependencies || [];
+    this._vars = cfg.variables || {};
+    this._act = cfg.action || "";
+    this._out = cfg.output || "";
   }
 
   get description(): string {
@@ -216,6 +244,13 @@ export class TargetBuilder implements TargetConfig, VariableBuiler {
   withOutput(out: string): TargetBuilder {
     this._out = out;
     return this;
+  }
+
+  static asBuilder(cfg: TargetConfig): TargetBuilder {
+    if (cfg instanceof TargetBuilder) {
+      return cfg as TargetBuilder;
+    }
+    return new TargetBuilder(cfg);
   }
 
   build(parent: Project): Target {

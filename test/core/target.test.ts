@@ -11,7 +11,7 @@ import * as errors from "../../src/errors/mod.ts";
 
 describe("core/target", () => {
   const context = new Project({
-    path: "test-project",
+    filepath: "test-project",
   });
 
   describe("TargetPath", () => {
@@ -27,6 +27,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "./:task",
         },
         {
           name: "parses a target with a relative path",
@@ -38,6 +39,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "./project:task",
         },
         {
           name: "parses a relative back path to target",
@@ -49,6 +51,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "../:task",
         },
         {
           name: "parses a deeply relative back path to target",
@@ -60,6 +63,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "../../../another:task",
         },
         {
           name: "parses an absolute path to target",
@@ -71,28 +75,43 @@ describe("core/target", () => {
             root: false,
             absolute: true,
           },
+          expectedString: "/root/path/project:task",
+        },
+        {
+          name: "parses an absolute at-root path to target",
+          input: "/:task",
+          expected: {
+            target: "task",
+            path: "/",
+            segments: [],
+            root: false,
+            absolute: true,
+          },
+          expectedString: "/:task",
         },
         {
           name: "parses a root path to target",
           input: "//root/project:task",
           expected: {
             target: "task",
-            path: "/root/project/",
+            path: "//root/project/",
             segments: ["root", "project"],
             root: true,
             absolute: false,
           },
+          expectedString: "//root/project:task",
         },
         {
           name: "parses a root target",
           input: "//:task",
           expected: {
             target: "task",
-            path: "/",
+            path: "//",
             segments: [],
             root: true,
             absolute: false,
           },
+          expectedString: "//:task",
         },
         {
           name: "parses a meandering path to target",
@@ -104,6 +123,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "./other:task",
         },
         {
           name: "pares a path with implicit target",
@@ -115,6 +135,7 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "./project:default",
         },
         {
           name: "parses an absolute path with implicit target",
@@ -126,17 +147,43 @@ describe("core/target", () => {
             root: false,
             absolute: true,
           },
+          expectedString: "/root/project:default",
+        },
+        {
+          name: "parses an absolute at-root path with implicit target",
+          input: "/",
+          expected: {
+            target: "default",
+            path: "/",
+            segments: [],
+            root: false,
+            absolute: true,
+          },
+          expectedString: "/:default",
         },
         {
           name: "parses a root path with implicit target",
           input: "//root/project",
           expected: {
             target: "default",
-            path: "/root/project/",
+            path: "//root/project/",
             segments: ["root", "project"],
             root: true,
             absolute: false,
           },
+          expectedString: "//root/project:default",
+        },
+        {
+          name: "parses a at-root path with implicit target",
+          input: "//",
+          expected: {
+            target: "default",
+            path: "//",
+            segments: [],
+            root: true,
+            absolute: false,
+          },
+          expectedString: "//:default",
         },
         {
           name: "parses empty string as implicit target in current directory",
@@ -148,19 +195,47 @@ describe("core/target", () => {
             root: false,
             absolute: false,
           },
+          expectedString: "./:default",
         },
       ];
 
       for (const v of vectors) {
         it(v.name, () => {
           const result = TargetPath.parse(v.input);
-          console.log(result);
           expect(result).to.deep.equal(v.expected);
           expect(result.toString()).to.equal(
-            `${v.expected.path}:${v.expected.target}`,
+            `${v.expectedString}`,
           );
         });
       }
+    });
+
+    describe("relativeTo()", () => {
+      const abs = TargetPath.parse("/usr/local/src");
+      const root = TargetPath.parse("//");
+
+      it("returns the same absolute TargetPath", () => {
+        const curr = TargetPath.parse("/usr/local/src/test-project:task");
+        let result: TargetPath;
+
+        result = curr.relativeTo(abs);
+        expect(result).to.equal(curr);
+
+        result = curr.relativeTo(root);
+        expect(result).to.equal(curr);
+      });
+      it("returns a new TargetPath for a relative TargetPath", () => {
+        const curr = TargetPath.parse("./test-project:task");
+        let result: TargetPath;
+
+        result = curr.relativeTo(abs);
+        expect(result).to.not.equal(curr);
+        expect(result.toString()).to.equal("/usr/local/src/test-project:task");
+
+        result = curr.relativeTo(root);
+        expect(result).to.not.equal(curr);
+        expect(result.toString()).to.equal("//test-project:task");
+      });
     });
   });
 
@@ -218,14 +293,37 @@ describe("core/target", () => {
     });
 
     describe("ctor", () => {
-      it("constructs an empty TaskBuilder", () => {
+      it("constructs an empty TargetBuilder", () => {
         expect(builder.name).to.equal("test-task");
         expect(builder.description).to.be.empty;
         expect(builder.dependencies).to.be.empty;
         expect(builder.variables).to.be.empty;
       });
+      it("constructs from a TargetConfig", () => {
+        const cfg = {
+          name: "test-task",
+          description: "test task",
+          dependencies: ["dep-1", "dep-2"],
+          variables: {
+            "FOO": "foo value",
+            "BAR": "bar value",
+          },
+          action: "echo test",
+          output: "OUTPUT_VAR",
+        };
+        const builder = new TargetBuilder(cfg);
+        expect(builder.name).to.equal(cfg.name);
+        expect(builder.description).to.equal(cfg.description);
+        expect(builder.dependencies).to.deep.equal(cfg.dependencies);
+        expect(builder.variables).to.deep.equal(cfg.variables);
+        expect(builder.action).to.equal(cfg.action);
+        expect(builder.output).to.equal(cfg.output);
+      });
       it("fails on invalid name", () => {
         expect(() => new TargetBuilder("invalid name")).to.throw(
+          errors.InvalidName,
+        );
+        expect(() => new TargetBuilder({ name: "invalid name" })).to.throw(
           errors.InvalidName,
         );
       });
@@ -311,6 +409,20 @@ describe("core/target", () => {
         const result = builder.withOutput("TARGET_RESULT");
         expect(result).to.equal(builder);
         expect(result.output).to.equal("TARGET_RESULT");
+      });
+    });
+
+    describe("asBuilder()", () => {
+      it("returns the existing builder", () => {
+        const result = TargetBuilder.asBuilder(builder);
+        expect(result).to.equal(builder);
+      });
+      it("constructs a new TargetBuilder", () => {
+        const cfg = {
+          ...builder,
+        } as TargetConfig;
+        const result = TargetBuilder.asBuilder(cfg);
+        expect(result).to.deep.equal(cfg);
       });
     });
 

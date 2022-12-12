@@ -1,10 +1,11 @@
+import { path } from "../deps.ts";
 import { Target, TargetConfig } from "./target.ts";
 import { Context, VariableBuiler, Variables } from "./vars.ts";
 import { checkName } from "../util/naming.ts";
 import * as errors from "../errors/mod.ts";
 
 export interface ProjectConfig {
-  readonly path: string;
+  readonly filepath: string;
   readonly root?: boolean;
   readonly default?: string;
   readonly variables?: Record<string, string>;
@@ -12,6 +13,8 @@ export interface ProjectConfig {
 }
 
 export class Project implements Context {
+  readonly name: string;
+  readonly filepath: string;
   readonly path: string;
   readonly root: boolean;
   readonly default: string;
@@ -20,11 +23,24 @@ export class Project implements Context {
   readonly targets: Record<string, Target>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
-    this.path = checkName(cfg.path);
+    let filepath = cfg.filepath;
+    if (!filepath.endsWith("/")) {
+      filepath += "/";
+    }
+    this.filepath = filepath;
+    this.name = path.basename(this.filepath);
     this.parent = parent;
-    this.root = (cfg.root !== undefined) ? cfg.root : false;
+    this.root = (cfg.root !== undefined) ? cfg.root : (!this.parent);
     this.default = cfg.default || "default";
     this.variables = cfg.variables || {};
+
+    if (this.root) {
+      this.path = "//";
+    } else {
+      const prefix = this.parent?.path || ".";
+      const sep = prefix.endsWith("/") ? "" : "/";
+      this.path = `${prefix}${sep}${this.name}`;
+    }
 
     const targets = (cfg.targets || []).reduce((acc, cfg) => {
       acc[cfg.name] = new Target(this, cfg);
@@ -35,15 +51,26 @@ export class Project implements Context {
 }
 
 export class ProjectBuilder implements ProjectConfig, VariableBuiler {
-  readonly path: string;
+  readonly filepath: string;
 
   private _root = false;
   private _default = "default";
   private _vars: Record<string, string> = {};
   private _targets: Map<string, TargetConfig> = new Map();
 
-  constructor(path: string) {
-    this.path = path;
+  constructor(path: string);
+  constructor(cfg: ProjectConfig);
+  constructor(pathOrCfg: ProjectConfig | string) {
+    const cfg = (typeof pathOrCfg === "string")
+      ? { filepath: pathOrCfg }
+      : pathOrCfg;
+    this.filepath = cfg.filepath;
+    this._root = cfg.root || false;
+    this._default = cfg.default || "default";
+    this._vars = cfg.variables || {};
+    for (const t of cfg.targets || []) {
+      this._targets.set(t.name, t);
+    }
   }
 
   get root(): boolean {

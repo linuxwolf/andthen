@@ -1,5 +1,4 @@
 import { path, yaml } from "../deps.ts";
-import { fs } from "../internals.ts";
 
 import { ProjectBuilder } from "../core/project.ts";
 import { TargetBuilder, TargetConfig } from "../core/target.ts";
@@ -20,20 +19,11 @@ const CANDIDATE_NAMES = [
 type ConfigRecord = Record<string, unknown>;
 
 export class Parser {
-  readonly basedir: string;
-
-  constructor(basedir: string) {
-    this.basedir = basedir;
-  }
-
-  async findConfig(filepath?: string): Promise<ConfigInfo> {
-    const resolved = (filepath)
-      ? path.join(this.basedir, filepath)
-      : this.basedir;
-    return await this._doFind(resolved);
+  async findConfig(filepath: string): Promise<ConfigInfo> {
+    return await this._doFind(filepath);
   }
   private async _doFind(filepath: string): Promise<ConfigInfo> {
-    const stat = await fs.stat(filepath).catch((_err) => {
+    const stat = await Deno.stat(filepath).catch((_err) => {
       // TODO: loggit _err
       throw new errors.ConfigMissing(filepath);
     });
@@ -75,7 +65,7 @@ export class Parser {
     throw new errors.ConfigMissing(filepath);
   }
 
-  async load(filepath?: string): Promise<ProjectBuilder> {
+  async load(filepath: string): Promise<ProjectBuilder> {
     const configInfo = await this.findConfig(filepath);
     const { basepath, configpath } = configInfo;
     const doc = await this.parseYaml(configpath).then((doc) => doc || {});
@@ -107,7 +97,7 @@ export class Parser {
     return builder;
   }
   private async parseYaml(filepath: string): Promise<Record<string, unknown>> {
-    const content = await fs.readTextFile(filepath);
+    const content = await Deno.readTextFile(filepath);
     const doc = yaml.parse(content, {
       filename: filepath,
     });
