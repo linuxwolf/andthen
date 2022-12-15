@@ -6,6 +6,7 @@ import {
   DuplicateVariable,
   InvalidFile,
   InvalidName,
+  MissingTarget,
   ShellError,
 } from "../../src/errors/mod.ts";
 
@@ -79,6 +80,21 @@ describe("errors", () => {
       );
       expect(result.filepath).to.equal("badfilepath");
       expect(result.name).to.equal("InvalidFile");
+    });
+  });
+
+  describe("MissingTarget", () => {
+    it("constructs a MissingTarget", () => {
+      const result = new MissingTarget("test-target");
+      expect(result.message).to.equal("missing target: [ target=test-target ]");
+      expect(result.target).to.equal("test-target");
+      expect(result.name).to.equal("MissingTarget");
+    });
+    it("constructs a MissingTarget with custom message", () => {
+      const result = new MissingTarget("test-target", "no target found");
+      expect(result.message).to.equal("no target found: [ target=test-target ]");
+      expect(result.target).to.equal("test-target");
+      expect(result.name).to.equal("MissingTarget");
     });
   });
 

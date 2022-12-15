@@ -35,6 +35,7 @@ export class ConfigMissing extends ErrBase {
     this.filepath = filepath;
   }
 }
+
 export class InvalidFile extends ErrBase {
   readonly filepath: string;
 
@@ -43,6 +44,16 @@ export class InvalidFile extends ErrBase {
     this.filepath = filepath;
   }
 }
+
+export class MissingTarget extends ErrBase {
+  readonly target: string;
+
+  constructor(target:string, msg = "missing target") {
+    super(msg, { target });
+    this.target = target;
+  }
+}
+
 export class ShellError extends ErrBase {
   readonly code: number;
 
