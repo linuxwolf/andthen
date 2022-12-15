@@ -7,140 +7,82 @@ import * as errors from "../errors/mod.ts";
 
 const { posix } = path;
 
-export interface TargetPathInfo {
-  readonly target: string;
-  readonly path: string;
-  readonly root: boolean;
-  readonly absolute: boolean;
-  readonly segments: string[];
+function stripSeparator(input: string): string {
+  if (input.startsWith("/")) { input = input.substring(1); }
+  if (input.endsWith("/")) { input = input.substring(0, input.length - 1); }
+
+  return input;
+}
+
+export enum TargetPathType {
+  Relative = "relative",
+  Root = "root",
+  Absolute = "absolute",
 }
 
 export class TargetPath {
+  readonly type: TargetPathType;
   readonly path: string;
   readonly target: string;
-  readonly root: boolean;
-  readonly absolute: boolean;
-  readonly segments: string[];
 
-  private constructor(info: TargetPathInfo) {
-    this.path = info.path;
-    this.target = info.target;
-    this.root = info.root;
-    this.absolute = info.absolute;
-    this.segments = info.segments;
+  constructor(input: string) {
+    const posix = path.posix;
+
+    let prefix: string;
+    let type: TargetPathType;
+
+    if (input.startsWith("//")) {
+      type = TargetPathType.Root;
+      prefix = "//";
+      input = input.substring(2);
+    } else if (input.startsWith("/")) {
+      type = TargetPathType.Absolute;
+      prefix = "/";
+      input = input.substring(1);
+    } else if (input.startsWith("./")) {
+      type = TargetPathType.Relative;
+      prefix = "./";
+      input = input.substring(1);
+    } else if (input.startsWith("../")) {
+      type = TargetPathType.Relative;
+      prefix = "../";
+      input = input.substring(3);
+    } else {
+      type = TargetPathType.Relative;
+      prefix = "./";
+      input = (input && ":" + input) || "";
+    }
+
+    input = posix.normalize(input);
+    let parent = posix.dirname(input);
+    parent = stripSeparator(parent);
+
+    let [ dir, target ] = posix.basename(input).split(":", 2);
+    // explicit target default
+    if (!target) {
+      target = "default";
+    }
+
+    // combine and normalize
+    dir = posix.join(parent, dir);
+    dir = stripSeparator(dir);
+    if (dir === ".") { dir = ""; }
+
+    this.type = type;
+    this.path = prefix + dir;
+    this.target = target;
   }
 
   toString(): string {
-    const tpath = (() => {
-      if (this.path === "//" || this.path === "/" || this.path.endsWith("./")) {
-        return this.path;
-      }
-      return this.path.substring(0, this.path.length - 1);
-    })();
-    return `${tpath}:${this.target}`;
+    return `${this.path}:${this.target}`;
   }
 
   relativeTo(base: TargetPath): TargetPath {
-    if (this.absolute || this.root) {
+    if (this.type === TargetPathType.Root || this.type === TargetPathType.Absolute) {
       return this;
     }
 
-    return TargetPath.parse(`${base.path}/${this.path}:${this.target}`);
-  }
-
-  static parse(input: string): TargetPath {
-    if (!input) {
-      input = "default";
-    }
-
-    let target = "";
-    let path = "";
-    let segments: string[] = [];
-    let root = false;
-    let absolute = false;
-
-    if (input.startsWith("//")) {
-      root = true;
-      input = input.substring(1);
-    }
-
-    if (input.startsWith("/:") && root) {
-      path = "/";
-      target = input.substring(2);
-    } else if (input.startsWith("/")) {
-      absolute = !root && true;
-      path = input;
-    } else if (input.startsWith("..") || input.startsWith(".")) {
-      path = input;
-    } else {
-      target = input;
-    }
-
-    if (path) {
-      let remainder = path;
-      while (remainder !== "") {
-        const p = posix.parse(remainder);
-        remainder = p.dir;
-        if (p.base !== "") {
-          segments.unshift(p.base);
-        }
-        remainder = (p.dir === "/") ? "" : p.dir;
-      }
-      const [endPath, targetName] = (segments.pop() || "").split(":", 2);
-      target = targetName || target || "default";
-      segments.push(endPath);
-      segments = segments.filter((p) => !!p);
-    } else {
-      segments = ["."];
-    }
-
-    //simplify segments
-    segments = segments.reduce((acc: string[], segment: string): string[] => {
-      let prev: Optional<string>;
-      switch (segment) {
-        case "..":
-          // lose parent and current; unless ...
-          prev = acc.pop();
-          if (prev === undefined || prev == "..") {
-            // parent is relative or no parent yet, then keep ".."
-            prev && acc.push(prev);
-            acc.push("..");
-          }
-          break;
-        case ".":
-          // lose current segment; unless ...
-          prev = acc.pop();
-          if (prev === undefined && !root && !absolute) {
-            // no parent yet, then keep "." if NOT root or absolute
-            acc.push(".");
-          } else if (prev) {
-            // if parent, keep just the parent!
-            acc.push(prev);
-          }
-          break;
-        default:
-          acc.push(segment);
-          break;
-      }
-      return acc;
-    }, []);
-
-    // recreate and fixup path
-    path = segments.join("/");
-    if (segments.length === 0 || !segments[0].startsWith(".")) {
-      path = ((root && "//") || (absolute && "/")) + path;
-    }
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-
-    return new TargetPath({
-      target,
-      path,
-      segments,
-      root,
-      absolute,
-    });
+    return new TargetPath(`${base.path}/${this.path}:${this.target}`);
   }
 }
 

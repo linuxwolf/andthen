@@ -6,6 +6,7 @@ import {
   TargetBuilder,
   TargetConfig,
   TargetPath,
+  TargetPathType,
 } from "../../src/core/target.ts";
 import * as errors from "../../src/errors/mod.ts";
 
@@ -15,17 +16,15 @@ describe("core/target", () => {
   });
 
   describe("TargetPath", () => {
-    describe(".parse()", () => {
+    describe("ctor", () => {
       const vectors = [
         {
           name: "parses just a target",
           input: "task",
           expected: {
-            target: "task",
+            type: TargetPathType.Relative,
             path: "./",
-            segments: ["."],
-            root: false,
-            absolute: false,
+            target: "task",
           },
           expectedString: "./:task",
         },
@@ -33,11 +32,9 @@ describe("core/target", () => {
           name: "parses a target with a relative path",
           input: "./project:task",
           expected: {
+            type: TargetPathType.Relative,
+            path: "./project",
             target: "task",
-            path: "./project/",
-            segments: [".", "project"],
-            root: false,
-            absolute: false,
           },
           expectedString: "./project:task",
         },
@@ -45,11 +42,9 @@ describe("core/target", () => {
           name: "parses a relative back path to target",
           input: "../:task",
           expected: {
-            target: "task",
+            type: TargetPathType.Relative,
             path: "../",
-            segments: [".."],
-            root: false,
-            absolute: false,
+            target: "task",
           },
           expectedString: "../:task",
         },
@@ -57,11 +52,9 @@ describe("core/target", () => {
           name: "parses a deeply relative back path to target",
           input: "../../../another:task",
           expected: {
+            type: TargetPathType.Relative,
+            path: "../../../another",
             target: "task",
-            path: "../../../another/",
-            segments: ["..", "..", "..", "another"],
-            root: false,
-            absolute: false,
           },
           expectedString: "../../../another:task",
         },
@@ -69,11 +62,9 @@ describe("core/target", () => {
           name: "parses an absolute path to target",
           input: "/root/path/project:task",
           expected: {
+            type: TargetPathType.Absolute,
+            path: "/root/path/project",
             target: "task",
-            path: "/root/path/project/",
-            segments: ["root", "path", "project"],
-            root: false,
-            absolute: true,
           },
           expectedString: "/root/path/project:task",
         },
@@ -81,11 +72,9 @@ describe("core/target", () => {
           name: "parses an absolute at-root path to target",
           input: "/:task",
           expected: {
-            target: "task",
+            type: TargetPathType.Absolute,
             path: "/",
-            segments: [],
-            root: false,
-            absolute: true,
+            target: "task",
           },
           expectedString: "/:task",
         },
@@ -93,11 +82,9 @@ describe("core/target", () => {
           name: "parses a root path to target",
           input: "//root/project:task",
           expected: {
+            type: TargetPathType.Root,
+            path: "//root/project",
             target: "task",
-            path: "//root/project/",
-            segments: ["root", "project"],
-            root: true,
-            absolute: false,
           },
           expectedString: "//root/project:task",
         },
@@ -105,11 +92,9 @@ describe("core/target", () => {
           name: "parses a root target",
           input: "//:task",
           expected: {
-            target: "task",
+            type: TargetPathType.Root,
             path: "//",
-            segments: [],
-            root: true,
-            absolute: false,
+            target: "task",
           },
           expectedString: "//:task",
         },
@@ -117,11 +102,9 @@ describe("core/target", () => {
           name: "parses a meandering path to target",
           input: "./project/../other//./elsewhere/../:task",
           expected: {
+            type: TargetPathType.Relative,
+            path: "./other",
             target: "task",
-            path: "./other/",
-            segments: [".", "other"],
-            root: false,
-            absolute: false,
           },
           expectedString: "./other:task",
         },
@@ -129,11 +112,9 @@ describe("core/target", () => {
           name: "pares a path with implicit target",
           input: "./project",
           expected: {
+            type: TargetPathType.Relative,
+            path: "./project",
             target: "default",
-            path: "./project/",
-            segments: [".", "project"],
-            root: false,
-            absolute: false,
           },
           expectedString: "./project:default",
         },
@@ -141,11 +122,9 @@ describe("core/target", () => {
           name: "parses an absolute path with implicit target",
           input: "/root/project",
           expected: {
+            path: "/root/project",
+            type: TargetPathType.Absolute,
             target: "default",
-            path: "/root/project/",
-            segments: ["root", "project"],
-            root: false,
-            absolute: true,
           },
           expectedString: "/root/project:default",
         },
@@ -153,11 +132,9 @@ describe("core/target", () => {
           name: "parses an absolute at-root path with implicit target",
           input: "/",
           expected: {
-            target: "default",
+            type: TargetPathType.Absolute,
             path: "/",
-            segments: [],
-            root: false,
-            absolute: true,
+            target: "default",
           },
           expectedString: "/:default",
         },
@@ -165,11 +142,9 @@ describe("core/target", () => {
           name: "parses a root path with implicit target",
           input: "//root/project",
           expected: {
+            type: TargetPathType.Root,
+            path: "//root/project",
             target: "default",
-            path: "//root/project/",
-            segments: ["root", "project"],
-            root: true,
-            absolute: false,
           },
           expectedString: "//root/project:default",
         },
@@ -177,11 +152,9 @@ describe("core/target", () => {
           name: "parses a at-root path with implicit target",
           input: "//",
           expected: {
-            target: "default",
+            type: TargetPathType.Root,
             path: "//",
-            segments: [],
-            root: true,
-            absolute: false,
+            target: "default",
           },
           expectedString: "//:default",
         },
@@ -189,11 +162,9 @@ describe("core/target", () => {
           name: "parses empty string as implicit target in current directory",
           input: "",
           expected: {
-            target: "default",
+            type: TargetPathType.Relative,
             path: "./",
-            segments: ["."],
-            root: false,
-            absolute: false,
+            target: "default",
           },
           expectedString: "./:default",
         },
@@ -201,7 +172,7 @@ describe("core/target", () => {
 
       for (const v of vectors) {
         it(v.name, () => {
-          const result = TargetPath.parse(v.input);
+          const result = new TargetPath(v.input);
           expect(result).to.deep.equal(v.expected);
           expect(result.toString()).to.equal(
             `${v.expectedString}`,
@@ -211,11 +182,11 @@ describe("core/target", () => {
     });
 
     describe("relativeTo()", () => {
-      const abs = TargetPath.parse("/usr/local/src");
-      const root = TargetPath.parse("//");
+      const abs = new TargetPath("/usr/local/src");
+      const root = new TargetPath("//");
 
       it("returns the same absolute TargetPath", () => {
-        const curr = TargetPath.parse("/usr/local/src/test-project:task");
+        const curr = new TargetPath("/usr/local/src/test-project:task");
         let result: TargetPath;
 
         result = curr.relativeTo(abs);
@@ -225,7 +196,7 @@ describe("core/target", () => {
         expect(result).to.equal(curr);
       });
       it("returns a new TargetPath for a relative TargetPath", () => {
-        const curr = TargetPath.parse("./test-project:task");
+        const curr = new TargetPath("./test-project:task");
         let result: TargetPath;
 
         result = curr.relativeTo(abs);
