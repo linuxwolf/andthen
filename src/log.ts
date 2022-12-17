@@ -21,10 +21,10 @@ export function record(opts: LogRecordOpts): LogRecord {
 
 export function formatString(record: LogRecord): string {
   const timestamp = record.datetime.toISOString();
-  const level = record.levelName;
+  const level = `[${record.levelName}]`;
   const msg = record.msg;
 
-  return `[${level}] ${timestamp}: ${msg}`;
+  return `${level.padEnd(9)} ${timestamp} - ${msg}`;
 }
 
 const console = new logger.handlers.ConsoleHandler("DEBUG", {

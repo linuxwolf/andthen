@@ -28,7 +28,7 @@ describe("log", () => {
       });
       const result = formatString(rec);
       expect(result).to.equal(
-        `[INFO] ${now.toISOString()}: this is a test log`,
+        `[INFO]    ${now.toISOString()} - this is a test log`,
       );
     });
   });
