@@ -19,7 +19,7 @@ describe("core/project", () => {
         };
         const result = new Project(cfg);
         expect(result.name).to.equal("test-project");
-        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.filepath).to.equal(cfg.filepath);
         expect(result.path).to.equal("//");
         expect(result.parent).to.be.undefined;
         expect(result.root).to.be.true;
@@ -68,7 +68,7 @@ describe("core/project", () => {
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
         expect(result.name).to.equal("test-project");
-        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.filepath).to.equal(cfg.filepath);
         expect(result.path).to.equal("//");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
@@ -80,7 +80,7 @@ describe("core/project", () => {
         };
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
-        expect(result.filepath).to.equal(cfg.filepath + "/");
+        expect(result.filepath).to.equal(cfg.filepath);
         expect(result.path).to.equal("//test-project");
         expect(result.name).to.equal("test-project");
         expect(result.variables).to.deep.equal({});
@@ -226,7 +226,7 @@ describe("core/project", () => {
       it("builds an empty Project", () => {
         const result = builder.build();
         expect(result.parent).to.be.undefined;
-        expect(result.filepath).to.equal("/usr/local/src/test-project/");
+        expect(result.filepath).to.equal("/usr/local/src/test-project");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
@@ -234,7 +234,7 @@ describe("core/project", () => {
         const parent = new Project({ filepath: "/usr/local/src/root" });
         const result = builder.build(parent);
         expect(result.parent).to.equal(parent);
-        expect(result.filepath).to.equal("/usr/local/src/test-project/");
+        expect(result.filepath).to.equal("/usr/local/src/test-project");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({} as Record<string, Target>);
       });
@@ -249,7 +249,7 @@ describe("core/project", () => {
           )
           .build();
         expect(result.parent).to.be.undefined;
-        expect(result.filepath).to.equal("/usr/local/src/test-project/");
+        expect(result.filepath).to.equal("/usr/local/src/test-project");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -276,7 +276,7 @@ describe("core/project", () => {
           )
           .build(parent);
         expect(result.parent).to.equal(parent);
-        expect(result.filepath).to.equal("/usr/local/src/test-project/");
+        expect(result.filepath).to.equal("/usr/local/src/test-project");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });

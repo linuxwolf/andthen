@@ -23,11 +23,7 @@ export class Project implements Context {
   readonly targets: Record<string, Target>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
-    let filepath = cfg.filepath;
-    if (!filepath.endsWith("/")) {
-      filepath += "/";
-    }
-    this.filepath = filepath;
+    this.filepath = cfg.filepath;
     this.name = path.basename(this.filepath);
     this.parent = parent;
     this.root = (cfg.root !== undefined) ? cfg.root : (!this.parent);
