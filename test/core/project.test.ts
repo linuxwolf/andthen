@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
-import { Project, ProjectBuilder } from "../../src/core/project.ts";
+import { Project, ProjectConfig, ProjectBuilder } from "../../src/core/project.ts";
 import { Target, TargetBuilder } from "../../src/core/target.ts";
 import * as errors from "../../src/errors/mod.ts";
 
@@ -23,7 +23,7 @@ describe("core/project", () => {
         expect(result.path).to.equal("//");
         expect(result.parent).to.be.undefined;
         expect(result.root).to.be.true;
-        expect(result.default).to.equal("default");
+        expect(result.default).to.equal("");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
         });
@@ -85,6 +85,43 @@ describe("core/project", () => {
         expect(result.name).to.equal("test-project");
         expect(result.variables).to.deep.equal({});
         expect(result.targets).to.deep.equal({});
+      });
+    });
+
+    describe(".targetName()", () => {
+      function create(targets= ["build", "test", "help"], def?: string): Project {
+        const cfg = {
+          filepath: "/usr/local/src/project",
+          root: true,
+          default: def || "",
+          variables: {
+            "FOO": "foo value",
+          },
+          targets: targets.map((n) => ({ name: n })),
+        } as ProjectConfig;
+
+        return new Project(cfg);
+      }
+
+      it("returns the explicit target name", () => {
+        const project = create();
+        const result = project.targetName("test-target");
+        expect(result).to.equal("test-target");
+      });
+      it("returns the explicitly set default", () => {
+        const project = create(undefined, "help");
+        const result = project.targetName("default");
+        expect(result).to.equal("help");
+      });
+      it("returns the first target name found", () => {
+        const project = create();
+        const result = project.targetName("default");
+        expect(result).to.equal("build");
+      });
+      it("returns 'default' if there are no targets and no explicit default set", () => {
+        const project = create([]);
+        const result = project.targetName("default");
+        expect(result).to.equal("default");
       });
     });
   });

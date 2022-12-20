@@ -27,7 +27,7 @@ export class Project implements Context {
     this.name = path.basename(this.filepath);
     this.parent = parent;
     this.root = (cfg.root !== undefined) ? cfg.root : (!this.parent);
-    this.default = cfg.default || "default";
+    this.default = cfg.default || "";
     this.variables = cfg.variables || {};
 
     if (this.root) {
@@ -43,6 +43,13 @@ export class Project implements Context {
       return acc;
     }, {} as Record<string, Target>);
     this.targets = Object.freeze(targets);
+  }
+
+  targetName(name: string): string {
+    if (name === "default") {
+      name = this.default || Object.keys(this.targets)[0] || name;
+    }
+    return name;
   }
 }
 
