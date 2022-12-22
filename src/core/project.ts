@@ -20,7 +20,7 @@ export class Project implements Context {
   readonly default: string;
   readonly parent?: Project;
   readonly variables: Variables;
-  readonly targets: Record<string, Target>;
+  readonly targets: Record<string, TargetConfig>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
     this.filepath = cfg.filepath;
@@ -39,10 +39,21 @@ export class Project implements Context {
     }
 
     const targets = (cfg.targets || []).reduce((acc, cfg) => {
-      acc[cfg.name] = new Target(this, cfg);
+      acc[cfg.name] = cfg;
       return acc;
-    }, {} as Record<string, Target>);
+    }, {} as Record<string, TargetConfig>);
     this.targets = Object.freeze(targets);
+  }
+
+  // deno-lint-ignore require-await
+  async resolve(name: string): Promise<Target> {
+    name = this.targetName(name);
+
+    const cfg = this.targets[name];
+    if (!cfg) { throw new errors.MissingTarget(name); }
+    const result = new Target(this, cfg);
+
+    return Promise.resolve(result);
   }
 
   targetName(name: string): string {

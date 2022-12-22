@@ -29,7 +29,7 @@ describe("core/project", () => {
         });
 
         const targets = {
-          "test-target": new Target(result, { name: "test-target" }),
+          "test-target": { name: "test-target" },
         };
         expect(result.targets).to.deep.equal(targets);
       });
@@ -57,7 +57,7 @@ describe("core/project", () => {
         });
 
         const targets = {
-          "test-target": new Target(result, { name: "test-target" }),
+          "test-target": { name: "test-target" },
         };
         expect(result.targets).to.deep.equal(targets);
       });
@@ -122,6 +122,35 @@ describe("core/project", () => {
         const project = create([]);
         const result = project.targetName("default");
         expect(result).to.equal("default");
+      });
+    });
+
+    describe(".resolve()", () => {
+      const project = new Project({
+        filepath: "/usr/local/src/test-project",
+        default: "default-target",
+        variables: {
+          "SIMPLE": "a simple value",
+        },
+        targets: [
+          { name: "test-target" },
+          { name: "default-target" },
+        ],
+      });
+
+      it("resolves a known target", async () => {
+        const result = project.resolve("test-target");
+
+        await expect(result).to.eventually.deep.equal(new Target(project, { name: "test-target" }));
+      });
+      it("resolves a default target", async () => {
+        const result = project.resolve("default");
+        await expect(result).to.eventually.deep.equal(new Target(project, { name: "default-target" }));
+      });
+      it("fails on an unkonwn target", async () => {
+        const result = project.resolve("unknown");
+        await expect(result).to.be.rejectedWith(errors.MissingTarget)
+              .eventually.with.property("target", "unknown");
       });
     });
   });
@@ -291,7 +320,7 @@ describe("core/project", () => {
           "SIMPLE": "a simple value",
         });
         expect(result.targets).to.deep.equal({
-          "test-target": new Target(result, {
+          "test-target": new TargetBuilder({
             name: "test-target",
             description: "a test target",
             variables: {
@@ -318,7 +347,7 @@ describe("core/project", () => {
           "SIMPLE": "a simple value",
         });
         expect(result.targets).to.deep.equal({
-          "test-target": new Target(result, {
+          "test-target": new TargetBuilder({
             name: "test-target",
             description: "a test target",
             variables: {
