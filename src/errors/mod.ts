@@ -48,7 +48,7 @@ export class InvalidFile extends ErrBase {
 export class MissingTarget extends ErrBase {
   readonly target: string;
 
-  constructor(target:string, msg = "missing target") {
+  constructor(target: string, msg = "missing target") {
     super(msg, { target });
     this.target = target;
   }

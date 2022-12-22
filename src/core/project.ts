@@ -50,7 +50,7 @@ export class Project implements Context {
     name = this.targetName(name);
 
     const cfg = this.targets[name];
-    if (!cfg) { throw new errors.MissingTarget(name); }
+    if (!cfg) throw new errors.MissingTarget(name);
     const result = new Target(this, cfg);
 
     return Promise.resolve(result);

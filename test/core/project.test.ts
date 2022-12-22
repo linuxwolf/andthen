@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from "../deps.ts";
 
-import { Project, ProjectConfig, ProjectBuilder } from "../../src/core/project.ts";
+import {
+  Project,
+  ProjectBuilder,
+  ProjectConfig,
+} from "../../src/core/project.ts";
 import { Target, TargetBuilder } from "../../src/core/target.ts";
 import * as errors from "../../src/errors/mod.ts";
 
@@ -89,7 +93,10 @@ describe("core/project", () => {
     });
 
     describe(".targetName()", () => {
-      function create(targets= ["build", "test", "help"], def?: string): Project {
+      function create(
+        targets = ["build", "test", "help"],
+        def?: string,
+      ): Project {
         const cfg = {
           filepath: "/usr/local/src/project",
           root: true,
@@ -141,16 +148,20 @@ describe("core/project", () => {
       it("resolves a known target", async () => {
         const result = project.resolve("test-target");
 
-        await expect(result).to.eventually.deep.equal(new Target(project, { name: "test-target" }));
+        await expect(result).to.eventually.deep.equal(
+          new Target(project, { name: "test-target" }),
+        );
       });
       it("resolves a default target", async () => {
         const result = project.resolve("default");
-        await expect(result).to.eventually.deep.equal(new Target(project, { name: "default-target" }));
+        await expect(result).to.eventually.deep.equal(
+          new Target(project, { name: "default-target" }),
+        );
       });
       it("fails on an unkonwn target", async () => {
         const result = project.resolve("unknown");
         await expect(result).to.be.rejectedWith(errors.MissingTarget)
-              .eventually.with.property("target", "unknown");
+          .eventually.with.property("target", "unknown");
       });
     });
   });

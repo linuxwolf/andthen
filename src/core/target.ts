@@ -8,8 +8,8 @@ import * as errors from "../errors/mod.ts";
 const { posix } = path;
 
 function stripSeparator(input: string): string {
-  if (input.startsWith("/")) { input = input.substring(1); }
-  if (input.endsWith("/")) { input = input.substring(0, input.length - 1); }
+  if (input.startsWith("/")) input = input.substring(1);
+  if (input.endsWith("/")) input = input.substring(0, input.length - 1);
 
   return input;
 }
@@ -57,7 +57,7 @@ export class TargetPath {
     let parent = posix.dirname(input);
     parent = stripSeparator(parent);
 
-    let [ dir, target ] = posix.basename(input).split(":", 2);
+    let [dir, target] = posix.basename(input).split(":", 2);
     // explicit target default
     if (!target) {
       target = "default";
@@ -66,7 +66,7 @@ export class TargetPath {
     // combine and normalize
     dir = posix.join(parent, dir);
     dir = stripSeparator(dir);
-    if (dir === ".") { dir = ""; }
+    if (dir === ".") dir = "";
 
     this.type = type;
     this.path = prefix + dir;
@@ -78,7 +78,9 @@ export class TargetPath {
   }
 
   relativeTo(base: TargetPath): TargetPath {
-    if (this.type === TargetPathType.Root || this.type === TargetPathType.Absolute) {
+    if (
+      this.type === TargetPathType.Root || this.type === TargetPathType.Absolute
+    ) {
       return this;
     }
 
