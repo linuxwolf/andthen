@@ -45,10 +45,19 @@ export class InvalidFile extends ErrBase {
   }
 }
 
-export class MissingTarget extends ErrBase {
+export class ProjectNotFound extends ErrBase {
+  readonly project: string;
+
+  constructor(project: string, msg = "project not found") {
+    super(msg, { project });
+    this.project = project;
+  }
+}
+
+export class TargetNotFound extends ErrBase {
   readonly target: string;
 
-  constructor(target: string, msg = "missing target") {
+  constructor(target: string, msg = "target not found") {
     super(msg, { target });
     this.target = target;
   }

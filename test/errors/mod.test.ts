@@ -6,8 +6,9 @@ import {
   DuplicateVariable,
   InvalidFile,
   InvalidName,
-  MissingTarget,
+  TargetNotFound,
   ShellError,
+ProjectNotFound,
 } from "../../src/errors/mod.ts";
 
 describe("errors", () => {
@@ -83,20 +84,35 @@ describe("errors", () => {
     });
   });
 
-  describe("MissingTarget", () => {
-    it("constructs a MissingTarget", () => {
-      const result = new MissingTarget("test-target");
-      expect(result.message).to.equal("missing target: [ target=test-target ]");
-      expect(result.target).to.equal("test-target");
-      expect(result.name).to.equal("MissingTarget");
+  describe("ProjectNotFound", () => {
+    it("constructs a ProjectNotFound", () => {
+      const result = new ProjectNotFound("/usr/local/src/project");
+      expect(result.message).to.equal("project not found: [ project=/usr/local/src/project ]");
+      expect(result.project).to.equal("/usr/local/src/project");
+      expect(result.name).to.equal("ProjectNotFound");
     });
-    it("constructs a MissingTarget with custom message", () => {
-      const result = new MissingTarget("test-target", "no target found");
+    it("constructs a ProjectNotFound with custom message", () => {
+      const result = new ProjectNotFound("/usr/local/src/project", "missing project");
+      expect(result.message).to.equal("missing project: [ project=/usr/local/src/project ]");
+      expect(result.project).to.equal("/usr/local/src/project");
+      expect(result.name).to.equal("ProjectNotFound");
+    });
+  });
+
+  describe("TargetNotFound", () => {
+    it("constructs a TargetNotFound", () => {
+      const result = new TargetNotFound("test-target");
+      expect(result.message).to.equal("target not found: [ target=test-target ]");
+      expect(result.target).to.equal("test-target");
+      expect(result.name).to.equal("TargetNotFound");
+    });
+    it("constructs a TargetNotFound with custom message", () => {
+      const result = new TargetNotFound("test-target", "missing target");
       expect(result.message).to.equal(
-        "no target found: [ target=test-target ]",
+        "missing target: [ target=test-target ]",
       );
       expect(result.target).to.equal("test-target");
-      expect(result.name).to.equal("MissingTarget");
+      expect(result.name).to.equal("TargetNotFound");
     });
   });
 

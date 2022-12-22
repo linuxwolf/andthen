@@ -160,7 +160,7 @@ describe("core/project", () => {
       });
       it("fails on an unkonwn target", async () => {
         const result = project.resolve("unknown");
-        await expect(result).to.be.rejectedWith(errors.MissingTarget)
+        await expect(result).to.be.rejectedWith(errors.TargetNotFound)
           .eventually.with.property("target", "unknown");
       });
     });

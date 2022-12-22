@@ -50,7 +50,8 @@ export class Project implements Context {
     name = this.targetName(name);
 
     const cfg = this.targets[name];
-    if (!cfg) throw new errors.MissingTarget(name);
+    if (!cfg) throw new errors.TargetNotFound(name);
+    // TODO: resolve template (if any)
     const result = new Target(this, cfg);
 
     return Promise.resolve(result);
