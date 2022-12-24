@@ -22,6 +22,8 @@ export class Project implements Context {
   readonly variables: Variables;
   readonly targets: Record<string, TargetConfig>;
 
+  private _targetCache: Record<string, Target> = {};
+
   constructor(cfg: ProjectConfig, parent?: Project) {
     this.filepath = cfg.filepath;
     this.name = path.basename(this.filepath);
@@ -45,16 +47,23 @@ export class Project implements Context {
     this.targets = Object.freeze(targets);
   }
 
-  // deno-lint-ignore require-await
+  get rootProject(): Project {
+    return this.root ? this : this.parent!;
+  }
+
   async resolve(name: string): Promise<Target> {
     name = this.targetName(name);
 
-    const cfg = this.targets[name];
-    if (!cfg) throw new errors.TargetNotFound(name);
-    // TODO: resolve template (if any)
-    const result = new Target(this, cfg);
+    let result = this._targetCache[name];
+    if (!result) {
+      const cfg = this.targets[name];
+      if (!cfg) throw new errors.TargetNotFound(name);
+      // TODO: resolve template (if any)
+      result = new Target(this, cfg);
+      this._targetCache[name] = result;
+    }
 
-    return Promise.resolve(result);
+    return await Promise.resolve(result);
   }
 
   targetName(name: string): string {

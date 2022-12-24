@@ -27,6 +27,7 @@ describe("core/project", () => {
         expect(result.path).to.equal("//");
         expect(result.parent).to.be.undefined;
         expect(result.root).to.be.true;
+        expect(result.rootProject).to.equal(result);
         expect(result.default).to.equal("");
         expect(result.variables).to.deep.equal({
           "SIMPLE": "a simple value",
@@ -54,6 +55,7 @@ describe("core/project", () => {
         expect(result.filepath).to.equal(cfg.filepath);
         expect(result.name).to.equal("test-project");
         expect(result.root).to.be.false;
+        expect(result.rootProject).to.equal(parent);
         expect(result.path).to.equal("//test-project");
         expect(result.default).to.equal("test-target");
         expect(result.variables).to.deep.equal({
@@ -72,6 +74,8 @@ describe("core/project", () => {
         const result = new Project(cfg);
         expect(result.parent).to.be.undefined;
         expect(result.name).to.equal("test-project");
+        expect(result.root).to.equal(true);
+        expect(result.rootProject).to.equal(result);
         expect(result.filepath).to.equal(cfg.filepath);
         expect(result.path).to.equal("//");
         expect(result.variables).to.deep.equal({});
@@ -84,6 +88,9 @@ describe("core/project", () => {
         };
         const result = new Project(cfg, parent);
         expect(result.parent).to.equal(parent);
+        expect(result.name).to.equal("test-project");
+        expect(result.root).to.equal(false);
+        expect(result.rootProject).to.equal(parent);
         expect(result.filepath).to.equal(cfg.filepath);
         expect(result.path).to.equal("//test-project");
         expect(result.name).to.equal("test-project");
