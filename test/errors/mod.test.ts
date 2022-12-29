@@ -8,7 +8,8 @@ import {
   InvalidName,
   TargetNotFound,
   ShellError,
-ProjectNotFound,
+  ProjectNotFound,
+  InvalidPath,
 } from "../../src/errors/mod.ts";
 
 describe("errors", () => {
@@ -81,6 +82,25 @@ describe("errors", () => {
       );
       expect(result.filepath).to.equal("badfilepath");
       expect(result.name).to.equal("InvalidFile");
+    });
+  });
+
+  describe("InvalidPath", () => {
+    it("constructs a InvalidPath", () => {
+      const result = new InvalidPath("/usr/local/bad-src");
+      expect(result.message).to.equal(
+        "invalid path: [ filepath=/usr/local/bad-src ]",
+      );
+      expect(result.filepath).to.equal("/usr/local/bad-src");
+      expect(result.name).to.equal("InvalidPath");
+    });
+    it("constructs a InvalidPath with custom message", () => {
+      const result = new InvalidPath("/usr/local/bad-src", "path not acceptable");
+      expect(result.message).to.equal(
+        "path not acceptable: [ filepath=/usr/local/bad-src ]",
+      );
+      expect(result.filepath).to.equal("/usr/local/bad-src");
+      expect(result.name).to.equal("InvalidPath");
     });
   });
 
