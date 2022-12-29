@@ -185,7 +185,7 @@ describe("core/target", () => {
       const abs = new TargetPath("/usr/local/src");
       const root = new TargetPath("//");
 
-      it("returns the same absolute TargetPath", () => {
+      it("returns the same absolute TargetPath for an absolute base", () => {
         const curr = new TargetPath("/usr/local/src/test-project:task");
         let result: TargetPath;
 
@@ -193,7 +193,19 @@ describe("core/target", () => {
         expect(result).to.equal(curr);
 
         result = curr.relativeTo(root);
+        expect(result).to.not.equal(curr);
+        expect(result).to.deep.equal(new TargetPath("//usr/local/src/test-project:task"));
+      });
+      it("resturns the same root TargetPath for a root base", () => {
+        const curr = new TargetPath("//test-project:task");
+        let result: TargetPath;
+
+        result = curr.relativeTo(root);
         expect(result).to.equal(curr);
+
+        result = curr.relativeTo(abs);
+        expect(result).to.not.equal(curr);
+        expect(result).to.deep.equal(new TargetPath("/usr/local/src/test-project:task"));
       });
       it("returns a new TargetPath for a relative TargetPath", () => {
         const curr = new TargetPath("./test-project:task");
