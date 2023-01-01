@@ -6,6 +6,7 @@ import {
   LogLevels,
   quiet,
   record,
+  startAt,
   verbose,
 } from "../src/log.ts";
 
@@ -16,6 +17,7 @@ describe("log", () => {
 
     beforeEach(() => {
       clock = sinon.useFakeTimers(now);
+      startAt(now);
     });
     afterEach(() => {
       clock.restore();
@@ -28,7 +30,62 @@ describe("log", () => {
       });
       const result = formatString(rec);
       expect(result).to.equal(
-        `[INFO]    ${now.toISOString()} - this is a test log`,
+        `0ms INFO - this is a test log`,
+      );
+    });
+    it("formats the LogRecord with milliseconds elapsed", () => {
+      clock.tick(250);
+      const rec = record({
+        level: LogLevels.INFO,
+        msg: "this is a test log",
+      });
+      const result = formatString(rec);
+      expect(result).to.equal(
+        `250ms INFO - this is a test log`,
+      );
+    });    
+    it("formats the LogRecord with seconds elapsed", () => {
+      clock.tick(25000);  // 25 seconds
+      const rec = record({
+        level: LogLevels.INFO,
+        msg: "this is a test log",
+      });
+      const result = formatString(rec);
+      expect(result).to.equal(
+        `25000ms INFO - this is a test log`,
+      );
+    });    
+    it("formats the LogRecord with minutes elapsed", () => {
+      clock.tick(300000); // 5 minutes
+      const rec = record({
+        level: LogLevels.INFO,
+        msg: "this is a test log",
+      });
+      const result = formatString(rec);
+      expect(result).to.equal(
+        `300000ms INFO - this is a test log`,
+      );
+    });    
+    it("formats the LogRecord with hours elapsed", () => {
+      clock.tick(10800000); // 3 hours
+      const rec = record({
+        level: LogLevels.INFO,
+        msg: "this is a test log",
+      });
+      const result = formatString(rec);
+      expect(result).to.equal(
+        `10800000ms INFO - this is a test log`,
+      );
+    });
+    it("formats the LogRecord with days elapsed", () => {
+      clock.tick(2764800000); // 32 days
+      const rec = record({
+        level: LogLevels.INFO,
+        msg: "this is a test log",
+      });
+      const result = formatString(rec);
+      expect(result).to.equal(
+        `2764800000ms INFO - this is a test log`,
       );
     });
   });

@@ -19,12 +19,17 @@ export function record(opts: LogRecordOpts): LogRecord {
   });
 }
 
+function formatElapsed(ts: Date): string {
+  const now = (ts.getTime() - startedAt).toString();
+  return `${now}ms`;
+}
+
 export function formatString(record: LogRecord): string {
-  const timestamp = record.datetime.toISOString();
-  const level = `[${record.levelName}]`;
+  const timestamp = formatElapsed(record.datetime);
+  const level = record.levelName;
   const msg = record.msg;
 
-  return `${level.padEnd(9)} ${timestamp} - ${msg}`;
+  return `${timestamp} ${level} - ${msg}`;
 }
 
 const console = new logger.handlers.ConsoleHandler("DEBUG", {
@@ -49,6 +54,11 @@ export default {
   error: logger.error,
   critical: logger.critical,
 };
+
+let startedAt = Date.now();
+export function startAt(ts = new Date()) {
+  startedAt = ts.getTime();
+}
 
 logger.setup({
   handlers: {
