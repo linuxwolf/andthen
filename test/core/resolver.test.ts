@@ -9,7 +9,7 @@ import {
 } from "../../src/core/resolver.ts";
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { ConfigMissing, InvalidPath } from "../../src/errors/mod.ts";
-import { TargetPath } from "../../src/core/target.ts";
+import { Target, TargetBuilder, TargetPath } from "../../src/core/target.ts";
 
 describe("core/resolver", () => {
   describe("ProjectLoader", () => {
@@ -160,12 +160,19 @@ describe("core/resolver", () => {
   });
 
   describe("ResolverContext", () => {
-    const root = new ProjectBuilder("/usr/local/src").asRoot().build();
-    const sub1 = new ProjectBuilder("/usr/local/src/sub1").build(root);
-    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").build(
-      sub1,
-    );
-    const sub2 = new ProjectBuilder("/usr/local/src/sub2").build(root);
+    const root = new ProjectBuilder("/usr/local/src").
+                  asRoot().
+                  withTarget(new TargetBuilder("test-task")).
+                  build();
+    const sub1 = new ProjectBuilder("/usr/local/src/sub1").
+                  withTarget(new TargetBuilder("test-task")).
+                  build(root);
+    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").
+                  withTarget(new TargetBuilder("test-task")).
+                  build(sub1);
+    const sub2 = new ProjectBuilder("/usr/local/src/sub2").
+                  withTarget(new TargetBuilder("test-task")).
+                  build(root);
 
     let loader: ProjectLoader;
     let buildStub: sinon.SinonStub;
@@ -250,7 +257,7 @@ describe("core/resolver", () => {
       });
     });
 
-    describe(".resolve()", () => {
+    describe(".resolveProject()", () => {
       let ctx: ResolverContext;
 
       beforeEach(() => {
@@ -258,18 +265,47 @@ describe("core/resolver", () => {
       });
 
       it("loads the requested project", async () => {
-        const result = await ctx.resolve("/usr/local/src/sub1/subsub1");
+        const result = await ctx.resolveProject("/usr/local/src/sub1/subsub1");
         expect(result).to.equal(sub1_1);
       });
 
       it("returns the current project for its path", async () => {
-        const result = await ctx.resolve(ctx.current.filepath);
+        const result = await ctx.resolveProject(ctx.current.filepath);
         expect(result).to.equal(ctx.current);
       });
 
       it("returns the root project for its path", async () => {
-        const result = await ctx.resolve(root.filepath);
+        const result = await ctx.resolveProject(root.filepath);
         expect(result).to.equal(root);
+      });
+    });
+
+    describe(".resolveTarget()", () => {
+      let ctx: ResolverContext;
+
+      beforeEach(() => {
+        ctx = new ResolverContext(loader, sub1);
+      });
+
+      it("loads a target from the current project", async () => {
+        const result = await ctx.resolveTarget("test-task");
+        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1));
+      });
+      it("loads a target from a relative child path", async () => {
+        const result = await ctx.resolveTarget("subsub1:test-task");
+        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1_1));
+      });
+      it("loads a target from a relative sibling path", async () => {
+        const result = await ctx.resolveTarget("../sub2:test-task");
+        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub2));
+      });
+      it("loads a target from the parent project", async () => {
+        const result = await ctx.resolveTarget("../:test-task");
+        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1.parent!));
+      });
+      it("loads root's target using a rooted path", async () => {
+        const result = await ctx.resolveTarget("//:test-task");
+        expect(result).to.deep.equal(new TargetBuilder("test-task").build(root));
       });
     });
   });

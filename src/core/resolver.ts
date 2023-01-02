@@ -4,7 +4,7 @@ import { Optional } from "../util/types.ts";
 
 import { Parser } from "../parser/yaml.ts";
 import { Project, ProjectBuilder } from "./project.ts";
-import { TargetPath, TargetPathType } from "./target.ts";
+import { Target, TargetPath, TargetPathType } from "./target.ts";
 import * as errors from "../errors/mod.ts";
 import log from "../log.ts";
 
@@ -102,16 +102,25 @@ export class ResolverContext {
     return tpath.relativeTo(base);
   }
 
-  async resolve(filepath: string): Promise<Project> {
-    const tpath = this.targetPath(filepath).path;
-    switch (tpath) {
+  private async _resolve(resolved: string): Promise<Project> {
+    switch (resolved) {
       case this.current.filepath:
         return this.current;
       case this.root.filepath:
         return this.root;
       default:
-        return await this.loader.build(tpath);
+        return await this.loader.build(resolved);
     }
+  }
+  async resolveProject(filepath: string): Promise<Project> {
+    const tpath = this.targetPath(filepath).path;
+    return await this._resolve(tpath);
+  }
+
+  async resolveTarget(filepath: string): Promise<Target> {
+    const tpath = this.targetPath(filepath);
+    const project = await this._resolve(tpath.path);
+    return await project.resolve(tpath.target);
   }
 }
 

@@ -47,6 +47,9 @@ export class TargetPath {
       type = TargetPathType.Relative;
       prefix = "../";
       input = input.substring(3);
+    } else if (input.indexOf(":") !== -1) {
+      type = TargetPathType.Relative;
+      prefix = "./";
     } else {
       type = TargetPathType.Relative;
       prefix = "./";
