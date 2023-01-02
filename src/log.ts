@@ -1,6 +1,6 @@
 import { log as logger } from "./deps.ts";
 // TODO: figure out a better way to get the LogRecord class ...
-import { LogRecord } from "https://deno.land/std@0.161.0/log/logger.ts";
+import { LogRecord } from "https://deno.land/std@0.170.0/log/logger.ts";
 export const {
   getLogger,
   LogLevels,
