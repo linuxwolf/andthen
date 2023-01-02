@@ -43,9 +43,9 @@ describe("log", () => {
       expect(result).to.equal(
         `250ms INFO - this is a test log`,
       );
-    });    
+    });
     it("formats the LogRecord with seconds elapsed", () => {
-      clock.tick(25000);  // 25 seconds
+      clock.tick(25000); // 25 seconds
       const rec = record({
         level: LogLevels.INFO,
         msg: "this is a test log",
@@ -54,7 +54,7 @@ describe("log", () => {
       expect(result).to.equal(
         `25000ms INFO - this is a test log`,
       );
-    });    
+    });
     it("formats the LogRecord with minutes elapsed", () => {
       clock.tick(300000); // 5 minutes
       const rec = record({
@@ -65,7 +65,7 @@ describe("log", () => {
       expect(result).to.equal(
         `300000ms INFO - this is a test log`,
       );
-    });    
+    });
     it("formats the LogRecord with hours elapsed", () => {
       clock.tick(10800000); // 3 hours
       const rec = record({

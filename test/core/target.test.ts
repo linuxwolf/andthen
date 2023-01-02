@@ -194,7 +194,9 @@ describe("core/target", () => {
 
         result = curr.relativeTo(root);
         expect(result).to.not.equal(curr);
-        expect(result).to.deep.equal(new TargetPath("//usr/local/src/test-project:task"));
+        expect(result).to.deep.equal(
+          new TargetPath("//usr/local/src/test-project:task"),
+        );
       });
       it("resturns the same root TargetPath for a root base", () => {
         const curr = new TargetPath("//test-project:task");
@@ -205,7 +207,9 @@ describe("core/target", () => {
 
         result = curr.relativeTo(abs);
         expect(result).to.not.equal(curr);
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/test-project:task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/test-project:task"),
+        );
       });
       it("returns a new TargetPath for a relative TargetPath", () => {
         const curr = new TargetPath("./test-project:task");

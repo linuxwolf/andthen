@@ -80,7 +80,9 @@ export class TargetPath {
   relativeTo(base: TargetPath): TargetPath {
     const type = base.type;
 
-    if (this.type === TargetPathType.Absolute && type === TargetPathType.Absolute) {
+    if (
+      this.type === TargetPathType.Absolute && type === TargetPathType.Absolute
+    ) {
       return this;
     }
     if (this.type === TargetPathType.Root && type === TargetPathType.Root) {

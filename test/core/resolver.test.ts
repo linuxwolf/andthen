@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, sinon } from "../deps.ts";
 
 import { Parser } from "../../src/parser/yaml.ts";
 
-import { ProjectLoader, Resolver, ResolverContext } from "../../src/core/resolver.ts";
+import {
+  ProjectLoader,
+  Resolver,
+  ResolverContext,
+} from "../../src/core/resolver.ts";
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { ConfigMissing, InvalidPath } from "../../src/errors/mod.ts";
 import { TargetPath } from "../../src/core/target.ts";
@@ -60,11 +64,11 @@ describe("core/resolver", () => {
         expect(parseStub).to.be.calledWith("/usr/local/src");
       });
       it("walks directories 'up' to a project", async () => {
-        parseStub.withArgs("/usr/local/src/sub").
-                  rejects(new ConfigMissing("/usr/local/src/sub"));
-        parseStub.withArgs("/usr/local/src").
-                  resolves(builder);
-        
+        parseStub.withArgs("/usr/local/src/sub")
+          .rejects(new ConfigMissing("/usr/local/src/sub"));
+        parseStub.withArgs("/usr/local/src")
+          .resolves(builder);
+
         const result = await loader.load("/usr/local/src/sub");
         expect(result).to.equal(builder);
         expect(parseStub).to.have.callCount(2);
@@ -75,8 +79,8 @@ describe("core/resolver", () => {
         parseStub.rejects(new Deno.errors.NotFound());
 
         const result = loader.load("/usr/local/src/sub");
-        await expect(result).to.be.rejectedWith(ConfigMissing).
-                             to.eventually.have.property("filepath", "/usr/local/src/sub");
+        await expect(result).to.be.rejectedWith(ConfigMissing)
+          .to.eventually.have.property("filepath", "/usr/local/src/sub");
         expect(parseStub).to.have.callCount(5);
         expect(parseStub).to.be.calledWith("/usr/local/src/sub");
         expect(parseStub).to.be.calledWith("/usr/local/src");
@@ -93,8 +97,7 @@ describe("core/resolver", () => {
       beforeEach(() => {
         subBuilder = new ProjectBuilder("/usr/local/src/sub");
         rootBuilder = new ProjectBuilder("/usr/local/src").asRoot(),
-
-        loadStub = sinon.stub(loader, "load");
+          loadStub = sinon.stub(loader, "load");
         loadStub.withArgs("/usr/local/src").resolves(rootBuilder);
         loadStub.withArgs("/usr/local/src/sub").resolves(subBuilder);
       });
@@ -122,8 +125,10 @@ describe("core/resolver", () => {
       });
 
       it("makes last successfully loaded project the root", async () => {
-        const sub = new ProjectBuilder({...subBuilder}).asRoot().build();
-        loadStub.withArgs("/usr/local/src").rejects(new ConfigMissing("/usr/local/src"));
+        const sub = new ProjectBuilder({ ...subBuilder }).asRoot().build();
+        loadStub.withArgs("/usr/local/src").rejects(
+          new ConfigMissing("/usr/local/src"),
+        );
 
         const result = await loader.build("/usr/local/src/sub");
         expect(result).to.deep.equal(sub);
@@ -157,7 +162,9 @@ describe("core/resolver", () => {
   describe("ResolverContext", () => {
     const root = new ProjectBuilder("/usr/local/src").asRoot().build();
     const sub1 = new ProjectBuilder("/usr/local/src/sub1").build(root);
-    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").build(sub1);
+    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").build(
+      sub1,
+    );
     const sub2 = new ProjectBuilder("/usr/local/src/sub2").build(root);
 
     let loader: ProjectLoader;
@@ -179,45 +186,67 @@ describe("core/resolver", () => {
         let result: TargetPath;
 
         result = ctx.targetPath("test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1:test-task"),
+        );
 
         result = ctx.targetPath("./subsub1:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1/subsub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1/subsub1:test-task"),
+        );
 
         result = ctx.targetPath("../sub2:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub2:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub2:test-task"),
+        );
       });
       it("resolves a rooted path", () => {
         let result: TargetPath;
 
         result = ctx.targetPath("//:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src:test-task"),
+        );
 
         result = ctx.targetPath("//sub1:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1:test-task"),
+        );
 
         result = ctx.targetPath("//sub1/subsub1:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1/subsub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1/subsub1:test-task"),
+        );
 
         result = ctx.targetPath("//sub2:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub2:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub2:test-task"),
+        );
       });
       it("resolves an absolute path within the root project filepath", () => {
         let result: TargetPath;
 
         result = ctx.targetPath("/usr/local/src/sub1:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1:test-task"),
+        );
 
         result = ctx.targetPath("/usr/local/src:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src:test-task"),
+        );
 
         result = ctx.targetPath("/usr/local/src/sub1/subsub1:test-task");
-        expect(result).to.deep.equal(new TargetPath("/usr/local/src/sub1/subsub1:test-task"));
+        expect(result).to.deep.equal(
+          new TargetPath("/usr/local/src/sub1/subsub1:test-task"),
+        );
       });
       it("fails if absolute path not within root project path", () => {
-        expect(() => { ctx.targetPath("/usr/local/share/project:test-target"); }).
-            to.throw(InvalidPath).
-            to.have.property("filepath", "/usr/local/share/project:test-target");
+        expect(() => {
+          ctx.targetPath("/usr/local/share/project:test-target");
+        })
+          .to.throw(InvalidPath)
+          .to.have.property("filepath", "/usr/local/share/project:test-target");
       });
     });
 
@@ -248,7 +277,9 @@ describe("core/resolver", () => {
   describe("Resolver", () => {
     const root = new ProjectBuilder("/usr/local/src").asRoot().build();
     const sub1 = new ProjectBuilder("/usr/local/src/sub1").build(root);
-    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").build(sub1);
+    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").build(
+      sub1,
+    );
     const sub2 = new ProjectBuilder("/usr/local/src/sub2").build(root);
 
     let buildStub: sinon.SinonStub;

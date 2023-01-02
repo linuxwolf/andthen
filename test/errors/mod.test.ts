@@ -6,10 +6,10 @@ import {
   DuplicateVariable,
   InvalidFile,
   InvalidName,
-  TargetNotFound,
-  ShellError,
-  ProjectNotFound,
   InvalidPath,
+  ProjectNotFound,
+  ShellError,
+  TargetNotFound,
 } from "../../src/errors/mod.ts";
 
 describe("errors", () => {
@@ -95,7 +95,10 @@ describe("errors", () => {
       expect(result.name).to.equal("InvalidPath");
     });
     it("constructs a InvalidPath with custom message", () => {
-      const result = new InvalidPath("/usr/local/bad-src", "path not acceptable");
+      const result = new InvalidPath(
+        "/usr/local/bad-src",
+        "path not acceptable",
+      );
       expect(result.message).to.equal(
         "path not acceptable: [ filepath=/usr/local/bad-src ]",
       );
@@ -107,13 +110,20 @@ describe("errors", () => {
   describe("ProjectNotFound", () => {
     it("constructs a ProjectNotFound", () => {
       const result = new ProjectNotFound("/usr/local/src/project");
-      expect(result.message).to.equal("project not found: [ project=/usr/local/src/project ]");
+      expect(result.message).to.equal(
+        "project not found: [ project=/usr/local/src/project ]",
+      );
       expect(result.project).to.equal("/usr/local/src/project");
       expect(result.name).to.equal("ProjectNotFound");
     });
     it("constructs a ProjectNotFound with custom message", () => {
-      const result = new ProjectNotFound("/usr/local/src/project", "missing project");
-      expect(result.message).to.equal("missing project: [ project=/usr/local/src/project ]");
+      const result = new ProjectNotFound(
+        "/usr/local/src/project",
+        "missing project",
+      );
+      expect(result.message).to.equal(
+        "missing project: [ project=/usr/local/src/project ]",
+      );
       expect(result.project).to.equal("/usr/local/src/project");
       expect(result.name).to.equal("ProjectNotFound");
     });
@@ -122,7 +132,9 @@ describe("errors", () => {
   describe("TargetNotFound", () => {
     it("constructs a TargetNotFound", () => {
       const result = new TargetNotFound("test-target");
-      expect(result.message).to.equal("target not found: [ target=test-target ]");
+      expect(result.message).to.equal(
+        "target not found: [ target=test-target ]",
+      );
       expect(result.target).to.equal("test-target");
       expect(result.name).to.equal("TargetNotFound");
     });

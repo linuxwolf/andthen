@@ -14,7 +14,7 @@ export class ProjectLoader {
   parse(filepath: string): Promise<ProjectBuilder> {
     return (new Parser()).load(filepath);
   }
-  
+
   async load(dir: string): Promise<ProjectBuilder> {
     dir = normalize(dir);
 
@@ -37,7 +37,10 @@ export class ProjectLoader {
     return project;
   }
 
-  async build(dir: string, root: Optional<Project> = undefined): Promise<Project> {
+  async build(
+    dir: string,
+    root: Optional<Project> = undefined,
+  ): Promise<Project> {
     dir = normalize(dir);
 
     let project = this.cache[dir];
@@ -85,10 +88,12 @@ export class ResolverContext {
         break;
       case TargetPathType.Absolute:
         // verify path is a sub-path of the root
-        if (path.common([
-          this.root.filepath,
-          tpath.path,
-        ]) !== (this.root.filepath + "/")) {
+        if (
+          path.common([
+            this.root.filepath,
+            tpath.path,
+          ]) !== (this.root.filepath + "/")
+        ) {
           throw new errors.InvalidPath(filepath, "absolute path not allowed");
         }
         return tpath;
@@ -133,9 +138,9 @@ export class Resolver {
   within(project: Project): Promise<ResolverContext>;
   within(filepath: string): Promise<ResolverContext>;
   async within(prjOrPath: Project | string): Promise<ResolverContext> {
-    const project = (typeof prjOrPath === "string") ?
-                    await this.loader.build(prjOrPath) :
-                    prjOrPath as Project;
+    const project = (typeof prjOrPath === "string")
+      ? await this.loader.build(prjOrPath)
+      : prjOrPath as Project;
 
     return new ResolverContext(this.loader, project);
   }
