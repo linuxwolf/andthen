@@ -186,19 +186,19 @@ describe("core/resolver", () => {
   });
 
   describe("ResolverContext", () => {
-    const root = new ProjectBuilder("/usr/local/src").
-                  asRoot().
-                  withTarget(new TargetBuilder("test-task")).
-                  build();
-    const sub1 = new ProjectBuilder("/usr/local/src/sub1").
-                  withTarget(new TargetBuilder("test-task")).
-                  build(root);
-    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1").
-                  withTarget(new TargetBuilder("test-task")).
-                  build(sub1);
-    const sub2 = new ProjectBuilder("/usr/local/src/sub2").
-                  withTarget(new TargetBuilder("test-task")).
-                  build(root);
+    const root = new ProjectBuilder("/usr/local/src")
+      .asRoot()
+      .withTarget(new TargetBuilder("test-task"))
+      .build();
+    const sub1 = new ProjectBuilder("/usr/local/src/sub1")
+      .withTarget(new TargetBuilder("test-task"))
+      .build(root);
+    const sub1_1 = new ProjectBuilder("/usr/local/src/sub1/subsub1")
+      .withTarget(new TargetBuilder("test-task"))
+      .build(sub1);
+    const sub2 = new ProjectBuilder("/usr/local/src/sub2")
+      .withTarget(new TargetBuilder("test-task"))
+      .build(root);
 
     let loader: ProjectLoader;
     let buildStub: sinon.SinonStub;
@@ -315,23 +315,33 @@ describe("core/resolver", () => {
 
       it("loads a target from the current project", async () => {
         const result = await ctx.resolveTarget("test-task");
-        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1));
+        expect(result).to.deep.equal(
+          new TargetBuilder("test-task").build(sub1),
+        );
       });
       it("loads a target from a relative child path", async () => {
         const result = await ctx.resolveTarget("subsub1:test-task");
-        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1_1));
+        expect(result).to.deep.equal(
+          new TargetBuilder("test-task").build(sub1_1),
+        );
       });
       it("loads a target from a relative sibling path", async () => {
         const result = await ctx.resolveTarget("../sub2:test-task");
-        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub2));
+        expect(result).to.deep.equal(
+          new TargetBuilder("test-task").build(sub2),
+        );
       });
       it("loads a target from the parent project", async () => {
         const result = await ctx.resolveTarget("../:test-task");
-        expect(result).to.deep.equal(new TargetBuilder("test-task").build(sub1.parent!));
+        expect(result).to.deep.equal(
+          new TargetBuilder("test-task").build(sub1.parent!),
+        );
       });
       it("loads root's target using a rooted path", async () => {
         const result = await ctx.resolveTarget("//:test-task");
-        expect(result).to.deep.equal(new TargetBuilder("test-task").build(root));
+        expect(result).to.deep.equal(
+          new TargetBuilder("test-task").build(root),
+        );
       });
     });
   });
