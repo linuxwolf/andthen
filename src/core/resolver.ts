@@ -15,7 +15,7 @@ export class ProjectLoader {
     return (new Parser()).load(filepath);
   }
 
-  async load(dir: string): Promise<ProjectBuilder> {
+  async load(dir: string, exact = false): Promise<ProjectBuilder> {
     dir = normalize(dir);
 
     let project: Optional<ProjectBuilder> = undefined;
@@ -27,7 +27,7 @@ export class ProjectLoader {
       } catch (err) {
         log.debug(`failed to load project from ${curr}: ${err.message}`);
         const parent = path.dirname(curr);
-        if (parent === curr) {
+        if (exact || parent === curr) {
           throw new errors.ConfigMissing(dir);
         }
         curr = parent;
@@ -39,6 +39,7 @@ export class ProjectLoader {
 
   async build(
     dir: string,
+    exact = false,
     root: Optional<Project> = undefined,
   ): Promise<Project> {
     dir = normalize(dir);
@@ -48,10 +49,10 @@ export class ProjectLoader {
       return project;
     }
 
-    const builder = await this.load(dir);
+    const builder = await this.load(dir, exact);
     if (!builder.root) {
       try {
-        project = await this.build(path.dirname(dir), root);
+        project = await this.build(path.dirname(dir), false, root);
       } catch (e) {
         log.debug(`failed to build project: ${e.message}`);
         // treat latest builder as root
@@ -109,7 +110,7 @@ export class ResolverContext {
       case this.root.filepath:
         return this.root;
       default:
-        return await this.loader.build(resolved);
+        return await this.loader.build(resolved, true);
     }
   }
   async resolveProject(filepath: string): Promise<Project> {

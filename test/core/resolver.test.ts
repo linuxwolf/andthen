@@ -9,7 +9,7 @@ import {
 } from "../../src/core/resolver.ts";
 import { Project, ProjectBuilder } from "../../src/core/project.ts";
 import { ConfigMissing, InvalidPath } from "../../src/errors/mod.ts";
-import { Target, TargetBuilder, TargetPath } from "../../src/core/target.ts";
+import { TargetBuilder, TargetPath } from "../../src/core/target.ts";
 
 describe("core/resolver", () => {
   describe("ProjectLoader", () => {
@@ -88,6 +88,15 @@ describe("core/resolver", () => {
         expect(parseStub).to.be.calledWith("/usr");
         expect(parseStub).to.be.calledWith("/");
       });
+      it("fails if no project found exactly", async () => {
+        parseStub.rejects(new Deno.errors.NotFound());
+
+        const result = loader.load("/usr/local/src/sub", true);
+        await expect(result).to.be.rejectedWith(ConfigMissing)
+          .to.eventually.have.property("filepath", "/usr/local/src/sub");
+        expect(parseStub).to.have.callCount(1);
+        expect(parseStub).to.be.calledWith("/usr/local/src/sub");
+      });
     });
     describe(".build()", () => {
       let subBuilder: ProjectBuilder;
@@ -112,16 +121,33 @@ describe("core/resolver", () => {
         expect(loadStub).to.have.callCount(1);
         expect(loadStub).to.be.calledWith("/usr/local/src");
       });
+      it("builds the root project exactly", async () => {
+        const root = rootBuilder.build();
+        const result = await loader.build("/usr/local/src", true);
+        expect(result).to.deep.equal(root);
+        expect(loadStub).to.have.callCount(1);
+        expect(loadStub).to.be.calledWith("/usr/local/src", true);
+      });
 
-      it("it builds the sub and root projects", async () => {
+      it("builds the sub and root projects", async () => {
         const root = rootBuilder.build();
         const sub = subBuilder.build(root);
 
-        const result = await loader.build("/usr/local/src/sub");
+        const result = await loader.build("/usr/local/src/sub", true);
         expect(result).to.deep.equal(sub);
         expect(loadStub).to.have.callCount(2);
         expect(loadStub).to.be.calledWith("/usr/local/src/sub");
         expect(loadStub).to.be.calledWith("/usr/local/src");
+      });
+      it("builds the sub and root projects exactly", async () => {
+        const root = rootBuilder.build();
+        const sub = subBuilder.build(root);
+
+        const result = await loader.build("/usr/local/src/sub", true);
+        expect(result).to.deep.equal(sub);
+        expect(loadStub).to.have.callCount(2);
+        expect(loadStub).to.be.calledWith("/usr/local/src/sub", true);
+        expect(loadStub).to.be.calledWith("/usr/local/src", false);
       });
 
       it("makes last successfully loaded project the root", async () => {
