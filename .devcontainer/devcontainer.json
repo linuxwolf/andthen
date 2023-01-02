@@ -1,0 +1,41 @@
+{
+	"name": "Deno",
+ 	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"containerEnv": {
+		"AUTH_SOCK": "/run/host-services/ssh-auth.sock"
+	},
+	"mounts": [
+		"source=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock,type=bind,readonly"
+	],
+
+	"postAttachCommand": "deno cache src/deps.ts test/deps.ts",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+				// Enables the project as a Deno project
+				"deno.enable": true,
+				// Enables Deno linting for the project
+				"deno.lint": true,
+				// Sets Deno as the default formatter for the project
+				"editor.defaultFormatter": "denoland.vscode-deno"
+			},
+			
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"denoland.vscode-deno"
+			]
+		}
+	},
+
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-from-docker:1": {}
+	}
+}
