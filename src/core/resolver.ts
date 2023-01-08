@@ -145,6 +145,10 @@ export class Resolver {
     return new Resolver(root, loader);
   }
 
+  withinRoot(): ResolverContext {
+    return new ResolverContext(this.loader, this.root);
+  }
+
   within(project: Project): Promise<ResolverContext>;
   within(filepath: string): Promise<ResolverContext>;
   async within(prjOrPath: Project | string): Promise<ResolverContext> {

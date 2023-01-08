@@ -379,7 +379,7 @@ describe("core/resolver", () => {
       });
     });
 
-    describe(".within()", () => {
+    describe(".within()/.withinRoot()", () => {
       let resolver: Resolver;
 
       beforeEach(async () => {
@@ -398,6 +398,11 @@ describe("core/resolver", () => {
         expect(result.current).to.equal(sub2);
         expect(result.root).to.equal(root);
         expect(buildStub).to.have.not.been.called;
+      });
+      it("returns the root's context", () => {
+        const result = resolver.withinRoot();
+        expect(result.current).to.equal(root);
+        expect(buildStub).to.have.callCount(0);
       });
     });
   });
