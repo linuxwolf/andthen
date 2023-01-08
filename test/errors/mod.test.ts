@@ -15,25 +15,37 @@ import {
 
 describe("errors", () => {
   describe("DuplicateTarget", () => {
-    it("constructs the error", () => {
-      const err = new DuplicateTarget("dup-target");
-      expect(err.message).to.equal("duplicate target: [ target=dup-target ]");
-      expect(err.target).to.equal("dup-target");
-      expect(err.name).to.equal("DuplicateTarget");
+    it("constructs a DuplicateTarget", () => {
+      const result = new DuplicateTarget("dup-target");
+      expect(result.message).to.equal("duplicate target: [ target=dup-target ]");
+      expect(result.target).to.equal("dup-target");
+      expect(result.name).to.equal("DuplicateTarget");
+    });
+    it("constructs a Dupliatetarget with custom message", () => {
+      const result = new DuplicateTarget("dup-target", "target already seen");
+      expect(result.message).to.equal("target already seen: [ target=dup-target ]");
+      expect(result.target).to.equal("dup-target");
+      expect(result.name).to.equal("DuplicateTarget");
     });
   });
 
   describe("DuplicateVariable", () => {
-    it("Constructs a DuplicateVariable", () => {
-      const err = new DuplicateVariable("dup_var");
-      expect(err.message).to.equal("duplicate variable: [ variable=dup_var ]");
-      expect(err.variable).to.equal("dup_var");
-      expect(err.name).to.equal("DuplicateVariable");
+    it("constructs a DuplicateVariable", () => {
+      const result = new DuplicateVariable("dup_var");
+      expect(result.message).to.equal("duplicate variable: [ variable=dup_var ]");
+      expect(result.variable).to.equal("dup_var");
+      expect(result.name).to.equal("DuplicateVariable");
+    });
+    it("constructs a DuplicateVariable with custom message", () => {
+      const result = new DuplicateVariable("dup_var", "variable already seen");
+      expect(result.message).to.equal("variable already seen: [ variable=dup_var ]");
+      expect(result.variable).to.equal("dup_var");
+      expect(result.name).to.equal("DuplicateVariable");
     });
   });
 
   describe("InvalidArgumetn", () => {
-    it("creates an InvalidArgument", () => {
+    it("constructs an InvalidArgument", () => {
       const result = new InvalidArgument("some argument");
       expect(result.message).to.equal("invalid argument: [ arg=some argument ]");
       expect(result.arg).to.equal("some argument");
@@ -48,13 +60,13 @@ describe("errors", () => {
   });
 
   describe("InvalidName", () => {
-    it("creates an InvalidName", () => {
+    it("constructs an InvalidName", () => {
       const result = new InvalidName("invalid name");
       expect(result.message).to.equal("invalid name: [ value=invalid name ]");
       expect(result.value).to.equal("invalid name");
       expect(result.name).to.equal("InvalidName");
     });
-    it("creates an InvalidName with custom message", () => {
+    it("constructs an InvalidName with custom message", () => {
       const result = new InvalidName(
         "invalid name",
         "something went wrong",
@@ -68,7 +80,7 @@ describe("errors", () => {
   });
 
   describe("ConfigMissing", () => {
-    it("creates a ConfigMissing", () => {
+    it("constructs a ConfigMissing", () => {
       const result = new ConfigMissing("bad/path");
       expect(result.message).to.equal(
         "configuration not found: [ filepath=bad/path ]",
@@ -76,7 +88,7 @@ describe("errors", () => {
       expect(result.filepath).to.equal("bad/path");
       expect(result.name).to.equal("ConfigMissing");
     });
-    it("creates a ConfigMissing with message", () => {
+    it("constructs a ConfigMissing with message", () => {
       const result = new ConfigMissing("bad/path", "bad config file");
       expect(result.message).to.equal("bad config file: [ filepath=bad/path ]");
       expect(result.filepath).to.equal("bad/path");
