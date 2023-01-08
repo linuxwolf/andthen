@@ -1,4 +1,6 @@
 {
   "deno.enable": true,
-  "deno.path": "./bin/deno"
+  "deno.path": "./bin/deno",
+  "deno.unstable": true,
+  "deno.inlayHints.parameterNames.enabled": "none"
 }
