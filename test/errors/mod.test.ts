@@ -4,6 +4,7 @@ import {
   ConfigMissing,
   DuplicateTarget,
   DuplicateVariable,
+  InvalidArgument,
   InvalidFile,
   InvalidName,
   InvalidPath,
@@ -28,6 +29,21 @@ describe("errors", () => {
       expect(err.message).to.equal("duplicate variable: [ variable=dup_var ]");
       expect(err.variable).to.equal("dup_var");
       expect(err.name).to.equal("DuplicateVariable");
+    });
+  });
+
+  describe("InvalidArgumetn", () => {
+    it("creates an InvalidArgument", () => {
+      const result = new InvalidArgument("some argument");
+      expect(result.message).to.equal("invalid argument: [ arg=some argument ]");
+      expect(result.arg).to.equal("some argument");
+      expect(result.name).to.equal("InvalidArgument");
+    });
+    it("create an InvalidArgument with custom message", () => {
+      const result = new InvalidArgument("some argument", "argument not expected");
+      expect(result.message).to.equal("argument not expected: [ arg=some argument ]");
+      expect(result.arg).to.equal("some argument");
+      expect(result.name).to.equal("InvalidArgument");
     });
   });
 

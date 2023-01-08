@@ -18,6 +18,15 @@ export class DuplicateVariable extends ErrBase {
   }
 }
 
+export class InvalidArgument<ArgType> extends ErrBase {
+  readonly arg: ArgType;
+
+  constructor(arg: ArgType, msg = "invalid argument") {
+    super(msg, { arg });
+    this.arg = arg;
+  }
+}
+
 export class InvalidName extends ErrBase {
   readonly value: string;
 
