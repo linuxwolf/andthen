@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="hentry:updated" content="{{ date.toISOString() }}" />
+    <title>{% if url === "/" %}{{ title }}{% else %}{{ title }} :: {{ site.title }}{% endif %}</title>
+  </head>
+  <body>
+    {{ content | safe }}
+    <hr />
+    <div>
+      <em>last updated: {{ date | date("HUMAN_DATE") }}</em>
+    </div>
+  </body>
+</html>
