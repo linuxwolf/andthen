@@ -2,7 +2,8 @@ name: Publish Documentation to Pages
 
 on:
   push:
-    branches: [$default-branch]
+    branches:
+      - main
     paths:
       - "docs/**"
   workflow_dispatch:
@@ -32,7 +33,7 @@ jobs:
       - name: Generate site
         run: cd docs && deno task lume
       - name: Upload artifact
-        uses: actions/update-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./docs/_site
   deploy:
