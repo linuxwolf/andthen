@@ -19,3 +19,14 @@ export abstract class ErrorBase extends Error {
     this.name = this.constructor.name;
   }
 }
+
+// ##### DEFINED ERRORS #####
+
+export class InvalidVariableName extends ErrorBase {
+  readonly varname: string;
+
+  constructor(varname: string, msg = "invalid variable name") {
+    super(msg, { varname });
+    this.varname = varname;
+  }
+}

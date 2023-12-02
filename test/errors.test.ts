@@ -3,7 +3,7 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
-import { ErrorBase, format } from "../src/errors.ts";
+import { ErrorBase, format, InvalidVariableName } from "../src/errors.ts";
 
 describe("errors", () => {
   describe("format()", () => {
@@ -52,6 +52,23 @@ describe("errors", () => {
       expect(err.stack).to.exist();
       expect(err.toString()).to.equal(
         'MockError: this is an error (place="somewhere", status=500)',
+      );
+    });
+  });
+
+  describe("InvalidVariableName", () => {
+    it("creates a InvalidVariableName with default message", () => {
+      const err = new InvalidVariableName("NOT A VAR NAME");
+      expect(err.name).to.equal("InvalidVariableName");
+      expect(err.message).to.equal(
+        'invalid variable name (varname="NOT A VAR NAME")',
+      );
+    });
+    it("creates a InvalidVariableName with custom message", () => {
+      const err = new InvalidVariableName("NOT A VAR NAME", "bad varname");
+      expect(err.name).to.equal("InvalidVariableName");
+      expect(err.message).to.equal(
+        'bad varname (varname="NOT A VAR NAME")',
       );
     });
   });
