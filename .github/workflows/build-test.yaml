@@ -12,7 +12,7 @@ on:
       - "docs/**"
 env:
   DENO_DIR: ./.cache
-  DENO_VER: "1.37.2"
+  DENO_VER: "1.38.3"
 jobs:
   coding-checks:
     name: "Coding Checks"
