@@ -4,10 +4,10 @@
     "expecto/": "https://deno.land/x/expecto@v0.1.2/mod/"
   },
   "fmt": {
-    "exclude": ["docs"]
+    "exclude": [".cache", "docs"]
   },
   "lint": {
-    "exclude": ["docs"]
+    "exclude": [".cache", "docs"]
   },
   "tasks": {
     "cov": "git clean -dfx coverage && deno test --coverage=coverage/profile && deno coverage --exclude=test --output=coverage/lcov --lcov coverage/profile"
