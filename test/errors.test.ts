@@ -46,9 +46,13 @@ describe("errors", () => {
       });
       expect(err).to.be.instanceOf(Error);
       expect(err.name).to.equal("MockError");
-      expect(err.message).to.equal('this is an error (place="somewhere", status=500)');
+      expect(err.message).to.equal(
+        'this is an error (place="somewhere", status=500)',
+      );
       expect(err.stack).to.exist();
-      expect(err.toString()).to.equal('MockError: this is an error (place="somewhere", status=500)');
+      expect(err.toString()).to.equal(
+        'MockError: this is an error (place="somewhere", status=500)',
+      );
     });
   });
 });
