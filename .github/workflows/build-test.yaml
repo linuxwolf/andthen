@@ -14,9 +14,12 @@ on:
       - "deno.*"
       - "src/**"
       - "test/**"
+  workflow_dispatch:
+
 env:
   DENO_DIR: ./.cache
   DENO_VER: "1.38.3"
+
 jobs:
   caching:
     name: "Update Caches"
