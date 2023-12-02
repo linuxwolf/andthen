@@ -139,7 +139,7 @@ describe("vars", () => {
           VAR_3: "carried ''",
           VAR_4: "static fourth var",
           VAR_5: "envs fifth var",
-          });
+        });
       });
 
       it("escapes the $", () => {
