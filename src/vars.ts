@@ -21,9 +21,9 @@ function validate(name: string): string {
 }
 
 export function format(ctx: VariablesContext, envs?: Variables): Variables {
-  if (!envs) {
-    envs = {};
-  }
+  envs = {
+    ...envs,
+  };
 
   if (ctx.parent) {
     envs = format(ctx.parent, envs);
