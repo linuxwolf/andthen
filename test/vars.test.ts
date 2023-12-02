@@ -3,6 +3,7 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
+import { InvalidVariableName } from "../src/errors.ts";
 import { format, Variables, VariablesContext } from "../src/vars.ts";
 
 class MockVarsContext implements VariablesContext {
@@ -53,6 +54,15 @@ describe("vars", () => {
           VAR_3: "third variable",
           VAR_4: "parent fourth variable",
         });
+      });
+    });
+    describe("errors", () => {
+      it("fails on an invalid var name", () => {
+        const ctx = new MockVarsContext({
+          "1_BAD_VAR": "bad variable",
+        });
+        const err = expect(() => format(ctx)).to.throw(InvalidVariableName).actual;
+        expect(err.varname).to.equal("1_BAD_VAR");
       });
     });
   });
