@@ -36,6 +36,24 @@ describe("vars", () => {
           VAR_3: "third variable",
         });
       });
+      it("creates an envs from 2 levels", () => {
+        const parent = new MockVarsContext({
+          VAR_2: "parent second variable",
+          VAR_4: "parent fourth variable",
+        });
+        const ctx = new MockVarsContext({
+          VAR_1: "first variable",
+          VAR_2: "second variable",
+          VAR_3: "third variable",
+        }, parent);
+        const results = format(ctx);
+        expect(results).to.deep.equal({
+          VAR_1: "first variable",
+          VAR_2: "second variable",
+          VAR_3: "third variable",
+          VAR_4: "parent fourth variable",
+        });
+      });
     });
   });
 });
