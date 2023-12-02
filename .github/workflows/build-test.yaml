@@ -1,0 +1,66 @@
+name: Build and Test
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+env:
+  DENO_DIR: ./.cache
+  DENO_VER: "1.38.3"
+jobs:
+  coding-checks:
+    name: "Coding Checks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v3
+      - name: "Setup cache"
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Lint check"
+        run: deno lint
+      - name: "Format check"
+        run: deno fmt --check
+  unit-test:
+    name: "Testing"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v3
+      - name: "Setup cache"
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Run unit tests"
+        run: deno test --coverage=coverage/profile
+      - name: "Generate coverage reports"
+        run: |
+          deno coverage \
+            --exclude=test \
+            --lcov --output=coverage/lcov \
+            coverage/profile
+      - name: "Report coverage"
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage/lcov
+      - name: "Report coverage"
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage/lcov
