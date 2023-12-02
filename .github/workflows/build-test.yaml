@@ -31,7 +31,7 @@ jobs:
           deno-version: ${{ env.DENO_VER }}
       - name: "Update cache"
         run: |
-          find src test -type file -print0 | \
+          find src test -type f -print0 | \
             xargs -0 deno cache --reload
   coding-checks:
     name: "Coding Checks"
