@@ -3,13 +3,17 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "deno.*"
+      - "src/**"
+      - "test/**"
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "deno.*"
+      - "src/**"
+      - "test/**"
 env:
   DENO_DIR: ./.cache
   DENO_VER: "1.38.3"
