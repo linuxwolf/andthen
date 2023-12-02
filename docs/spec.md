@@ -80,6 +80,8 @@ vars:
 
 The value of another variable is included using `${VAR_NAME}`.  Note the leading `${` and `}` are **REQUIRED**; the `$VAR_NAME` syntax is not supported.  A variable's value can consist solely of this interpolation, or can be only a part of the variable's value.
 
+To have `${VAR_NAME}` as the literal value, precede it with `$` (e.g., "`$${VAR_NAME}`).
+
 ### Siblings
 
 Interpolation can use variables within the same `vars` block, as long as it has been defined before it's interpolated.  Given the following:
