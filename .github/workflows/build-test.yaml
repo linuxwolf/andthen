@@ -3,16 +3,23 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "deno.*"
+      - "src/**"
+      - "test/**"
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "deno.*"
+      - "src/**"
+      - "test/**"
+  workflow_dispatch:
+
 env:
   DENO_DIR: ./.cache
   DENO_VER: "1.38.3"
+
 jobs:
   caching:
     name: "Update Caches"
