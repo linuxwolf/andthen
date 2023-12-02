@@ -8,9 +8,9 @@ import { format, Variables, VariablesContext } from "../src/vars.ts";
 
 class MockVarsContext implements VariablesContext {
   readonly parent?: MockVarsContext;
-  readonly vars: Variables;
+  readonly vars?: Variables;
 
-  constructor(vars: Variables, parent?: MockVarsContext) {
+  constructor(vars?: Variables, parent?: MockVarsContext) {
     this.vars = vars;
     this.parent = parent;
   }
@@ -19,6 +19,11 @@ class MockVarsContext implements VariablesContext {
 describe("vars", () => {
   describe("format()", () => {
     describe("basics", () => {
+      it("creates an empty envs from an undefined context", () => {
+        const ctx = new MockVarsContext();
+        const results = format(ctx);
+        expect(results).to.deep.equal({});
+      });
       it("creates an empty envs from an empty context", () => {
         const ctx = new MockVarsContext({});
         const results = format(ctx);
