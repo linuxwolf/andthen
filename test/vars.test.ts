@@ -3,7 +3,7 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
-import { Variables, VariablesContext, format } from "../src/vars.ts";
+import { format, Variables, VariablesContext } from "../src/vars.ts";
 
 class MockVarsContext implements VariablesContext {
   readonly parent?: MockVarsContext;
