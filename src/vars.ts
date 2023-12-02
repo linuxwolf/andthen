@@ -9,7 +9,7 @@ export interface VariablesContext {
   readonly vars: Variables;
 }
 
-const RE_VARNAME=/^[_a-zA-Z][_a-zA-Z0-9]*$/;
+const RE_VARNAME = /^[_a-zA-Z][_a-zA-Z0-9]*$/;
 
 function validate(name: string): string {
   RE_VARNAME.lastIndex = 0;
@@ -18,6 +18,17 @@ function validate(name: string): string {
   }
 
   return name;
+}
+
+const RE_INTERPOLATION = /\$(?:\$|\{([_a-zA-Z][_a-zA-Z0-9]*)(?:\:-(.*))?\})/g;
+
+function interpolate(value: string, envs: Variables): string {
+  return value.replaceAll(RE_INTERPOLATION, (match, name, defaultVal) => {
+    if (match === "$$") {
+      return "$";
+    }
+    return envs[name] ?? defaultVal ?? "";
+  });
 }
 
 export function format(ctx: VariablesContext, envs?: Variables): Variables {
@@ -30,7 +41,7 @@ export function format(ctx: VariablesContext, envs?: Variables): Variables {
   }
 
   for (const [name, value] of Object.entries(ctx.vars)) {
-    envs[validate(name)] = value;
+    envs[validate(name)] = interpolate(value, envs);
   }
 
   return envs;
