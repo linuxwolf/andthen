@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "deno_std/": "https://deno.land/std@0.208.0/",
+    "expecto/": "https://deno.land/x/expecto@v0.1.2/mod/"
+  },
+  "fmt": {
+    "exclude": ["docs"]
+  },
+  "lint": {
+    "exclude": ["docs"]
+  },
+  "tasks": {
+    "cov": "git clean -dfx coverage && deno test --coverage=coverage/profile && deno coverage --exclude=test --output=coverage/lcov --lcov coverage/profile"
+  }
+}
