@@ -4,6 +4,7 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import { Project } from "../../src/projects/impl.ts";
+import { InvalidRootProject } from "../../src/errors.ts";
 
 describe("projects/impl", () => {
   describe("Project", () => {
@@ -85,7 +86,7 @@ describe("projects/impl", () => {
         });
         const project = new Project({
           name: "my-project",
-          root: true,
+          root: false,
           default: "build-it",
           vars: {
             VAR_1: "project var one",
@@ -97,7 +98,7 @@ describe("projects/impl", () => {
 
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.equal(parent);
-        expect(project.root).to.be.true();
+        expect(project.root).to.be.false();
         expect(project.default).to.equal("build-it");
         expect(project.vars).to.deep.equal({
           VAR_1: "project var one",
@@ -108,7 +109,6 @@ describe("projects/impl", () => {
 
         expect(project.toConfig()).to.deep.equal({
           name: "my-project",
-          root: true,
           default: "build-it",
           vars: {
             VAR_1: "project var one",
@@ -118,7 +118,20 @@ describe("projects/impl", () => {
           ],
         });
       });
+      it("fails if root + parent", () => {
+        const parent = new Project({
+          name: "root-project",
+        });
+        const err = expect(() => {
+          new Project({
+            name: "my-project",
+            root: true,
+          }, parent);
+        }).to.throw(InvalidRootProject).actual;
+        expect(err.project).to.equal("root-project/my-project");
+      });
     });
+
     describe("path()", () => {
       it("returns a single-level", () => {
         const project = new Project({

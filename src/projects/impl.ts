@@ -1,5 +1,6 @@
 /** */
 
+import { InvalidRootProject } from "../errors.ts";
 import { TaskConfig } from "../tasks/config.ts";
 import { Variables } from "../vars.ts";
 import { ProjectConfig } from "./config.ts";
@@ -14,6 +15,10 @@ export class Project {
   #tasks: Record<string, TaskConfig>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
+    if (parent && cfg.root) {
+      throw new InvalidRootProject(`${parent.path()}/${cfg.name}`);
+    }
+
     const tasks = (cfg.tasks ?? []).reduce(
       (coll: Record<string, TaskConfig>, t: TaskConfig) => {
         coll[t.name] = t;
