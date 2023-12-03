@@ -3,7 +3,7 @@
 import { Variables, VariablesContext } from "../vars.ts";
 import { ActionRef, TaskConfig, TaskRef } from "./config.ts";
 
-export class Task implements TaskConfig {
+export class Task {
   readonly name: string;
   readonly desc: string;
   readonly internal: boolean;
