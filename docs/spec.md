@@ -45,9 +45,9 @@ A task's configuration consists of the following, which are all optional:
 
 * `desc` (**`string`**) — a description sentence, displayed with `--list`
 * `internal` (**`boolean`**) _[false]_ — if the task is internal only, and cannot be invoked from the command-line
-* `deps` (**`TaskCallConfig[]`**) — the dependency tasks (if any) that must be run before this task
+* `deps` (**`TaskRef[]`**) — the dependency tasks (if any) that must be run before this task
 * `vars` (**`Record<string, string>`**) — the [variables](#vars) defined in this task
-* `steps` (**`StepConfig[]`**) — the steps this task executes when run
+* `steps` (**`ActionConfig[]`**) — the steps this task executes when run
 
 # Variables (`Record<string, string>`) {#vars}
 
