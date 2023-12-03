@@ -34,14 +34,18 @@ export class Task {
   }
 
   toConfig(): TaskConfig {
+    const vars = this.vars;
+    const deps = this.deps;
+    const steps = this.steps;
+
     return {
       name: this.name,
       ...(this.parent && { parent: this.parent }),
       ...(this.internal && { internal: this.internal }),
       ...((this.desc !== "") && { desc: this.desc }),
-      ...((Object.entries(this.vars).length > 0) && { vars: this.vars }),
-      ...((this.deps.length > 0) && { deps: this.deps }),
-      ...((this.steps.length > 0) && { steps: this.steps }),
+      ...((Object.entries(vars).length > 0) && { vars }),
+      ...((deps.length > 0) && { deps }),
+      ...((steps.length > 0) && { steps }),
     };
   }
 }
