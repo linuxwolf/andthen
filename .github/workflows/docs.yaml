@@ -42,6 +42,7 @@ jobs:
           cd docs && deno cache _config.ts
   build:
     runs-on: ubuntu-latest
+    needs: [caching]
     steps:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
