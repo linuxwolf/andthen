@@ -1,0 +1,31 @@
+name: Reload Caches
+on:
+  schedule:
+    - cron: "15 12 * * *"
+  workflow_dispatch:
+
+env:
+  DENO_DIR: ./.cache
+  DENO_VER: "1.38.3"
+
+jobs:
+  caching:
+    name: "Clear and Update Caches"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v3
+      - name: "Setup cache"
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock' )}}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Reload cache"
+        run: |
+          rm -rf ${DENO_DIR}
+          find src test -type f -print0 | \
+            xargs -0 deno cache --reload
