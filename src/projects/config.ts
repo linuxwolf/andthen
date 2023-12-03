@@ -1,12 +1,12 @@
 /** */
 
 import { TaskConfig } from "../tasks/config.ts";
-import { VariablesContext } from "../vars.ts";
+import { Variables } from "../vars.ts";
 
-export interface ProjectConfig extends VariablesContext {
-  readonly parent?: ProjectConfig;
+export interface ProjectConfig {
   readonly name: string;
   readonly default?: string;
   readonly root?: boolean;
-  readonly tasks?: Record<string, TaskConfig>;
+  readonly vars?: Variables;
+  readonly tasks?: TaskConfig[];
 }

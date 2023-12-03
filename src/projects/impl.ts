@@ -8,16 +8,23 @@ export class Project {
   readonly parent?: Project;
   readonly name: string;
   readonly root: boolean;
+  readonly default: string;
 
   #vars: Variables;
   #tasks: Record<string, TaskConfig>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
+    const tasks = (cfg.tasks ?? []).reduce((coll: Record<string, TaskConfig>, t: TaskConfig) => {
+      coll[t.name] = t;
+      return coll;
+    }, {});
+
     this.parent = parent;
     this.name = cfg.name;
     this.root = cfg.root ?? false;
+    this.default = cfg.default ?? "default";
     this.#vars = { ...(cfg.vars ?? {}) };
-    this.#tasks = { ...(cfg.tasks ?? {}) };
+    this.#tasks = tasks;
   }
 
   get vars() {
@@ -29,12 +36,15 @@ export class Project {
   }
 
   toConfig(): ProjectConfig {
+    const vars = this.vars;
+    const tasks = Object.values(this.#tasks);
+
     return {
       name: this.name,
-      ...(this.parent && { parent: this.parent }),
       ...(this.root && { root: this.root }),
-      ...((Object.entries(this.#vars).length > 0) && { vars: this.vars }),
-      ...((Object.entries(this.#tasks).length > 0) && { tasks: this.tasks }),
+      ...((this.default !== "default") && { default: this.default }),
+      ...((Object.entries(vars).length > 0) && { vars }),
+      ...((tasks.length > 0) && { tasks }),
     }
   }
 
