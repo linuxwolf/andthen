@@ -3,17 +3,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "deno.*"
-      - "src/**"
-      - "test/**"
   pull_request:
     branches:
       - main
-    paths:
-      - "deno.*"
-      - "src/**"
-      - "test/**"
   workflow_dispatch:
 
 env:
