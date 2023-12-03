@@ -31,7 +31,7 @@ jobs:
       - name: "Update cache"
         run: |
           find src test -type f -print0 | \
-            xargs -0 deno cache --reload
+            xargs -0 deno cache
   coding-checks:
     name: "Coding Checks"
     runs-on: ubuntu-latest
