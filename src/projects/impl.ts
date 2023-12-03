@@ -28,6 +28,16 @@ export class Project {
     return { ...this.#tasks };
   }
 
+  toConfig(): ProjectConfig {
+    return {
+      name: this.name,
+      ...(this.parent && { parent: this.parent }),
+      ...(this.root && { root: this.root }),
+      ...((Object.entries(this.#vars).length > 0) && { vars: this.vars }),
+      ...((Object.entries(this.#tasks).length > 0) && { tasks: this.tasks }),
+    }
+  }
+
   path(): string {
     const prefix = this.parent?.path() ?? "";
     return (prefix && prefix + "/") + this.name;
