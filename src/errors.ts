@@ -30,3 +30,12 @@ export class InvalidVariableName extends ErrorBase {
     this.varname = varname;
   }
 }
+
+export class InvalidRootProject extends ErrorBase {
+  readonly project: string;
+
+  constructor(project: string, msg = "invalid root project") {
+    super(msg, { project });
+    this.project = project;
+  }
+}

@@ -3,7 +3,7 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
-import { ErrorBase, format, InvalidVariableName } from "../src/errors.ts";
+import { ErrorBase, format, InvalidVariableName, InvalidRootProject } from "../src/errors.ts";
 
 describe("errors", () => {
   describe("format()", () => {
@@ -63,6 +63,7 @@ describe("errors", () => {
       expect(err.message).to.equal(
         'invalid variable name (varname="NOT A VAR NAME")',
       );
+      expect(err.varname).to.equal("NOT A VAR NAME");
     });
     it("creates a InvalidVariableName with custom message", () => {
       const err = new InvalidVariableName("NOT A VAR NAME", "bad varname");
@@ -70,6 +71,26 @@ describe("errors", () => {
       expect(err.message).to.equal(
         'bad varname (varname="NOT A VAR NAME")',
       );
+      expect(err.varname).to.equal("NOT A VAR NAME");
+    });
+  });
+
+  describe("InvalidRootProject", () => {
+    it("creates a InvalidRootProject with default message", () => {
+      const err = new InvalidRootProject("sub-root");
+      expect(err.name).to.equal("InvalidRootProject");
+      expect(err.message).to.equal(
+        'invalid root project (project="sub-root")',
+      );
+      expect(err.project).to.equal("sub-root");
+    });
+    it("creates a InvalidRootProject with custom message", () => {
+      const err = new InvalidRootProject("sub-root", "sub-project as root");
+      expect(err.name).to.equal("InvalidRootProject");
+      expect(err.message).to.equal(
+        'sub-project as root (project="sub-root")',
+      );
+      expect(err.project).to.equal("sub-root");
     });
   });
 });
