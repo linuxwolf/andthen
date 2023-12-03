@@ -3,7 +3,12 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
-import { ErrorBase, format, InvalidVariableName, InvalidRootProject } from "../src/errors.ts";
+import {
+  ErrorBase,
+  format,
+  InvalidRootProject,
+  InvalidVariableName,
+} from "../src/errors.ts";
 
 describe("errors", () => {
   describe("format()", () => {
