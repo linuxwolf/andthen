@@ -3,7 +3,7 @@
 import { Variables, VariablesContext } from "../vars.ts";
 import { ActionRef, TaskConfig, TaskRef } from "./config.ts";
 
-export class Task {
+export class Task implements VariablesContext {
   readonly name: string;
   readonly desc: string;
   readonly internal: boolean;
@@ -14,7 +14,7 @@ export class Task {
   #steps: ActionRef[];
 
   constructor(cfg: TaskConfig, parent?: VariablesContext) {
-    this.parent = parent ?? cfg.parent;
+    this.parent = parent;
     this.name = cfg.name;
     this.desc = cfg.desc ?? "";
     this.internal = cfg.internal ?? false;
@@ -40,9 +40,8 @@ export class Task {
 
     return {
       name: this.name,
-      ...(this.parent && { parent: this.parent }),
-      ...(this.internal && { internal: this.internal }),
       ...((this.desc !== "") && { desc: this.desc }),
+      ...(this.internal && { internal: this.internal }),
       ...((Object.entries(vars).length > 0) && { vars }),
       ...((deps.length > 0) && { deps }),
       ...((steps.length > 0) && { steps }),

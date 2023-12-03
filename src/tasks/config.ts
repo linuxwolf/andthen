@@ -1,6 +1,6 @@
 /** */
 
-import { Variables, VariablesContext } from "../vars.ts";
+import { Variables } from "../vars.ts";
 
 export interface TaskRef {
   name: string;
@@ -17,10 +17,11 @@ export interface ShellActionRef extends ActionRef {
   exec?: string;
 }
 
-export interface TaskConfig extends VariablesContext {
+export interface TaskConfig {
   readonly name: string;
   readonly desc?: string;
   readonly internal?: boolean;
+  readonly vars?: Variables;
   readonly deps?: TaskRef[];
   readonly steps?: ActionRef[];
 }
