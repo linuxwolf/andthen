@@ -24,10 +24,8 @@ describe("tasks/impl", () => {
           name: "task-name",
         });
       });
-      it("constructs from a full config", () => {
-        const parent = {};
+      it("constructs from full config", () => {
         const task = new Task({
-          parent,
           name: "task-name",
           desc: "a dummy task",
           internal: true,
@@ -42,7 +40,7 @@ describe("tasks/impl", () => {
           ],
         });
         expect(task.name).to.equal("task-name");
-        expect(task.parent).to.equal(parent);
+        expect(task.parent).to.be.undefined();
         expect(task.internal).to.be.true();
         expect(task.desc).to.equal("a dummy task");
         expect(task.vars).to.deep.equal({
@@ -57,7 +55,6 @@ describe("tasks/impl", () => {
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
-          parent,
           desc: "a dummy task",
           internal: true,
           vars: {
@@ -71,7 +68,7 @@ describe("tasks/impl", () => {
           ],
         });
       });
-      it("constructs from a min config + direct parent", () => {
+      it("constructs from a min config + parent", () => {
         const parent = {};
         const task = new Task({
           name: "task-name",
@@ -86,15 +83,12 @@ describe("tasks/impl", () => {
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
-          parent,
         });
       });
       it("constructs from a full config + direct parent", () => {
-        const cfgParent = {};
-        const directParent = {};
+        const parent = {};
         const task = new Task({
           name: "task-name",
-          parent: cfgParent,
           desc: "a dummy task",
           internal: true,
           vars: {
@@ -106,9 +100,9 @@ describe("tasks/impl", () => {
           steps: [
             { type: "shell" },
           ],
-        }, directParent);
+        }, parent);
         expect(task.name).to.equal("task-name");
-        expect(task.parent).to.equal(directParent);
+        expect(task.parent).to.equal(parent);
         expect(task.internal).to.be.true();
         expect(task.desc).to.equal("a dummy task");
         expect(task.vars).to.deep.equal({
@@ -123,7 +117,6 @@ describe("tasks/impl", () => {
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
-          parent: directParent,
           desc: "a dummy task",
           internal: true,
           vars: {
