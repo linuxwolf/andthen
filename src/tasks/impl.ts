@@ -41,7 +41,7 @@ export class Task implements TaskConfig {
       ...((this.desc !== "") && { desc: this.desc }),
       ...((Object.entries(this.vars).length > 0) && { vars: this.vars }),
       ...((this.deps.length > 0) && { deps: this.deps }),
-      ...((this.steps.length > 0) && { steps: this.steps } ),
-    }
+      ...((this.steps.length > 0) && { steps: this.steps }),
+    };
   }
 }
