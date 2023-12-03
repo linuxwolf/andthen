@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DENO_DIR: ./.cache
+  DENO_DIR: ${{ github.workspace }}/.cache
   DENO_VER: "1.38.3"
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.DENO_DIR }}
-          key: lume-${{ hashFiles('deno.lock' )}}
+          key: lume-${{ hashFiles('docs/deno.lock') }}
       - name: "Setup Deno"
         uses: denoland/setup-deno@v1
         with:
@@ -50,6 +50,11 @@ jobs:
           deno-version: ${{ env.DENO_VER }}
       - name: Checkout
         uses: actions/checkout@v4
+      - name: "Setup cache"
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: lume-${{ hashFiles('docs/deno.lock') }}
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
