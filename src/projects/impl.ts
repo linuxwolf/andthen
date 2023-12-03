@@ -14,10 +14,13 @@ export class Project {
   #tasks: Record<string, TaskConfig>;
 
   constructor(cfg: ProjectConfig, parent?: Project) {
-    const tasks = (cfg.tasks ?? []).reduce((coll: Record<string, TaskConfig>, t: TaskConfig) => {
-      coll[t.name] = t;
-      return coll;
-    }, {});
+    const tasks = (cfg.tasks ?? []).reduce(
+      (coll: Record<string, TaskConfig>, t: TaskConfig) => {
+        coll[t.name] = t;
+        return coll;
+      },
+      {},
+    );
 
     this.parent = parent;
     this.name = cfg.name;
@@ -45,7 +48,7 @@ export class Project {
       ...((this.default !== "default") && { default: this.default }),
       ...((Object.entries(vars).length > 0) && { vars }),
       ...((tasks.length > 0) && { tasks }),
-    }
+    };
   }
 
   path(): string {
