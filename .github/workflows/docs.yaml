@@ -17,14 +17,36 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  DENO_DIR: ./.cache
+  DENO_VER: "1.38.3"
+
 jobs:
+  caching:
+    name: "Update Caches"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v3
+      - name: "Setup cache"
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: lume-${{ hashFiles('deno.lock' )}}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Update cache"
+        run: |
+          cd docs && deno cache _config.ts
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: "1.38.3"
+          deno-version: ${{ env.DENO_VER }}
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
