@@ -32,9 +32,7 @@ describe("tasks/impl", () => {
           vars: {
             VAR_1: "task var one",
           },
-          deps: [
-            { name: "dep-task-1" },
-          ],
+          deps: [":dep-task-1"],
           steps: [
             { type: "shell" },
           ],
@@ -46,9 +44,7 @@ describe("tasks/impl", () => {
         expect(task.vars).to.deep.equal({
           VAR_1: "task var one",
         });
-        expect(task.deps).to.deep.equal([
-          { name: "dep-task-1" },
-        ]);
+        expect(task.deps).to.deep.equal([":dep-task-1"]);
         expect(task.steps).to.deep.equal([
           { type: "shell" },
         ]);
@@ -60,9 +56,7 @@ describe("tasks/impl", () => {
           vars: {
             VAR_1: "task var one",
           },
-          deps: [
-            { name: "dep-task-1" },
-          ],
+          deps: [":dep-task-1"],
           steps: [
             { type: "shell" },
           ],
@@ -94,9 +88,7 @@ describe("tasks/impl", () => {
           vars: {
             VAR_1: "task var one",
           },
-          deps: [
-            { name: "dep-task-1" },
-          ],
+          deps: [":dep-task-1"],
           steps: [
             { type: "shell" },
           ],
@@ -108,9 +100,7 @@ describe("tasks/impl", () => {
         expect(task.vars).to.deep.equal({
           VAR_1: "task var one",
         });
-        expect(task.deps).to.deep.equal([
-          { name: "dep-task-1" },
-        ]);
+        expect(task.deps).to.deep.equal([":dep-task-1"]);
         expect(task.steps).to.deep.equal([
           { type: "shell" },
         ]);
@@ -122,9 +112,7 @@ describe("tasks/impl", () => {
           vars: {
             VAR_1: "task var one",
           },
-          deps: [
-            { name: "dep-task-1" },
-          ],
+          deps: [":dep-task-1"],
           steps: [
             { type: "shell" },
           ],

@@ -1,7 +1,7 @@
 /** */
 
 import { Variables, VariablesContext } from "../vars.ts";
-import { ActionRef, TaskConfig, TaskRef } from "./config.ts";
+import { ActionRef, TaskConfig } from "./config.ts";
 
 export class Task implements VariablesContext {
   readonly name: string;
@@ -10,7 +10,7 @@ export class Task implements VariablesContext {
   readonly parent?: VariablesContext;
 
   #vars: Variables;
-  #deps: TaskRef[];
+  #deps: string[];
   #steps: ActionRef[];
 
   constructor(cfg: TaskConfig, parent?: VariablesContext) {

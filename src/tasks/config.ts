@@ -2,11 +2,6 @@
 
 import { Variables } from "../vars.ts";
 
-export interface TaskRef {
-  name: string;
-  vars?: Variables;
-}
-
 export interface ActionRef {
   type: string;
   vars?: Variables;
@@ -22,6 +17,6 @@ export interface TaskConfig {
   readonly desc?: string;
   readonly internal?: boolean;
   readonly vars?: Variables;
-  readonly deps?: TaskRef[];
+  readonly deps?: string[];
   readonly steps?: ActionRef[];
 }
