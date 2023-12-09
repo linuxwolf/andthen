@@ -17,7 +17,6 @@ describe("actions/shell", () => {
         expect(result.type).to.equal("shell");
         expect(result.cmd).to.equal("echo stuff");
         expect(result.exec).to.equal("");
-        expect(result.vars).to.deep.equal({});
 
         expect(result.toConfig()).to.deep.equal({
           type: "shell",
@@ -29,25 +28,16 @@ describe("actions/shell", () => {
           type: "shell",
           cmd: "echo stuff",
           exec: "bash",
-          vars: {
-            VAR_1: "shell action var one",
-          },
         });
 
         expect(result.type).to.equal("shell");
         expect(result.cmd).to.equal("echo stuff");
         expect(result.exec).to.equal("bash");
-        expect(result.vars).to.deep.equal({
-          VAR_1: "shell action var one",
-        });
 
         expect(result.toConfig()).to.deep.equal({
           type: "shell",
           cmd: "echo stuff",
           exec: "bash",
-          vars: {
-            VAR_1: "shell action var one",
-          },
         });
       });
     });

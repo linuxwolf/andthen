@@ -23,13 +23,10 @@ export class ShellAction extends Action {
   }
 
   toConfig(): ShellActionConfig {
-    const vars = this.vars;
-
     return {
       type: this.type,
       cmd: this.cmd,
       ...(this.exec && { exec: this.exec }),
-      ...((Object.entries(vars).length > 0) && { vars }),
     };
   }
 }
