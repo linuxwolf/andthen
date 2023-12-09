@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { BaseActionSchema, Action } from "./base.ts";
+import { Action, BaseActionSchema } from "./base.ts";
 import { VariablesContext } from "../vars.ts";
 
 export const TaskActionSchema = BaseActionSchema.extend({

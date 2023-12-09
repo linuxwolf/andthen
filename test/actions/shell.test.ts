@@ -27,7 +27,7 @@ describe("actions/shell", () => {
           exec: "bash",
           vars: {
             VAR_1: "shell action variable one",
-          }
+          },
         });
 
         expect(result.type).to.equal("shell");
@@ -35,7 +35,7 @@ describe("actions/shell", () => {
         expect(result.exec).to.equal("bash");
         expect(result.vars).to.deep.equal({
           VAR_1: "shell action variable one",
-        })
+        });
 
         expect(result.toConfig()).to.deep.equal({
           shell: "echo stuff",
