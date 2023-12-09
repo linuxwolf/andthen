@@ -1,21 +1,21 @@
 /** */
 
-import { Variables, VariablesContext } from "../vars.ts";
-import { Action, ActionConfig } from "./base.ts";
+import { z } from "zod";
 
-export interface TaskActionConfig extends ActionConfig {
-  readonly task: string;
-  readonly vars?: Variables;
-}
+import { Action, BaseActionSchema } from "./base.ts";
+import { VariablesContext } from "../vars.ts";
+
+export const TaskActionSchema = BaseActionSchema.extend({
+  task: z.string(),
+  vars: z.record(z.string()).optional(),
+});
+export type TaskActionConfig = z.infer<typeof TaskActionSchema>;
 
 export class TaskAction extends Action implements VariablesContext {
   readonly task: string;
 
-  #vars: Variables;
-
   constructor(cfg: TaskActionConfig) {
     super(cfg);
-    this.#vars = { ...cfg.vars };
     this.task = cfg.task;
   }
 
@@ -23,17 +23,10 @@ export class TaskAction extends Action implements VariablesContext {
     return "task";
   }
 
-  get vars() {
-    return { ...this.#vars };
-  }
-
   toConfig(): TaskActionConfig {
-    const vars = this.vars;
-
     return {
-      type: "task",
       task: this.task,
-      ...((Object.entries(vars).length > 0) && { vars }),
+      ...super.toConfig(),
     };
   }
 }

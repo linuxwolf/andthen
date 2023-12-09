@@ -2,7 +2,7 @@
 
 import { Variables, VariablesContext } from "../vars.ts";
 import { TaskConfig } from "./config.ts";
-import { ActionConfig } from "../actions/base.ts";
+import { ActionConfig } from "../actions/config.ts";
 
 export class Task implements VariablesContext {
   readonly name: string;
