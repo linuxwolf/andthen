@@ -3,6 +3,7 @@
 import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
+import { z } from "zod";
 import { asConfig } from "../../src/actions/config.ts";
 
 describe("actions/config", () => {
@@ -39,6 +40,7 @@ describe("actions/config", () => {
         });
       });
     });
+
     describe("for TaskActionConfig", () => {
       it("returns a TaskActionConfig from minimal", () => {
         const result = asConfig({
@@ -62,6 +64,14 @@ describe("actions/config", () => {
           },
         });
       });
+    });
+
+    describe("errors", () => {
+      expect(() => {
+        asConfig({
+          stuff: "things",
+        });
+      }).to.throw(z.ZodError);
     });
   });
 });
