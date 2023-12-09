@@ -10,4 +10,17 @@ export type ActionConfig = (ShellActionConfig | TaskActionConfig);
 export const Schema = z.union([
   ShellActionSchema,
   TaskActionSchema,
+  z.string(),
 ]);
+
+export function asConfig(input: unknown): ActionConfig {
+  const result = Schema.parse(input);
+  if (typeof result === "string") {
+    // short-syntax shell
+    return {
+      shell: result,
+    };
+  }
+
+  return result;
+}
