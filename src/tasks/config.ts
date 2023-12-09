@@ -1,6 +1,6 @@
 /** */
 
-import { ActionConfig } from "../actions/base.ts";
+import { ActionConfig } from "../actions/config.ts";
 import { Variables } from "../vars.ts";
 
 export interface TaskConfig {

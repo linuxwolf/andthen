@@ -1,32 +1,40 @@
 /** */
 
-import { Action, ActionConfig } from "./base.ts";
+import { z } from "zod";
 
-export interface ShellActionConfig extends ActionConfig {
-  readonly cmd: string;
-  readonly exec?: string;
-}
+import { BaseActionSchema, Action } from "./base.ts";
+import { VariablesContext } from "../vars.ts";
 
-export class ShellAction extends Action {
-  readonly cmd: string;
+export const ShellActionSchema = BaseActionSchema.extend({
+  shell: z.string(),
+  exec: z.string().optional(),
+  vars: z.record(z.string()).optional(),
+});
+
+export type ShellActionConfig = z.infer<typeof ShellActionSchema>;
+
+export class ShellAction extends Action implements VariablesContext {
+  readonly shell: string;
   readonly exec: string;
 
   constructor(cfg: ShellActionConfig) {
     super(cfg);
 
-    this.cmd = cfg.cmd;
+    this.shell = cfg.shell;
     this.exec = cfg.exec ?? "";
   }
 
-  get type() {
+  get type(): string {
     return "shell";
   }
 
   toConfig(): ShellActionConfig {
+    const shell = this.shell;
+
     return {
-      type: this.type,
-      cmd: this.cmd,
+      shell,
       ...(this.exec && { exec: this.exec }),
+      ...super.toConfig(),
     };
   }
 }
