@@ -8,8 +8,10 @@ import { TaskActionConfig, TaskActionSchema } from "./task.ts";
 export type ActionConfig = ShellActionConfig | TaskActionConfig;
 
 export const Schema = z.union([
-  ShellActionSchema,
-  TaskActionSchema,
+  z.discriminatedUnion("type", [
+    ShellActionSchema,
+    TaskActionSchema
+  ]),
   z.string(),
 ]);
 
