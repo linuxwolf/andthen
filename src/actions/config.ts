@@ -18,7 +18,7 @@ export function asConfig(input: unknown): ActionConfig {
   if (typeof result === "string") {
     // short-syntax shell
     return {
-      shell: result,
+      cmd: result,
     };
   }
 

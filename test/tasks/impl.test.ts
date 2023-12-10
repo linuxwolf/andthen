@@ -34,7 +34,7 @@ describe("tasks/impl", () => {
           },
           deps: [":dep-task-1"],
           steps: [
-            { shell: "do some cmd" },
+            { cmd: "do some cmd" },
           ],
         });
         expect(task.name).to.equal("task-name");
@@ -46,7 +46,7 @@ describe("tasks/impl", () => {
         });
         expect(task.deps).to.deep.equal([":dep-task-1"]);
         expect(task.steps).to.deep.equal([
-          { shell: "do some cmd" },
+          { cmd: "do some cmd" },
         ]);
 
         expect(task.toConfig()).to.deep.equal({
@@ -58,7 +58,7 @@ describe("tasks/impl", () => {
           },
           deps: [":dep-task-1"],
           steps: [
-            { shell: "do some cmd" },
+            { cmd: "do some cmd" },
           ],
         });
       });
@@ -90,7 +90,7 @@ describe("tasks/impl", () => {
           },
           deps: [":dep-task-1"],
           steps: [
-            { shell: "do some cmd" },
+            { cmd: "do some cmd" },
           ],
         }, parent);
         expect(task.name).to.equal("task-name");
@@ -102,7 +102,7 @@ describe("tasks/impl", () => {
         });
         expect(task.deps).to.deep.equal([":dep-task-1"]);
         expect(task.steps).to.deep.equal([
-          { shell: "do some cmd" },
+          { cmd: "do some cmd" },
         ]);
 
         expect(task.toConfig()).to.deep.equal({
@@ -114,7 +114,7 @@ describe("tasks/impl", () => {
           },
           deps: [":dep-task-1"],
           steps: [
-            { shell: "do some cmd" },
+            { cmd: "do some cmd" },
           ],
         });
       });

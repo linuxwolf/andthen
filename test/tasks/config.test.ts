@@ -42,16 +42,16 @@ describe("tasks/config", () => {
         const config = asConfig("task-name", {
           steps: [
             "do simple cmd",
-            { shell: "do shell command" },
-            { task: ":task-cmd" },
+            { cmd: "do shell command" },
+            { path: ":task-cmd" },
           ],
         });
         expect(config).to.deep.equal({
           name: "task-name",
           steps: [
-            { shell: "do simple cmd" },
-            { shell: "do shell command" },
-            { task: ":task-cmd" },
+            { cmd: "do simple cmd" },
+            { cmd: "do shell command" },
+            { path: ":task-cmd" },
           ],
         });
       });
@@ -67,8 +67,8 @@ describe("tasks/config", () => {
           ],
           steps: [
             "do simple cmd",
-            { shell: "do shell command" },
-            { task: ":task-cmd" },
+            { cmd: "do shell command" },
+            { path: ":task-cmd" },
           ],
         });
         expect(config).to.deep.equal({
@@ -82,9 +82,9 @@ describe("tasks/config", () => {
             ":task-dep-1",
           ],
           steps: [
-            { shell: "do simple cmd" },
-            { shell: "do shell command" },
-            { task: ":task-cmd" },
+            { cmd: "do simple cmd" },
+            { cmd: "do shell command" },
+            { path: ":task-cmd" },
           ],
         });
       });

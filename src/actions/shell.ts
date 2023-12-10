@@ -6,7 +6,7 @@ import { Action, BaseActionSchema } from "./base.ts";
 import { VariablesContext } from "../vars.ts";
 
 export const ShellActionSchema = BaseActionSchema.extend({
-  shell: z.string(),
+  cmd: z.string(),
   exec: z.string().optional(),
   vars: z.record(z.string()).optional(),
 });
@@ -14,13 +14,13 @@ export const ShellActionSchema = BaseActionSchema.extend({
 export type ShellActionConfig = z.infer<typeof ShellActionSchema>;
 
 export class ShellAction extends Action implements VariablesContext {
-  readonly shell: string;
+  readonly cmd: string;
   readonly exec: string;
 
   constructor(cfg: ShellActionConfig) {
     super(cfg);
 
-    this.shell = cfg.shell;
+    this.cmd = cfg.cmd;
     this.exec = cfg.exec ?? "";
   }
 
@@ -29,10 +29,10 @@ export class ShellAction extends Action implements VariablesContext {
   }
 
   toConfig(): ShellActionConfig {
-    const shell = this.shell;
+    const cmd = this.cmd;
 
     return {
-      shell,
+      cmd,
       ...(this.exec && { exec: this.exec }),
       ...super.toConfig(),
     };

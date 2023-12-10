@@ -11,22 +11,22 @@ describe("actions/config", () => {
     describe("for ShellActionConfig", () => {
       it("returns a ShellActionConfig from minimal", () => {
         const result = asConfig({
-          shell: "do some cmd",
+          cmd: "do some cmd",
         });
         expect(result).to.deep.equal({
-          shell: "do some cmd",
+          cmd: "do some cmd",
         });
       });
       it("returns a ShellActionConfig from full", () => {
         const result = asConfig({
-          shell: "do some cmd",
+          cmd: "do some cmd",
           exec: "bash",
           vars: {
             VAR_1: "shell action variable one",
           },
         });
         expect(result).to.deep.equal({
-          shell: "do some cmd",
+          cmd: "do some cmd",
           exec: "bash",
           vars: {
             VAR_1: "shell action variable one",
@@ -36,7 +36,7 @@ describe("actions/config", () => {
       it("returns a ShellActionConfig for short syntax", () => {
         const result = asConfig("do some cmd");
         expect(result).to.deep.equal({
-          shell: "do some cmd",
+          cmd: "do some cmd",
         });
       });
     });
@@ -44,21 +44,21 @@ describe("actions/config", () => {
     describe("for TaskActionConfig", () => {
       it("returns a TaskActionConfig from minimal", () => {
         const result = asConfig({
-          task: ":task-name",
+          path: ":task-name",
         });
         expect(result).to.deep.equal({
-          task: ":task-name",
+          path: ":task-name",
         });
       });
       it("returns a TaskActionConfig from full", () => {
         const result = asConfig({
-          task: ":task-name",
+          path: ":task-name",
           vars: {
             VAR_1: "task action variable one",
           },
         });
         expect(result).to.deep.equal({
-          task: ":task-name",
+          path: ":task-name",
           vars: {
             VAR_1: "task action variable one",
           },
