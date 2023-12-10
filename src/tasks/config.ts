@@ -3,11 +3,9 @@
 import { z } from "zod";
 
 import {
-  ActionConfig,
   asConfig as asActionConfig,
   Schema as ActionSchema,
 } from "../actions/config.ts";
-import { Variables } from "../vars.ts";
 
 export const Schema = z.object({
   desc: z.string().optional(),
@@ -19,13 +17,8 @@ export const Schema = z.object({
   )).optional(),
 });
 
-export interface TaskConfig {
+export interface TaskConfig extends z.infer<typeof Schema> {
   readonly name: string;
-  readonly desc?: string;
-  readonly internal?: boolean;
-  readonly vars?: Variables;
-  readonly deps?: string[];
-  readonly steps?: ActionConfig[];
 }
 
 export function asConfig(name: string, input: unknown): TaskConfig {
