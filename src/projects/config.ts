@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { TaskSchema, asConfig as asTaskConfig } from "../tasks/config.ts";
+import { asConfig as asTaskConfig, TaskSchema } from "../tasks/config.ts";
 
 export const ProjectSchema = z.object({
   root: z.boolean().optional(),
@@ -28,8 +28,7 @@ export function asConfig(name: string, input: unknown): ProjectConfig {
   return {
     name,
     ...(root && { root }),
-    ...(data.default && { default: data.default }),
     ...((Object.entries(vars || {}).length > 0) && { vars }),
     ...(((tasks || []).length > 0) && { tasks }),
-  }
+  };
 }

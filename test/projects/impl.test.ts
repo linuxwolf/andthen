@@ -28,7 +28,6 @@ describe("projects/impl", () => {
         const project = new Project({
           name: "my-project",
           root: true,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -40,7 +39,6 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.be.undefined();
         expect(project.root).to.be.true();
-        expect(project.default).to.equal("build-it");
         expect(project.vars).to.deep.equal({
           VAR_1: "project var one",
         });
@@ -51,7 +49,6 @@ describe("projects/impl", () => {
         expect(project.toConfig()).to.deep.equal({
           name: "my-project",
           root: true,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -85,7 +82,6 @@ describe("projects/impl", () => {
         const project = new Project({
           name: "my-project",
           root: false,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -106,7 +102,6 @@ describe("projects/impl", () => {
 
         expect(project.toConfig()).to.deep.equal({
           name: "my-project",
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
