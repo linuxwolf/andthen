@@ -13,12 +13,14 @@ describe("projects/config", () => {
         const result = asConfig("my-project", {});
 
         expect(result.name).to.equal("my-project");
+        expect(result.desc).to.be.undefined();
         expect(result.root).to.be.undefined();
         expect(result.vars).to.be.undefined();
         expect(result.tasks).to.be.undefined();
       });
       it("returns from full", () => {
         const result = asConfig("my-project", {
+          desc: "my project",
           root: true,
           vars: {
             VAR_1: "project variable one",
@@ -41,6 +43,7 @@ describe("projects/config", () => {
         });
 
         expect(result.name).to.equal("my-project");
+        expect(result.desc).to.equal("my project");
         expect(result.root).to.be.true();
         expect(result.vars).to.deep.equal({
           VAR_1: "project variable one",
