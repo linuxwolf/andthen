@@ -14,7 +14,9 @@ export const Schema = z.object({
   internal: z.boolean().optional(),
   vars: z.record(z.string()).optional(),
   deps: z.string().array().optional(),
-  steps: ActionSchema.array().optional(),
+  steps: ActionSchema.array().transform((val) => (
+    val.map((s) => asActionConfig(s))
+  )).optional(),
 });
 
 export interface TaskConfig {
@@ -35,10 +37,8 @@ export function asConfig(name: string, input: unknown): TaskConfig {
     internal,
     vars,
     deps,
+    steps,
   } = data;
-
-  // extract + transform
-  const steps = (data.steps || []).map((s) => asActionConfig(s));
 
   return {
     name,
@@ -46,6 +46,6 @@ export function asConfig(name: string, input: unknown): TaskConfig {
     ...(internal && { internal }),
     ...((Object.entries(vars || {}).length > 0) && { vars }),
     ...(((deps || []).length > 0) && { deps }),
-    ...((steps.length > 0) && { steps }),
+    ...(((steps || []).length > 0) && { steps }),
   } as TaskConfig;
 }
