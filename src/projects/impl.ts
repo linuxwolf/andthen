@@ -30,7 +30,7 @@ export class Project {
     this.parent = parent;
     this.name = cfg.name;
     this.root = cfg.root ?? false;
-    this.dsec = cfg.desc ?? "";
+    this.desc = cfg.desc ?? "";
     this.#vars = { ...(cfg.vars ?? {}) };
     this.#tasks = tasks;
   }
