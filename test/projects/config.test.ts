@@ -57,7 +57,7 @@ describe("projects/config", () => {
               VAR_3: "task variable three",
             },
             steps: [
-              { cmd: "do simple cmd" },
+              { type: "shell", cmd: "do simple cmd" },
             ],
           },
         ]);

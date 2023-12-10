@@ -10,6 +10,7 @@ describe("actions/shell", () => {
     describe("ctor", () => {
       it("creates a minimal config", () => {
         const result = new ShellAction({
+          type: "shell",
           cmd: "echo stuff",
         });
 
@@ -18,11 +19,13 @@ describe("actions/shell", () => {
         expect(result.exec).to.equal("");
 
         expect(result.toConfig()).to.deep.equal({
+          type: "shell",
           cmd: "echo stuff",
         });
       });
       it("creates with a full config", () => {
         const result = new ShellAction({
+          type: "shell",
           cmd: "echo stuff",
           exec: "bash",
           vars: {
@@ -38,6 +41,7 @@ describe("actions/shell", () => {
         });
 
         expect(result.toConfig()).to.deep.equal({
+          type: "shell",
           cmd: "echo stuff",
           exec: "bash",
           vars: {

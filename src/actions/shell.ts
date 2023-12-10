@@ -6,6 +6,7 @@ import { Action, BaseActionSchema } from "./base.ts";
 import { VariablesContext } from "../vars.ts";
 
 export const ShellActionSchema = BaseActionSchema.extend({
+  type: z.literal("shell"),
   cmd: z.string(),
   exec: z.string().optional(),
   vars: z.record(z.string()).optional(),
@@ -32,6 +33,7 @@ export class ShellAction extends Action implements VariablesContext {
     const cmd = this.cmd;
 
     return {
+      type: "shell",
       cmd,
       ...(this.exec && { exec: this.exec }),
       ...super.toConfig(),

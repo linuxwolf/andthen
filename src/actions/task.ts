@@ -6,6 +6,7 @@ import { Action, BaseActionSchema } from "./base.ts";
 import { VariablesContext } from "../vars.ts";
 
 export const TaskActionSchema = BaseActionSchema.extend({
+  type: z.literal("task"),
   path: z.string(),
   vars: z.record(z.string()).optional(),
 });
@@ -25,6 +26,7 @@ export class TaskAction extends Action implements VariablesContext {
 
   toConfig(): TaskActionConfig {
     return {
+      type: "task",
       path: this.path,
       ...super.toConfig(),
     };
