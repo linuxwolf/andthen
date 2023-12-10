@@ -17,7 +17,7 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.be.undefined();
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("default");
+        expect(project.desc).to.equal("");
         expect(project.vars).to.deep.equal({});
         expect(project.tasks).to.deep.equal({});
 
@@ -28,8 +28,8 @@ describe("projects/impl", () => {
       it("constructs from full config", () => {
         const project = new Project({
           name: "my-project",
+          desc: "my project",
           root: true,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -40,8 +40,8 @@ describe("projects/impl", () => {
 
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.be.undefined();
+        expect(project.desc).to.equal("my project");
         expect(project.root).to.be.true();
-        expect(project.default).to.equal("build-it");
         expect(project.vars).to.deep.equal({
           VAR_1: "project var one",
         });
@@ -51,8 +51,8 @@ describe("projects/impl", () => {
 
         expect(project.toConfig()).to.deep.equal({
           name: "my-project",
+          desc: "my project",
           root: true,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -72,7 +72,6 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.equal(parent);
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("default");
         expect(project.vars).to.deep.equal({});
         expect(project.tasks).to.deep.equal({});
 
@@ -86,8 +85,8 @@ describe("projects/impl", () => {
         });
         const project = new Project({
           name: "my-project",
+          desc: "my project",
           root: false,
-          default: "build-it",
           vars: {
             VAR_1: "project var one",
           },
@@ -98,8 +97,8 @@ describe("projects/impl", () => {
 
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.equal(parent);
+        expect(project.desc).to.equal("my project");
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("build-it");
         expect(project.vars).to.deep.equal({
           VAR_1: "project var one",
         });
@@ -109,7 +108,7 @@ describe("projects/impl", () => {
 
         expect(project.toConfig()).to.deep.equal({
           name: "my-project",
-          default: "build-it",
+          desc: "my project",
           vars: {
             VAR_1: "project var one",
           },
