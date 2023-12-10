@@ -9,7 +9,6 @@ export class Project {
   readonly parent?: Project;
   readonly name: string;
   readonly root: boolean;
-  readonly default: string;
 
   #vars: Variables;
   #tasks: Record<string, TaskConfig>;
@@ -30,7 +29,6 @@ export class Project {
     this.parent = parent;
     this.name = cfg.name;
     this.root = cfg.root ?? false;
-    this.default = cfg.default ?? "default";
     this.#vars = { ...(cfg.vars ?? {}) };
     this.#tasks = tasks;
   }
@@ -50,7 +48,6 @@ export class Project {
     return {
       name: this.name,
       ...(this.root && { root: this.root }),
-      ...((this.default !== "default") && { default: this.default }),
       ...((Object.entries(vars).length > 0) && { vars }),
       ...((tasks.length > 0) && { tasks }),
     };

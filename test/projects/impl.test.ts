@@ -17,7 +17,6 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.be.undefined();
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("default");
         expect(project.vars).to.deep.equal({});
         expect(project.tasks).to.deep.equal({});
 
@@ -72,7 +71,6 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.equal(parent);
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("default");
         expect(project.vars).to.deep.equal({});
         expect(project.tasks).to.deep.equal({});
 
@@ -99,7 +97,6 @@ describe("projects/impl", () => {
         expect(project.name).to.equal("my-project");
         expect(project.parent).to.equal(parent);
         expect(project.root).to.be.false();
-        expect(project.default).to.equal("build-it");
         expect(project.vars).to.deep.equal({
           VAR_1: "project var one",
         });
