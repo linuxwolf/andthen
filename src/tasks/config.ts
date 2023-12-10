@@ -7,7 +7,7 @@ import {
   Schema as ActionSchema,
 } from "../actions/config.ts";
 
-export const Schema = z.object({
+export const TaskSchema = z.object({
   desc: z.string().optional(),
   internal: z.boolean().optional(),
   vars: z.record(z.string()).optional(),
@@ -17,12 +17,12 @@ export const Schema = z.object({
   )).optional(),
 });
 
-export interface TaskConfig extends z.infer<typeof Schema> {
+export interface TaskConfig extends z.infer<typeof TaskSchema> {
   readonly name: string;
 }
 
 export function asConfig(name: string, input: unknown): TaskConfig {
-  const data = Schema.parse(input);
+  const data = TaskSchema.parse(input);
 
   // extract simple fields
   const {
