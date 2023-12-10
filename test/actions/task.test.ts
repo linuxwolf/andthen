@@ -10,33 +10,37 @@ describe("actions/task", () => {
     describe("ctor", () => {
       it("constructs from a minimal config", () => {
         const result = new TaskAction({
-          task: ":task-name",
+          type: "task",
+          path: ":task-name",
         });
 
         expect(result.type).to.equal("task");
-        expect(result.task).to.equal(":task-name");
+        expect(result.path).to.equal(":task-name");
         expect(result.vars).to.deep.equal({});
 
         expect(result.toConfig()).to.deep.equal({
-          task: ":task-name",
+          type: "task",
+          path: ":task-name",
         });
       });
       it("constructs from a full config", () => {
         const result = new TaskAction({
-          task: ":task-name",
+          type: "task",
+          path: ":task-name",
           vars: {
             VAR_1: "task action var one",
           },
         });
 
         expect(result.type).to.equal("task");
-        expect(result.task).to.equal(":task-name");
+        expect(result.path).to.equal(":task-name");
         expect(result.vars).to.deep.equal({
           VAR_1: "task action var one",
         });
 
         expect(result.toConfig()).to.deep.equal({
-          task: ":task-name",
+          type: "task",
+          path: ":task-name",
           vars: {
             VAR_1: "task action var one",
           },

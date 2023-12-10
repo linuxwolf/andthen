@@ -8,8 +8,10 @@ import { TaskActionConfig, TaskActionSchema } from "./task.ts";
 export type ActionConfig = ShellActionConfig | TaskActionConfig;
 
 export const Schema = z.union([
-  ShellActionSchema,
-  TaskActionSchema,
+  z.discriminatedUnion("type", [
+    ShellActionSchema,
+    TaskActionSchema,
+  ]),
   z.string(),
 ]);
 
@@ -18,7 +20,8 @@ export function asConfig(input: unknown): ActionConfig {
   if (typeof result === "string") {
     // short-syntax shell
     return {
-      shell: result,
+      type: "shell",
+      cmd: result,
     };
   }
 

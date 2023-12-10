@@ -6,17 +6,17 @@ import { Action, BaseActionSchema } from "./base.ts";
 import { VariablesContext } from "../vars.ts";
 
 export const TaskActionSchema = BaseActionSchema.extend({
-  task: z.string(),
-  vars: z.record(z.string()).optional(),
+  type: z.literal("task"),
+  path: z.string(),
 });
 export type TaskActionConfig = z.infer<typeof TaskActionSchema>;
 
 export class TaskAction extends Action implements VariablesContext {
-  readonly task: string;
+  readonly path: string;
 
   constructor(cfg: TaskActionConfig) {
     super(cfg);
-    this.task = cfg.task;
+    this.path = cfg.path;
   }
 
   get type() {
@@ -25,7 +25,8 @@ export class TaskAction extends Action implements VariablesContext {
 
   toConfig(): TaskActionConfig {
     return {
-      task: this.task,
+      type: "task",
+      path: this.path,
       ...super.toConfig(),
     };
   }
