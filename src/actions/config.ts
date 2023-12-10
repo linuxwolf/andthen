@@ -10,7 +10,7 @@ export type ActionConfig = ShellActionConfig | TaskActionConfig;
 export const Schema = z.union([
   z.discriminatedUnion("type", [
     ShellActionSchema,
-    TaskActionSchema
+    TaskActionSchema,
   ]),
   z.string(),
 ]);
