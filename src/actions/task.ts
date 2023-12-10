@@ -8,7 +8,6 @@ import { VariablesContext } from "../vars.ts";
 export const TaskActionSchema = BaseActionSchema.extend({
   type: z.literal("task"),
   path: z.string(),
-  vars: z.record(z.string()).optional(),
 });
 export type TaskActionConfig = z.infer<typeof TaskActionSchema>;
 

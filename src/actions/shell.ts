@@ -9,7 +9,6 @@ export const ShellActionSchema = BaseActionSchema.extend({
   type: z.literal("shell"),
   cmd: z.string(),
   exec: z.string().optional(),
-  vars: z.record(z.string()).optional(),
 });
 
 export type ShellActionConfig = z.infer<typeof ShellActionSchema>;
