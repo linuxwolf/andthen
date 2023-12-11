@@ -22,6 +22,15 @@ export abstract class ErrorBase extends Error {
 
 // ##### DEFINED ERRORS #####
 
+export class InvalidLogLevel extends ErrorBase {
+  readonly level: string;
+
+  constructor(level: string, msg = "invalid log level") {
+    super(msg, { level });
+    this.level = level;
+  }
+}
+
 export class InvalidVariableName extends ErrorBase {
   readonly varname: string;
 
