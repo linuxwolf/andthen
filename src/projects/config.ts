@@ -10,7 +10,7 @@ const TaskShortSchema = z.union([
   ActionSchema.array().transform((steps) => ({
     steps,
   } as z.infer<typeof TaskSchema>)),
-])
+]);
 
 export const ProjectSchema = z.object({
   desc: z.string().optional(),
