@@ -65,6 +65,32 @@ describe("projects/config", () => {
           },
         ]);
       });
+      it("returns from tasks short syntax", () => {
+        const result = asConfig("my-project", {
+          tasks: {
+            "task-name": [
+              "do simple cmd",
+              { type: "shell", cmd: "do shell cmd" },
+              { type: "task", path: ":some-task" },
+            ],
+          },
+        });
+
+        expect(result.name).to.equal("my-project");
+        expect(result.desc).to.be.undefined();
+        expect(result.root).to.be.undefined();
+        expect(result.vars).to.be.undefined();
+        expect(result.tasks).to.deep.equal([
+          {
+            name: "task-name",
+            steps: [
+              { type: "shell", cmd: "do simple cmd" },
+              { type: "shell", cmd: "do shell cmd" },
+              { type: "task", path: ":some-task" },
+            ],
+          },
+        ]);
+      });
     });
 
     describe("errors", () => {

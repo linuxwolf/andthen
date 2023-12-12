@@ -2,10 +2,7 @@
 
 import { z } from "zod";
 
-import {
-  asConfig as asActionConfig,
-  Schema as ActionSchema,
-} from "../actions/config.ts";
+import { ActionSchema, asConfig as asActionConfig } from "../actions/config.ts";
 
 export const TaskSchema = z.object({
   desc: z.string().optional(),
