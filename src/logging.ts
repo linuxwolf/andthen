@@ -50,12 +50,22 @@ export function format(record: LogRecord): string {
 // ##### LOGGER #####
 
 export class Logger {
+  static readonly DEBUG = LogLevel.DEBUG;
+  static readonly VERBOSE = LogLevel.VERBOSE;
+  static readonly INFO = LogLevel.INFO;
+  static readonly WARN = LogLevel.WARN;
+  static readonly ERROR = LogLevel.ERROR;
+
   readonly level: LogLevel;
   readonly writer: Deno.WriterSync;
 
   constructor(level = LogLevel.INFO, writer: Deno.WriterSync = Deno.stderr) {
     this.level = level;
     this.writer = writer;
+  }
+
+  get levelName() {
+    return getNameForLevel(this.level);
   }
 
   #loggit(record: LogRecord) {
@@ -108,3 +118,6 @@ export class Logger {
     });
   }
 }
+
+const DEFAULT_LOGGER = new Logger();
+export default DEFAULT_LOGGER;

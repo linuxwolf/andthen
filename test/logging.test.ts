@@ -10,7 +10,7 @@ import {
 import { FakeTime } from "deno_std/testing/time.ts";
 import { expect, mock } from "./mocking.ts";
 
-import {
+import log, {
   format,
   getLevelForName,
   getNameForLevel,
@@ -112,16 +112,19 @@ describe("logging", () => {
       it("creates a new Logger with defaults", () => {
         const log = new Logger();
         expect(log.level).to.equal(LogLevel.INFO);
+        expect(log.levelName).to.equal("INFO");
         expect(log.writer).to.equal(Deno.stderr);
       });
       it("creates a new Logger with level", () => {
         const log = new Logger(LogLevel.DEBUG);
         expect(log.level).to.equal(LogLevel.DEBUG);
+        expect(log.levelName).to.equal("DEBUG");
         expect(log.writer).to.equal(Deno.stderr);
       });
       it("creates a new Logger with level + writer", () => {
         const log = new Logger(LogLevel.DEBUG, writer);
         expect(log.level).to.equal(LogLevel.DEBUG);
+        expect(log.levelName).to.equal("DEBUG");
         expect(log.writer).to.equal(writer);
       });
     });
@@ -199,6 +202,13 @@ describe("logging", () => {
           }
         });
       }
+    });
+  });
+
+  describe("default", () => {
+    it("exports a default logger", () => {
+      expect(log.level).to.equal(LogLevel.INFO);
+      expect(log.writer).to.equal(Deno.stderr);
     });
   });
 });
