@@ -21,21 +21,8 @@ export interface TaskConfig extends z.infer<typeof TaskSchema> {
 export function asConfig(name: string, input: unknown): TaskConfig {
   const data = TaskSchema.parse(input);
 
-  // extract simple fields
-  const {
-    desc,
-    internal,
-    vars,
-    deps,
-    steps,
-  } = data;
-
   return {
     name,
-    ...(desc && { desc }),
-    ...(internal && { internal }),
-    ...((Object.entries(vars || {}).length > 0) && { vars }),
-    ...(((deps || []).length > 0) && { deps }),
-    ...(((steps || []).length > 0) && { steps }),
-  } as TaskConfig;
+    ...data,
+  }
 }
