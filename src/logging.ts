@@ -4,13 +4,13 @@ import { InvalidLogLevel } from "./errors.ts";
 
 // ##### LEVEL DATA #####
 export enum LogLevel {
-  OFF,
+  ALL,
   DEBUG,
   VERBOSE,
   INFO,
-  WARNING,
+  WARN,
   ERROR,
-  ALL,
+  OFF,
 }
 
 type LogLevelName = keyof typeof LogLevel;
@@ -40,8 +40,9 @@ export interface LogRecord {
 export function format(record: LogRecord): string {
   const lvl = getNameForLevel(record.level);
   const ts = record.timestamp.toISOString();
-  const msg = (typeof record.message === "string") ?
-      record.message : record.message();
+  const msg = (typeof record.message === "string")
+    ? record.message
+    : record.message();
 
   return `${ts} [${lvl}]: ${msg}`;
 }
@@ -50,11 +51,11 @@ export function format(record: LogRecord): string {
 
 export class Logger {
   readonly level: LogLevel;
-  #writer: Deno.WriterSync;
+  readonly writer: Deno.WriterSync;
 
-  constructor(level = LogLevel.INFO, writer = Deno.stderr) {
+  constructor(level = LogLevel.INFO, writer: Deno.WriterSync = Deno.stderr) {
     this.level = level;
-    this.#writer = writer;
+    this.writer = writer;
   }
 
   #loggit(record: LogRecord) {
@@ -63,7 +64,47 @@ export class Logger {
       return;
     }
 
-    const output = (new TextEncoder()).encode(format(record));
-    this.#writer.writeSync(output);
+    const output = (new TextEncoder()).encode(format(record) + "\n");
+    this.writer.writeSync(output);
+  }
+
+  debug(message: LogMessage) {
+    this.#loggit({
+      timestamp: new Date(),
+      level: LogLevel.DEBUG,
+      message,
+    });
+  }
+
+  verbose(message: LogMessage) {
+    this.#loggit({
+      timestamp: new Date(),
+      level: LogLevel.VERBOSE,
+      message,
+    });
+  }
+
+  info(message: LogMessage) {
+    this.#loggit({
+      timestamp: new Date(),
+      level: LogLevel.INFO,
+      message,
+    });
+  }
+
+  warn(message: LogMessage) {
+    this.#loggit({
+      timestamp: new Date(),
+      level: LogLevel.WARN,
+      message,
+    });
+  }
+
+  error(message: LogMessage) {
+    this.#loggit({
+      timestamp: new Date(),
+      level: LogLevel.ERROR,
+      message,
+    });
   }
 }
