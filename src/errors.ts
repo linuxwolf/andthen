@@ -48,3 +48,21 @@ export class InvalidRootProject extends ErrorBase {
     this.project = project;
   }
 }
+
+export class ConfigNotFound extends ErrorBase {
+  readonly path: string;
+
+  constructor(path: string, msg = "config not found") {
+    super(msg, { path });
+    this.path = path;
+  }
+}
+
+export class MalformedConfig extends ErrorBase {
+  readonly path: string;
+
+  constructor(path: string, msg = "malformed config") {
+    super(msg, { path });
+    this.path = path;
+  }
+}
