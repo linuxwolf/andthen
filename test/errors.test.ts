@@ -6,6 +6,7 @@ import { expect } from "expecto/index.ts";
 import {
   ErrorBase,
   format,
+  InvalidLogLevel,
   InvalidRootProject,
   InvalidVariableName,
 } from "../src/errors.ts";
@@ -58,6 +59,25 @@ describe("errors", () => {
       expect(err.toString()).to.equal(
         'MockError: this is an error (place="somewhere", status=500)',
       );
+    });
+  });
+
+  describe("InvalidLogLevel", () => {
+    it("creates a InvalidLogLevel with default message", () => {
+      const err = new InvalidLogLevel("invalid");
+      expect(err.name).to.equal("InvalidLogLevel");
+      expect(err.message).to.equal(
+        'invalid log level (level="invalid")',
+      );
+      expect(err.level).to.equal("invalid");
+    });
+    it("creates a InvalidLogLevel with custom message", () => {
+      const err = new InvalidLogLevel("invalid", "unknown log level");
+      expect(err.name).to.equal("InvalidLogLevel");
+      expect(err.message).to.equal(
+        'unknown log level (level="invalid")',
+      );
+      expect(err.level).to.equal("invalid");
     });
   });
 
