@@ -56,16 +56,35 @@ export class Logger {
   static readonly WARN = LogLevel.WARN;
   static readonly ERROR = LogLevel.ERROR;
 
-  readonly level: LogLevel;
+  #level: LogLevel;
   readonly writer: Deno.WriterSync;
 
   constructor(level = LogLevel.INFO, writer: Deno.WriterSync = Deno.stderr) {
-    this.level = level;
+    this.#level = level;
     this.writer = writer;
   }
 
+  get level() {
+    return this.#level;
+  }
+
   get levelName() {
-    return getNameForLevel(this.level);
+    return getNameForLevel(this.#level);
+  }
+
+  louder(): LogLevel {
+    if (this.#level > LogLevel.ALL) {
+      this.#level--;
+    }
+
+    return this.#level;
+  }
+  quieter(): LogLevel {
+    if (this.#level < LogLevel.OFF) {
+      this.#level++;
+    }
+
+    return this.#level;
   }
 
   #loggit(record: LogRecord) {

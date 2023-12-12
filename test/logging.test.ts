@@ -129,6 +129,57 @@ describe("logging", () => {
       });
     });
 
+    describe("levels", () => {
+      let logger: Logger;
+
+      beforeEach(() => {
+        logger = new Logger();
+      });
+
+      it("gets quieter until OFF", () => {
+        let retval: LogLevel;
+
+        expect(logger.level).to.equal(LogLevel.INFO);
+
+        retval = logger.quieter();
+        expect(retval).to.equal(LogLevel.WARN);
+        expect(logger.level).to.equal(LogLevel.WARN);
+
+        retval = logger.quieter();
+        expect(retval).to.equal(LogLevel.ERROR);
+        expect(logger.level).to.equal(LogLevel.ERROR);
+
+        retval = logger.quieter();
+        expect(retval).to.equal(LogLevel.OFF);
+        expect(logger.level).to.equal(LogLevel.OFF);
+
+        retval = logger.quieter();
+        expect(retval).to.equal(LogLevel.OFF);
+        expect(logger.level).to.equal(LogLevel.OFF);
+      });
+      it("gets louder until ALL", () => {
+        let retval: LogLevel;
+
+        expect(logger.level).to.equal(LogLevel.INFO);
+
+        retval = logger.louder();
+        expect(retval).to.equal(LogLevel.VERBOSE);
+        expect(logger.level).to.equal(LogLevel.VERBOSE);
+
+        retval = logger.louder();
+        expect(retval).to.equal(LogLevel.DEBUG);
+        expect(logger.level).to.equal(LogLevel.DEBUG);
+
+        retval = logger.louder();
+        expect(retval).to.equal(LogLevel.ALL);
+        expect(logger.level).to.equal(LogLevel.ALL);
+
+        retval = logger.louder();
+        expect(retval).to.equal(LogLevel.ALL);
+        expect(logger.level).to.equal(LogLevel.ALL);
+      });
+    });
+
     describe("logs", () => {
       type LoggerFunc = (msg: LogMessage) => void;
 
