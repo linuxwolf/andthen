@@ -4,7 +4,7 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import {
-ConfigNotFound,
+  ConfigNotFound,
   ErrorBase,
   format,
   InvalidLogLevel,
@@ -122,7 +122,7 @@ describe("errors", () => {
   });
 
   describe("ConfigNotFound", () => {
-    it("creates a ConfigNotFound with default message" , () => {
+    it("creates a ConfigNotFound with default message", () => {
       const err = new ConfigNotFound("path/without/stuff");
       expect(err.name).to.equal("ConfigNotFound");
       expect(err.message).to.equal(
