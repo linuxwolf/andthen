@@ -24,5 +24,5 @@ export function asConfig(name: string, input: unknown): TaskConfig {
   return {
     name,
     ...data,
-  }
+  };
 }
