@@ -28,18 +28,8 @@ export interface ProjectConfig extends z.infer<typeof ProjectSchema> {
 export function asConfig(name: string, input: unknown): ProjectConfig {
   const data = ProjectSchema.parse(input);
 
-  const {
-    desc,
-    root,
-    vars,
-    tasks,
-  } = data;
-
   return {
     name,
-    ...(desc && { desc }),
-    ...(root && { root }),
-    ...((Object.entries(vars || {}).length > 0) && { vars }),
-    ...(((tasks || []).length > 0) && { tasks }),
+    ...data,
   };
 }

@@ -4,11 +4,13 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import {
+  ConfigNotFound,
   ErrorBase,
   format,
   InvalidLogLevel,
   InvalidRootProject,
   InvalidVariableName,
+  MalformedConfig,
 } from "../src/errors.ts";
 
 describe("errors", () => {
@@ -116,6 +118,44 @@ describe("errors", () => {
         'sub-project as root (project="sub-root")',
       );
       expect(err.project).to.equal("sub-root");
+    });
+  });
+
+  describe("ConfigNotFound", () => {
+    it("creates a ConfigNotFound with default message", () => {
+      const err = new ConfigNotFound("path/without/stuff");
+      expect(err.name).to.equal("ConfigNotFound");
+      expect(err.message).to.equal(
+        `config not found (path="path/without/stuff")`,
+      );
+      expect(err.path).to.equal("path/without/stuff");
+    });
+    it("creates a ConfigNotFound with custom message", () => {
+      const err = new ConfigNotFound("path/without/stuff", "not a config dir");
+      expect(err.name).to.equal("ConfigNotFound");
+      expect(err.message).to.equal(
+        `not a config dir (path="path/without/stuff")`,
+      );
+      expect(err.path).to.equal("path/without/stuff");
+    });
+  });
+
+  describe("MalformedConfig", () => {
+    it("creates a MalformedConfig with default message", () => {
+      const err = new MalformedConfig("path/with/bad-config");
+      expect(err.name).to.equal("MalformedConfig");
+      expect(err.message).to.equal(
+        `malformed config (path="path/with/bad-config")`,
+      );
+      expect(err.path).to.equal("path/with/bad-config");
+    });
+    it("creates a MalformedConfig with custom message", () => {
+      const err = new MalformedConfig("path/with/bad-config", "config broken");
+      expect(err.name).to.equal("MalformedConfig");
+      expect(err.message).to.equal(
+        `config broken (path="path/with/bad-config")`,
+      );
+      expect(err.path).to.equal("path/with/bad-config");
     });
   });
 });
