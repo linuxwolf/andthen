@@ -1,0 +1,144 @@
+/** */
+
+import { InvalidTaskPath } from "../errors.ts";
+
+enum TaskPathKind {
+  ABSOLUTE,
+  ROOT,
+  RELATIVE,
+}
+
+function findTask(input: string): [string, string] {
+  let task = "";
+  const pos = input.lastIndexOf(":");
+  if (pos !== -1) {
+    task = input.substring(pos + 1);
+    input = input.substring(0, pos);
+  }
+
+  return [input, task];
+}
+
+function findSegments(path: string): string[] {
+  const result: string[] = [];
+  let pos = 0;
+
+  while (path) {
+    pos = path.indexOf("/", pos);
+    if (pos === -1) {
+      result.push(path);
+      path = "";
+    } else if (path[pos - 1] === "\\") {
+      pos++;
+    } else {
+      result.push(path.substring(0, pos));
+      path = path.substring(pos + 1);
+      pos = 0;
+    }
+  }
+
+  return result;
+}
+
+function normalizeSegments(segments: string[]): string[] {
+  const result: string[] = [];
+
+  for (const s of segments) {
+    switch (s) {
+      case ".":
+        if (result.length === 0) {
+          result.push(".");
+        }
+        break;
+      case "..":
+        if (result.length > 0) {
+          const prev = result.pop();
+          if (prev === "..") {
+            result.push(prev);
+            result.push("..");
+          }
+        } else {
+          result.push("..");
+        }
+        break;
+      default:
+        result.push(s);
+    }
+  }
+
+  return result;
+}
+
+export class TaskPath {
+  #kind: TaskPathKind;
+  #ref: string;
+
+  readonly task: string;
+  readonly path: string;
+  readonly segments: string[];
+
+  constructor(input: string) {
+    const original = input;
+
+    let kind: TaskPathKind;
+    if (input.startsWith("//")) {
+      kind = TaskPathKind.ROOT;
+      input = input.substring(2);
+    } else if (input.startsWith("/")) {
+      kind = TaskPathKind.ABSOLUTE;
+      input = input.substring(1);
+    } else {
+      kind = TaskPathKind.RELATIVE;
+    }
+    this.#kind = kind;
+    const prefix = (kind === TaskPathKind.ROOT)
+      ? "//"
+      : (kind === TaskPathKind.ABSOLUTE)
+      ? "/"
+      : "";
+
+    const [path, task] = findTask(input);
+    this.task = task;
+
+    let segments = findSegments(path);
+    segments = normalizeSegments(segments);
+
+    // last-mile validations
+    if (kind === TaskPathKind.RELATIVE) {
+      const s = segments.shift();
+      if (s && s !== ".") {
+        segments.unshift(s);
+      }
+    } else {
+      if (segments[0] && segments[0].startsWith(".")) {
+        throw new InvalidTaskPath(original);
+      }
+    }
+    this.segments = segments;
+    this.path = ((p) => {
+      if (kind === TaskPathKind.RELATIVE && p === "") {
+        return "./";
+      }
+      return p;
+    })(segments.join("/"));
+
+    this.#ref = `${prefix}${this.path}`;
+    if (this.task) {
+      this.#ref += `:${this.task}`;
+    }
+  }
+
+  get isRelative() {
+    return this.#kind === TaskPathKind.RELATIVE;
+  }
+  get isRoot() {
+    return this.#kind === TaskPathKind.ROOT;
+  }
+  get isAbsolute() {
+    return this.#kind === TaskPathKind.ABSOLUTE;
+  }
+
+  toString() {
+    return this.#ref;
+  }
+}
