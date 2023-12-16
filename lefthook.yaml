@@ -1,0 +1,8 @@
+pre-push:
+  parallel: true
+  exclude: ".cache,docs"
+  commands:
+    check-fmt:
+      run: deno fmt --check
+    lint:
+      run: deno lint
