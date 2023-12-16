@@ -43,6 +43,17 @@ describe("loader", () => {
           ],
         });
       });
+      it("throws on bad config", () => {
+        const content = `
+desc: true
+root: "my-project"
+
+task:
+  build:
+    - echo do the build
+`
+        expect(() => _internals.loadContent("my-project", content)).to.throw();
+      });
     });
 
     describe("locateConfig()", () => {
