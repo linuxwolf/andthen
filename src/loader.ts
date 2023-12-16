@@ -1,6 +1,6 @@
 /** */
 
-import { basename, join } from "deno_std/path/mod.ts";
+import { join } from "deno_std/path/mod.ts";
 import { parse as yaml } from "deno_std/yaml/mod.ts";
 
 import log from "./logging.ts";
