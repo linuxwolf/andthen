@@ -66,3 +66,12 @@ export class MalformedConfig extends ErrorBase {
     this.path = path;
   }
 }
+
+export class InvalidTaskPath extends ErrorBase {
+  readonly path: string;
+
+  constructor(path: string, msg = "invalid task path") {
+    super(msg, { path });
+    this.path = path;
+  }
+}
