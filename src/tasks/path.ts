@@ -97,8 +97,7 @@ export class TaskPath {
       kind = TaskPathKind.RELATIVE;
     }
     this.#kind = kind;
-    const prefix = (kind === TaskPathKind.ROOT)
-      ? "//" : "";
+    const prefix = (kind === TaskPathKind.ROOT) ? "//" : "";
 
     const [path, task] = findTask(input);
     this.task = task;
@@ -146,6 +145,36 @@ export class TaskPath {
   }
   get isAbsolute() {
     return this.#kind === TaskPathKind.ABSOLUTE;
+  }
+
+  get prefix(): string {
+    switch (this.#kind) {
+      case TaskPathKind.ROOT:
+        return "//";
+      case TaskPathKind.ABSOLUTE:
+        return "/";
+    }
+    return "";
+  }
+
+  resolveFrom(base: TaskPath): TaskPath {
+    if (!this.isRelative) {
+      return this;
+    }
+
+    const path = [
+      ...base.segments,
+      ...this.segments,
+    ].join("/");
+    return new TaskPath(`${base.prefix}${path}:${this.task}`);
+  }
+  resolvePathFrom(base: { current?: string; root?: string }): string {
+    if (this.isAbsolute) {
+      return this.path;
+    }
+
+    const baseDir = (this.isRoot ? base.root : base.current) || "";
+    return join(baseDir, this.path);
   }
 
   toString() {

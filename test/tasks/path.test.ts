@@ -17,6 +17,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([
             "path",
             "to",
@@ -33,6 +34,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([
             "path",
             "to",
@@ -49,6 +51,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([
             "project",
           ]);
@@ -63,6 +66,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([
             "..",
             "..",
@@ -80,6 +84,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([
             "some",
             "other",
@@ -96,6 +101,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.true();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("");
           expect(result.segments).to.deep.equal([]);
           expect(result.path).to.equal("./");
 
@@ -111,6 +117,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("/");
           expect(result.segments).to.deep.equal([
             "abs",
             "project",
@@ -126,6 +133,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("");
+          expect(result.prefix).to.equal("/");
           expect(result.segments).to.deep.equal([
             "abs",
             "project",
@@ -141,6 +149,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.false();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("/");
           expect(result.segments).to.deep.equal([
             "abs",
             "other",
@@ -173,6 +182,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.true();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("//");
           expect(result.segments).to.deep.equal([
             "root",
             "project",
@@ -188,6 +198,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.true();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("");
+          expect(result.prefix).to.equal("//");
           expect(result.segments).to.deep.equal([
             "root",
             "project",
@@ -203,6 +214,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.true();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("task-name");
+          expect(result.prefix).to.equal("//");
           expect(result.segments).to.deep.equal([]);
           expect(result.path).to.equal("");
 
@@ -215,6 +227,7 @@ describe("tasks/path", () => {
           expect(result.isRoot).to.be.true();
           expect(result.isRelative).to.be.false();
           expect(result.task).to.equal("");
+          expect(result.prefix).to.equal("//");
           expect(result.segments).to.deep.equal([]);
           expect(result.path).to.equal("");
 
@@ -238,6 +251,143 @@ describe("tasks/path", () => {
 
           expect(result.toString()).to.equal("with/relative\\/path:task-name");
         });
+      });
+    });
+
+    describe(".resolveFrom()", () => {
+      const rootBase = new TaskPath("//root/base:base-task");
+      const absBase = new TaskPath("/abs/base:base-task");
+      const relBase = new TaskPath("relative/base:base-task");
+
+      it("returns self for absolute path", () => {
+        const path = new TaskPath("/abs/path:task-name");
+
+        expect(path.resolveFrom(absBase)).to.equal(path);
+        expect(path.resolveFrom(rootBase)).to.equal(path);
+        expect(path.resolveFrom(relBase)).to.equal(path);
+      });
+      it("returns self for root path", () => {
+        const path = new TaskPath("//root/path:task-name");
+
+        expect(path.resolveFrom(absBase)).to.equal(path);
+        expect(path.resolveFrom(rootBase)).to.equal(path);
+        expect(path.resolveFrom(relBase)).to.equal(path);
+      });
+
+      describe("implicit relative", () => {
+        it("resolves implicit relative from absolute", () => {
+          const path = new TaskPath("relative/path:task-name");
+
+          expect(path.resolveFrom(absBase)).to.deep.equal(
+            new TaskPath("/abs/base/relative/path:task-name"),
+          );
+        });
+        it("resolve implicit relative from root", () => {
+          const path = new TaskPath("relative/path:task-name");
+
+          expect(path.resolveFrom(rootBase)).to.deep.equal(
+            new TaskPath("//root/base/relative/path:task-name"),
+          );
+        });
+        it("resolve implicit relative from relative", () => {
+          const path = new TaskPath("relative/path:task-name");
+
+          expect(path.resolveFrom(relBase)).to.deep.equal(
+            new TaskPath("relative/base/relative/path:task-name"),
+          );
+        });
+      });
+      describe("parent relative", () => {
+        it("resolve parent relative from relative", () => {
+          const path = new TaskPath("../relative/path:task-name");
+
+          expect(path.resolveFrom(relBase)).to.deep.equal(
+            new TaskPath("relative/relative/path:task-name"),
+          );
+        });
+        it("resolve parent parent relative from relative", () => {
+          const path = new TaskPath("../../relative/path:task-name");
+
+          expect(path.resolveFrom(relBase)).to.deep.equal(
+            new TaskPath("relative/path:task-name"),
+          );
+        });
+        it("resolves parent parent parent relative from relative", () => {
+          const path = new TaskPath("../../../relative/path:task-name");
+
+          expect(path.resolveFrom(relBase)).to.deep.equal(
+            new TaskPath("../relative/path:task-name"),
+          );
+        });
+        it("resolve parent relative from root", () => {
+          const path = new TaskPath("../relative/path:task-name");
+
+          expect(path.resolveFrom(rootBase)).to.deep.equal(
+            new TaskPath("//root/relative/path:task-name"),
+          );
+        });
+        it("resolve parent parent relative from root", () => {
+          const path = new TaskPath("../../relative/path:task-name");
+
+          expect(path.resolveFrom(rootBase)).to.deep.equal(
+            new TaskPath("//relative/path:task-name"),
+          );
+        });
+        it("throws when trying to resolve parent parent parent relative from root", () => {
+          const path = new TaskPath("../../../relative/path:task-name");
+
+          const err = expect(() => path.resolveFrom(rootBase)).to.throw(InvalidTaskPath).actual;
+          expect(err.path).to.equal("//root/base/../../../relative/path:task-name");
+        });
+        it("resolve parent relative from absolute", () => {
+          const path = new TaskPath("../relative/path:task-name");
+
+          expect(path.resolveFrom(absBase)).to.deep.equal(
+            new TaskPath("/abs/relative/path:task-name"),
+          );
+        });
+        it("resolve parent parent relative from absolute", () => {
+          const path = new TaskPath("../../relative/path:task-name");
+
+          expect(path.resolveFrom(absBase)).to.deep.equal(
+            new TaskPath("/relative/path:task-name"),
+          );
+        });
+        it("throws when trying to resolve parent parent parent relative from absolute", () => {
+          const path = new TaskPath("../../../relative/path:task-name");
+
+          const err = expect(() => path.resolveFrom(absBase)).to.throw(InvalidTaskPath).actual;
+          expect(err.path).to.equal("/abs/base/../../../relative/path:task-name");
+        });
+      });
+    });
+
+    describe(".resolvePathFrom()", () => {
+      const base = {
+        current: "/current/working/directory",
+        root: "/root/project/directory",
+      };
+
+      it("resolves self path for absolute", () => {
+        const path = new TaskPath("/abs/path/project:task-name");
+
+        expect(path.resolvePathFrom(base)).to.equal(path.path);
+      });
+
+      it("resolves root with root", () => {
+        const path = new TaskPath("//project/root:task-name");
+
+        expect(path.resolvePathFrom(base)).to.equal(
+          `${base.root}/project/root`,
+        );
+      });
+
+      it("resolves relative with current", () => {
+        const path = new TaskPath("relative/project:task-name");
+
+        expect(path.resolvePathFrom(base)).to.equal(
+          `${base.current}/relative/project`,
+        );
       });
     });
   });
