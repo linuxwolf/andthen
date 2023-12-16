@@ -10,7 +10,7 @@ on:
 
 env:
   DENO_DIR: ./.cache
-  DENO_VER: "1.39.0""
+  DENO_VER: "1.39.0"
 
 jobs:
   caching:
