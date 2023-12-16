@@ -4,7 +4,13 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import { InvalidVariableName } from "../src/errors.ts";
-import { collapse, resolve, resolveAll, Variables, VariablesContext } from "../src/vars.ts";
+import {
+  collapse,
+  resolve,
+  resolveAll,
+  Variables,
+  VariablesContext,
+} from "../src/vars.ts";
 
 class MockVarsContext implements VariablesContext {
   readonly parent?: MockVarsContext;
