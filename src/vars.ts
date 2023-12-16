@@ -22,27 +22,42 @@ function validate(name: string): string {
 
 const RE_INTERPOLATION = /\$(?:\$|\{([_a-zA-Z][_a-zA-Z0-9]*)(?:\:-(.*))?\})/g;
 
-function interpolate(value: string, envs: Variables): string {
-  return value.replaceAll(RE_INTERPOLATION, (match, name, defaultVal) => {
+export function collapse(ctx: VariablesContext, vars?: Variables): Variables {
+  const result = (ctx.parent && collapse(ctx.parent, vars)) || {};
+
+  function replacer(match: string, name?: string) {
+    if (name !== undefined) {
+      return result[name] ?? match;
+    }
+    return match;
+  }
+
+  for (const [name, value] of Object.entries(ctx.vars || {})) {
+    result[validate(name)] = value.replaceAll(RE_INTERPOLATION, replacer);
+  }
+
+  return result;
+}
+
+export function resolve(vars: Variables, envs?: Variables): Variables {
+  const result = { ...envs };
+
+  function replacer(match: string, name?: string, defaultVal?: string) {
     if (match === "$$") {
       return "$";
     }
-    return envs[name] ?? defaultVal ?? "";
-  });
+
+    return result[name!] ?? defaultVal ?? "";
+  }
+
+  for (const [name, value] of Object.entries(vars)) {
+    result[validate(name)] = value.replaceAll(RE_INTERPOLATION, replacer);
+  }
+
+  return result;
 }
 
-export function format(ctx: VariablesContext, envs?: Variables): Variables {
-  envs = {
-    ...envs,
-  };
-
-  if (ctx.parent) {
-    envs = format(ctx.parent, envs);
-  }
-
-  for (const [name, value] of Object.entries(ctx.vars ?? {})) {
-    envs[validate(name)] = interpolate(value, envs);
-  }
-
-  return envs;
+export function resolveAll(ctx: VariablesContext, envs?: Variables): Variables {
+  const vars = collapse(ctx);
+  return resolve(vars, envs);
 }
