@@ -336,8 +336,12 @@ describe("tasks/path", () => {
         it("throws when trying to resolve parent parent parent relative from root", () => {
           const path = new TaskPath("../../../relative/path:task-name");
 
-          const err = expect(() => path.resolveFrom(rootBase)).to.throw(InvalidTaskPath).actual;
-          expect(err.path).to.equal("//root/base/../../../relative/path:task-name");
+          const err =
+            expect(() => path.resolveFrom(rootBase)).to.throw(InvalidTaskPath)
+              .actual;
+          expect(err.path).to.equal(
+            "//root/base/../../../relative/path:task-name",
+          );
         });
         it("resolve parent relative from absolute", () => {
           const path = new TaskPath("../relative/path:task-name");
@@ -356,8 +360,12 @@ describe("tasks/path", () => {
         it("throws when trying to resolve parent parent parent relative from absolute", () => {
           const path = new TaskPath("../../../relative/path:task-name");
 
-          const err = expect(() => path.resolveFrom(absBase)).to.throw(InvalidTaskPath).actual;
-          expect(err.path).to.equal("/abs/base/../../../relative/path:task-name");
+          const err =
+            expect(() => path.resolveFrom(absBase)).to.throw(InvalidTaskPath)
+              .actual;
+          expect(err.path).to.equal(
+            "/abs/base/../../../relative/path:task-name",
+          );
         });
       });
     });
