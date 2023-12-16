@@ -12,9 +12,9 @@ const CONFIG_FILES = [
   "andthen.yml",
   ".andthen.yaml",
   ".andthen.yml",
-];
+] as const;
 
-export async function locateConfig(abs: string): Promise<string | undefined> {
+async function locateConfig(abs: string): Promise<string | undefined> {
   for (const fname of CONFIG_FILES) {
     const fpath = path.join(abs, fname);
     try {
@@ -25,7 +25,7 @@ export async function locateConfig(abs: string): Promise<string | undefined> {
   }
 }
 
-export function loadContent(name: string, content: string): ProjectConfig {
+function loadContent(name: string, content: string): ProjectConfig {
   const data = yaml(content);
   const cfg = asConfig(name, data);
 
@@ -35,6 +35,7 @@ export function loadContent(name: string, content: string): ProjectConfig {
 export const _internals = {
   resolvePath: path.resolve,
   basename: path.basename,
+  CONFIG_FILES,
   locateConfig,
   loadContent,
 };
