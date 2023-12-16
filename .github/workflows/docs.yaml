@@ -19,7 +19,7 @@ concurrency:
 
 env:
   DENO_DIR: ${{ github.workspace }}/.cache
-  DENO_VER: "1.38.3"
+  DENO_VER: "1.39.0"
 
 jobs:
   caching:
