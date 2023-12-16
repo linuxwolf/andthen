@@ -115,7 +115,7 @@ describe("tasks/path", () => {
             "abs",
             "project",
           ]);
-          expect(result.path).to.equal("abs/project");
+          expect(result.path).to.equal("/abs/project");
 
           expect(result.toString()).to.equal("/abs/project:task-name");
         });
@@ -130,7 +130,7 @@ describe("tasks/path", () => {
             "abs",
             "project",
           ]);
-          expect(result.path).to.equal("abs/project");
+          expect(result.path).to.equal("/abs/project");
 
           expect(result.toString()).to.equal("/abs/project");
         });
@@ -146,7 +146,7 @@ describe("tasks/path", () => {
             "other",
             "project",
           ]);
-          expect(result.path).to.equal("abs/other/project");
+          expect(result.path).to.equal("/abs/other/project");
 
           expect(result.toString()).to.equal("/abs/other/project:task-name");
         });

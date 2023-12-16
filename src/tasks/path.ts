@@ -1,5 +1,7 @@
 /** */
 
+import { join } from "deno_std/path/mod.ts";
+
 import { InvalidTaskPath } from "../errors.ts";
 
 enum TaskPathKind {
@@ -7,6 +9,8 @@ enum TaskPathKind {
   ROOT,
   RELATIVE,
 }
+
+// ##### HELPERS #####
 
 function findTask(input: string): [string, string] {
   let task = "";
@@ -69,6 +73,8 @@ function normalizeSegments(segments: string[]): string[] {
   return result;
 }
 
+// ##### EXPORTED #####
+
 export class TaskPath {
   #kind: TaskPathKind;
   #ref: string;
@@ -92,10 +98,7 @@ export class TaskPath {
     }
     this.#kind = kind;
     const prefix = (kind === TaskPathKind.ROOT)
-      ? "//"
-      : (kind === TaskPathKind.ABSOLUTE)
-      ? "/"
-      : "";
+      ? "//" : "";
 
     const [path, task] = findTask(input);
     this.task = task;
@@ -103,8 +106,8 @@ export class TaskPath {
     let segments = findSegments(path);
     segments = normalizeSegments(segments);
 
-    // last-mile validations
-    if (kind === TaskPathKind.RELATIVE) {
+    // last-mile transformations/validations
+    if (this.#kind === TaskPathKind.RELATIVE) {
       const s = segments.shift();
       if (s && s !== ".") {
         segments.unshift(s);
@@ -114,10 +117,17 @@ export class TaskPath {
         throw new InvalidTaskPath(original);
       }
     }
+
     this.segments = segments;
     this.path = ((p) => {
-      if (kind === TaskPathKind.RELATIVE && p === "") {
-        return "./";
+      switch (this.#kind) {
+        case TaskPathKind.ABSOLUTE:
+          return "/" + p;
+        case TaskPathKind.RELATIVE:
+          if (p === "") {
+            return "./";
+          }
+          break;
       }
       return p;
     })(segments.join("/"));
