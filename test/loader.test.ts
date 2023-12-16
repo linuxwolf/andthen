@@ -24,7 +24,7 @@ describe("loader", () => {
   `;
         const result = _internals.loadContent("my-project", content);
         expect(result).to.deep.equal({
-          name: "my-project",
+          path: "my-project",
           desc: "sample project",
           tasks: [
             {
@@ -109,23 +109,10 @@ tasks:
         cmd: echo do some tests
 `;
 
-    let resolveStub: mock.Stub | undefined = undefined;
-    let basenameSpy: mock.Spy | undefined = undefined;
     let locateConfigStub: mock.Stub | undefined = undefined;
     let loadContentSpy: mock.Spy | undefined = undefined;
 
-    beforeEach(() => {
-      resolveStub = mock.stub(
-        _internals,
-        "resolvePath",
-        (...args: string[]) => "/abs/" + args.join("/"),
-      );
-      basenameSpy = mock.spy(_internals, "basename");
-    });
-
     afterEach(() => {
-      resolveStub && !resolveStub.restored && resolveStub.restore();
-      basenameSpy && !basenameSpy.restored && basenameSpy.restore();
       locateConfigStub && !locateConfigStub.restored &&
         locateConfigStub.restore();
       loadContentSpy && !loadContentSpy.restored && loadContentSpy.restore();
@@ -141,7 +128,7 @@ tasks:
 
       const result = await load("path/to/my-project");
       expect(result).to.deep.equal({
-        name: "my-project",
+        path: "path/to/my-project",
         desc: "sample project",
         tasks: [
           {
@@ -159,32 +146,24 @@ tasks:
           },
         ],
       });
-      expect(resolveStub).to.have.been.deep.calledWith([
+      expect(locateConfigStub).to.have.been.deep.calledWith([
         "path/to/my-project",
       ]);
-      expect(basenameSpy).to.have.been.deep.calledWith([
-        "/abs/path/to/my-project",
-      ]);
-      expect(locateConfigStub).to.have.been.deep.calledWith([
-        "/abs/path/to/my-project",
-      ]);
       expect(loadContentSpy).to.have.been.deep.calledWith([
-        "my-project",
+        "path/to/my-project",
         content,
       ]);
     });
 
-    it("fails if no config is located", async () => {
+    it("returns undefined if no config is located", async () => {
       locateConfigStub = mock.stub(
         _internals,
         "locateConfig",
         () => Promise.resolve(undefined),
       );
 
-      const err = (await expect(load("path/to/my-project")).to.be.rejectedWith(
-        ConfigNotFound,
-      )).actual as ConfigNotFound;
-      expect(err.path).to.deep.equal("/abs/path/to/my-project");
+      const result = await load("path/to/my-config");
+      expect(result).to.be.undefined();
     });
 
     it("fails if config fails parsing", async () => {
@@ -200,7 +179,7 @@ tasks:
       const err = (await expect(load("path/to/my-project")).to.be.rejectedWith(
         MalformedConfig,
       )).actual as MalformedConfig;
-      expect(err.path).to.equal("/abs/path/to/my-project");
+      expect(err.path).to.equal("path/to/my-project");
     });
   });
 });

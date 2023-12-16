@@ -11,10 +11,10 @@ describe("projects/impl", () => {
     describe("ctor", () => {
       it("constructs from minimal config", () => {
         const project = new Project({
-          name: "my-project",
+          path: "my-project",
         });
 
-        expect(project.name).to.equal("my-project");
+        expect(project.path).to.equal("my-project");
         expect(project.parent).to.be.undefined();
         expect(project.root).to.be.false();
         expect(project.desc).to.equal("");
@@ -22,12 +22,12 @@ describe("projects/impl", () => {
         expect(project.tasks).to.deep.equal({});
 
         expect(project.toConfig()).to.deep.equal({
-          name: "my-project",
+          path: "my-project",
         });
       });
       it("constructs from full config", () => {
         const project = new Project({
-          name: "my-project",
+          path: "my-project",
           desc: "my project",
           root: true,
           vars: {
@@ -38,7 +38,7 @@ describe("projects/impl", () => {
           ],
         });
 
-        expect(project.name).to.equal("my-project");
+        expect(project.path).to.equal("my-project");
         expect(project.parent).to.be.undefined();
         expect(project.desc).to.equal("my project");
         expect(project.root).to.be.true();
@@ -50,7 +50,7 @@ describe("projects/impl", () => {
         });
 
         expect(project.toConfig()).to.deep.equal({
-          name: "my-project",
+          path: "my-project",
           desc: "my project",
           root: true,
           vars: {
@@ -63,28 +63,28 @@ describe("projects/impl", () => {
       });
       it("constructs from minimal config + parent", () => {
         const parent = new Project({
-          name: "parent-project",
+          path: "parent-project",
         });
         const project = new Project({
-          name: "my-project",
+          path: "my-project",
         }, parent);
 
-        expect(project.name).to.equal("my-project");
+        expect(project.path).to.equal("my-project");
         expect(project.parent).to.equal(parent);
         expect(project.root).to.be.false();
         expect(project.vars).to.deep.equal({});
         expect(project.tasks).to.deep.equal({});
 
         expect(project.toConfig()).to.deep.equal({
-          name: "my-project",
+          path: "my-project",
         });
       });
       it("constructs from full config + parent", () => {
         const parent = new Project({
-          name: "parent-project",
+          path: "parent-project",
         });
         const project = new Project({
-          name: "my-project",
+          path: "parent-project/my-project",
           desc: "my project",
           root: false,
           vars: {
@@ -95,7 +95,7 @@ describe("projects/impl", () => {
           ],
         }, parent);
 
-        expect(project.name).to.equal("my-project");
+        expect(project.path).to.equal("parent-project/my-project");
         expect(project.parent).to.equal(parent);
         expect(project.desc).to.equal("my project");
         expect(project.root).to.be.false();
@@ -107,7 +107,7 @@ describe("projects/impl", () => {
         });
 
         expect(project.toConfig()).to.deep.equal({
-          name: "my-project",
+          path: "parent-project/my-project",
           desc: "my project",
           vars: {
             VAR_1: "project var one",
@@ -119,43 +119,15 @@ describe("projects/impl", () => {
       });
       it("fails if root + parent", () => {
         const parent = new Project({
-          name: "root-project",
+          path: "root-project",
         });
         const err = expect(() => {
           new Project({
-            name: "my-project",
+            path: "root-project/my-project",
             root: true,
           }, parent);
         }).to.throw(InvalidRootProject).actual;
         expect(err.project).to.equal("root-project/my-project");
-      });
-    });
-
-    describe("path()", () => {
-      it("returns a single-level", () => {
-        const project = new Project({
-          name: "my-project",
-        });
-
-        expect(project.path()).to.equal("my-project");
-      });
-      it("returns for a hierarchy", () => {
-        const parent = (() => {
-          const root = new Project({
-            name: "project-root",
-            root: true,
-          });
-          const sub = new Project({
-            name: "sub-project",
-          }, root);
-
-          return sub;
-        })();
-        const project = new Project({
-          name: "my-project",
-        }, parent);
-
-        expect(project.path()).to.equal("project-root/sub-project/my-project");
       });
     });
   });
