@@ -49,6 +49,13 @@ export function format(record: LogRecord): string {
 
 // ##### LOGGER #####
 
+export interface Consoler {
+  // deno-lint-ignore no-explicit-any
+  info(msg: string, ...args: any[]): void;
+  // deno-lint-ignore no-explicit-any
+  error(msg: string, ...args: any[]): void;
+}
+
 export class Logger {
   static readonly DEBUG = LogLevel.DEBUG;
   static readonly VERBOSE = LogLevel.VERBOSE;
@@ -57,11 +64,11 @@ export class Logger {
   static readonly ERROR = LogLevel.ERROR;
 
   #level: LogLevel;
-  readonly writer: Deno.WriterSync;
+  readonly output: Consoler;
 
-  constructor(level = LogLevel.INFO, writer: Deno.WriterSync = Deno.stderr) {
+  constructor(level = LogLevel.INFO, output: Consoler = console) {
     this.#level = level;
-    this.writer = writer;
+    this.output = output;
   }
 
   get level() {
@@ -93,8 +100,7 @@ export class Logger {
       return;
     }
 
-    const output = (new TextEncoder()).encode(format(record) + "\n");
-    this.writer.writeSync(output);
+    this.output.error(format(record));
   }
 
   debug(message: LogMessage) {

@@ -11,6 +11,7 @@ import { FakeTime } from "deno_std/testing/time.ts";
 import { expect, mock } from "./mocking.ts";
 
 import log, {
+  Consoler,
   format,
   getLevelForName,
   getNameForLevel,
@@ -84,20 +85,21 @@ describe("logging", () => {
   });
 
   describe("Logger", () => {
-    const writer: Deno.WriterSync = {
-      writeSync(_p: Uint8Array): number {
-        return 0;
-      },
-    };
+    const outputter = {
+      // deno-lint-ignore no-explicit-any
+      info(_msg: string, _args: any[]) {},
+      // deno-lint-ignore no-explicit-any
+      error(_msg: string, _args: any[]) {},
+    } as Consoler;
     const timestamp = new Date();
-    let writeSyncStub = mock.stub(writer, "writeSync");
+    let writeSyncStub = mock.stub(outputter, "error");
 
     function stubWriter(): mock.Stub {
       if (!writeSyncStub.restored) {
         writeSyncStub.restore();
       }
 
-      writeSyncStub = mock.stub(writer, "writeSync");
+      writeSyncStub = mock.stub(outputter, "error");
       return writeSyncStub;
     }
 
@@ -113,19 +115,19 @@ describe("logging", () => {
         const log = new Logger();
         expect(log.level).to.equal(LogLevel.INFO);
         expect(log.levelName).to.equal("INFO");
-        expect(log.writer).to.equal(Deno.stderr);
+        expect(log.output).to.equal(console);
       });
       it("creates a new Logger with level", () => {
         const log = new Logger(LogLevel.DEBUG);
         expect(log.level).to.equal(LogLevel.DEBUG);
         expect(log.levelName).to.equal("DEBUG");
-        expect(log.writer).to.equal(Deno.stderr);
+        expect(log.output).to.equal(console);
       });
       it("creates a new Logger with level + writer", () => {
-        const log = new Logger(LogLevel.DEBUG, writer);
+        const log = new Logger(LogLevel.DEBUG, outputter);
         expect(log.level).to.equal(LogLevel.DEBUG);
         expect(log.levelName).to.equal("DEBUG");
-        expect(log.writer).to.equal(writer);
+        expect(log.output).to.equal(outputter);
       });
     });
 
@@ -201,7 +203,7 @@ describe("logging", () => {
       }
 
       it("writes for 'all' levels", () => {
-        const log = new Logger(LogLevel.ALL, writer);
+        const log = new Logger(LogLevel.ALL, outputter);
         const methods = bindAll(log);
 
         for (const [lvl, fn] of methods) {
@@ -211,12 +213,12 @@ describe("logging", () => {
 
           fn(msg);
           expect(writeSyncStub).to.have.been.deep.calledWith([
-            (new TextEncoder()).encode(`${ts} [${lvlName}]: ${msg}\n`),
+            `${ts} [${lvlName}]: ${msg}`,
           ]);
         }
       });
       it("doesn't write for 'off' levels", () => {
-        const log = new Logger(LogLevel.OFF, writer);
+        const log = new Logger(LogLevel.OFF, outputter);
         const methods = bindAll(log);
 
         for (const [lvl, fn] of methods) {
@@ -231,7 +233,7 @@ describe("logging", () => {
 
       for (const minLevel of levels) {
         it(`writes for ${getNameForLevel(minLevel)} or higher`, () => {
-          const log = new Logger(minLevel, writer);
+          const log = new Logger(minLevel, outputter);
           const methods = bindAll(log);
 
           for (const [lvl, fn] of methods) {
@@ -245,10 +247,9 @@ describe("logging", () => {
             if (minLevel > lvl) {
               expect(writeSyncStub).to.not.have.been.called();
             } else {
-              const expected = (new TextEncoder()).encode(
-                `${ts} [${lvlName}]: ${msg}\n`,
-              );
-              expect(writeSyncStub).to.have.been.deep.calledWith([expected]);
+              expect(writeSyncStub).to.have.been.deep.calledWith([
+                `${ts} [${lvlName}]: ${msg}`,
+              ]);
             }
           }
         });
@@ -259,7 +260,7 @@ describe("logging", () => {
   describe("default", () => {
     it("exports a default logger", () => {
       expect(log.level).to.equal(LogLevel.INFO);
-      expect(log.writer).to.equal(Deno.stderr);
+      expect(log.output).to.equal(console);
     });
   });
 });
