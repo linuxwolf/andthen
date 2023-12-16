@@ -1,9 +1,9 @@
 /** */
 
-import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
+import { afterEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "./mocking.ts";
 
-import { ConfigNotFound, MalformedConfig } from "../src/errors.ts";
+import { MalformedConfig } from "../src/errors.ts";
 import { _internals, load } from "../src/loader.ts";
 
 describe("loader", () => {
