@@ -51,7 +51,7 @@ root: "my-project"
 task:
   build:
     - echo do the build
-`
+`;
         expect(() => _internals.loadContent("my-project", content)).to.throw();
       });
     });
