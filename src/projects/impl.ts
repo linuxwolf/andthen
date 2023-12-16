@@ -2,7 +2,7 @@
 
 import { InvalidRootProject } from "../errors.ts";
 import { TaskConfig } from "../tasks/config.ts";
-import { Variables } from "../vars.ts";
+import { collapse, Variables } from "../vars.ts";
 import { ProjectConfig } from "./config.ts";
 
 export class Project {
@@ -31,7 +31,10 @@ export class Project {
     this.name = cfg.name;
     this.root = cfg.root ?? false;
     this.desc = cfg.desc ?? "";
-    this.#vars = { ...(cfg.vars ?? {}) };
+    this.#vars = collapse({
+      parent,
+      vars: cfg.vars || {},
+    });
     this.#tasks = tasks;
   }
 
