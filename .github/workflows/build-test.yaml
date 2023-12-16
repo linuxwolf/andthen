@@ -10,7 +10,7 @@ on:
 
 env:
   DENO_DIR: ./.cache
-  DENO_VER: "1.38.3"
+  DENO_VER: "1.39.0""
 
 jobs:
   caching:
@@ -71,13 +71,13 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VER }}
       - name: "Run unit tests"
-        run: deno test --coverage=coverage/profile
+        run: deno test --coverage
       - name: "Generate coverage reports"
         run: |
           deno coverage \
             --exclude=test \
             --lcov --output=coverage/lcov \
-            coverage/profile
+            coverage
       - name: "Report coverage"
         uses: codecov/codecov-action@v3
         with:
