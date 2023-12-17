@@ -180,4 +180,11 @@ export class TaskPath {
   toString() {
     return this.#ref;
   }
+
+  static from(path: string | TaskPath): TaskPath {
+    if (path instanceof TaskPath) {
+      return path as TaskPath;
+    }
+    return new TaskPath(path as string);
+  }
 }

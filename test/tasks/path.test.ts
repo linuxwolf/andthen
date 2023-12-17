@@ -398,5 +398,18 @@ describe("tasks/path", () => {
         );
       });
     });
+
+    describe("TaskPath.from()", () => {
+      it("returns self for TaskPath", () => {
+        const path = new TaskPath("//some/project:task-name");
+        const result = TaskPath.from(path);
+        expect(result).to.equal(path);
+      });
+      it("parses for a string", () => {
+        const path = "//some/project:task-name";
+        const result = TaskPath.from(path);
+        expect(`${result}`).to.equal("//some/project:task-name");
+      });
+    });
   });
 });
