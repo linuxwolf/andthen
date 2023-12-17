@@ -390,12 +390,28 @@ describe("tasks/path", () => {
         );
       });
 
+      it("resolves empty root with root", () => {
+        const path = new TaskPath("//project/root:task-name");
+
+        expect(path.resolvePathFrom({
+          current: "/current/working/directory",
+        })).to.equal("project/root");
+      });
+
       it("resolves relative with current", () => {
         const path = new TaskPath("relative/project:task-name");
 
         expect(path.resolvePathFrom(base)).to.equal(
           `${base.current}/relative/project`,
         );
+      });
+
+      it("resolves relative with empty current", () => {
+        const path = new TaskPath("relative/project:task-name");
+
+        expect(path.resolvePathFrom({
+          root: "/root/project/directory",
+        })).to.equal("relative/project");
       });
     });
 
