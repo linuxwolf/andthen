@@ -3,27 +3,42 @@
 import { common, dirname, join } from "deno_std/path/mod.ts";
 
 import log from "../logging.ts";
+import { ConfigNotFound, InvalidTaskPath } from "../errors.ts";
 import { load } from "../loader.ts";
-import { ConfigNotFound } from "../errors.ts";
 import { TaskPath } from "../tasks/path.ts";
 import { ProjectConfig } from "./config.ts";
 import { Project } from "./impl.ts";
 
-export const _internals = {};
+export const _internals = {
+  load,
+};
+
+interface ResolveProjectOpts {
+  baseDir?: string;
+  strict?: boolean;
+  rootPath?: boolean;
+  caching?: boolean;
+}
 
 export class Resolver {
-  #baseDir: string;
+  #workingDir: string;
+  #rootDir: string;
   #root?: Project;
   #cached: Record<string, Project>;
 
   constructor(path: string) {
     // assume base dir is an absolute path
-    this.#baseDir = path;
+    this.#workingDir = path;
+    this.#rootDir = "";
     this.#cached = {};
   }
 
-  get baseDir() {
-    return this.#baseDir;
+  get workingDir() {
+    return this.#workingDir;
+  }
+
+  get rootDir() {
+    return this.#rootDir;
   }
 
   get root(): Project {
@@ -34,30 +49,121 @@ export class Resolver {
     return Object.values(this.#cached);
   }
 
-  async open(): Promise<Project> {
+  get initialized(): boolean {
+    return this.#root !== undefined;
+  }
+
+  async init(): Promise<void> {
     if (!this.#root) {
       await this.#resolveRoot();
     }
-
-    throw new Error("not implemented");
   }
 
-  #toRootPath(path: string, base = this.#baseDir): string {
+  async open(path: string | TaskPath): Promise<Project> {
+    const resolved = TaskPath.from(path);
+    if (resolved.isAbsolute) {
+      throw new InvalidTaskPath(resolved.path, "no absolute paths allowed");
+    }
+
+    const result = await this.#resolveProject(path, {});
+
+    return result!;
+  }
+
+  #toRootPath(path: string, base = this.#rootDir): string {
     return "//" + path.substring(common([base, path]).length);
+  }
+
+  async #resolveProject(
+    path: string | TaskPath,
+    opts: ResolveProjectOpts,
+  ): Promise<Project | undefined> {
+    const options: Required<ResolveProjectOpts> = {
+      baseDir: this.#rootDir,
+      strict: true,
+      rootPath: true,
+      caching: true,
+      ...opts,
+    };
+    const {
+      baseDir,
+      rootPath,
+      strict,
+      caching,
+    } = options;
+
+    // step 1: canonicalize path
+    const resolvedPath = TaskPath.from(path)
+      .resolveFrom(new TaskPath(rootPath ? "//" : baseDir))
+      .path;
+
+    // step 2: retrieve / create project
+    let prj = this.#cached["//" + resolvedPath];
+    if (!prj) {
+      // step 2.1: load config
+      let cfg: ProjectConfig | undefined;
+      let workingPath = resolvedPath;
+      do {
+        cfg = await this.#resolveConfig(workingPath, options);
+        if (!cfg) {
+          workingPath = dirname(workingPath);
+        }
+      } while (!cfg && !strict);
+
+      if (!cfg && strict) {
+        throw new ConfigNotFound(resolvedPath);
+      } else if (!cfg) {
+        return undefined;
+      }
+
+      // step 2.2: hydrate parents
+      let parent: Project | undefined;
+      if (!cfg.root) {
+        const parentPath = dirname(workingPath);
+        parent = await this.#resolveProject(parentPath, {
+          ...options,
+          strict: false,
+        });
+      }
+
+      // step 2.3: create project
+      if (!parent) {
+        // treat as root anyway
+        cfg = {
+          ...cfg,
+          root: true,
+        };
+      }
+      prj = new Project(cfg, parent);
+      if (caching) {
+        this.#cached[prj.path] = prj;
+      }
+    }
+
+    return prj;
   }
 
   async #resolveConfig(
     path: string,
-    base: string,
-    asRoot = true,
+    opts: ResolveProjectOpts,
   ): Promise<ProjectConfig | undefined> {
-    log.debug(`resolver loading config at ${join(base, path)}...`);
+    const options: Required<ResolveProjectOpts> = {
+      baseDir: this.#rootDir,
+      strict: false,
+      rootPath: true,
+      caching: false,
+      ...opts,
+    };
+
+    const { baseDir, rootPath } = options;
+
+    log.debug(`resolver loading config at ${join(baseDir, path)}...`);
 
     // TODO: apply this to load() ... somehow
-    let cfg = await load(join(base, path));
+    let cfg = await _internals.load(join(baseDir, path));
     cfg = cfg && {
       ...cfg,
-      path: asRoot ? this.#toRootPath(path, base) : path,
+      path: rootPath ? this.#toRootPath(path, baseDir) : path,
     };
 
     return cfg;
@@ -70,27 +176,36 @@ export class Resolver {
 
     // step 1: find a the root (walking up)
     let cfg: ProjectConfig | undefined = undefined;
-    let working = this.#baseDir;
-    while ((working !== "/") && (cfg === undefined || !cfg.root)) {
-      cfg = await this.#resolveConfig(working, "", false);
+    let working = this.#workingDir;
+    let done = false;
+    while (!done && (cfg === undefined || !cfg.root)) {
+      cfg = await this.#resolveConfig(working, {
+        baseDir: "/",
+        rootPath: false,
+      });
       if (cfg) {
         log.debug(` .... resolver found config at ${cfg.path}`);
         found.unshift(cfg);
       } else {
         log.debug(`.... resolve no config at ${working}`);
       }
-      working = dirname(working);
+
+      if (working === "/" && !done) {
+        done = true;
+      } else {
+        working = dirname(working);
+      }
     }
 
     // no configurations found!
     if (!cfg) {
-      log.error(`no config found at path or ancestors: "${this.#baseDir}"`);
-      throw new ConfigNotFound(this.#baseDir);
+      log.error(`no config found at path or ancestors: "${this.#workingDir}"`);
+      throw new ConfigNotFound(this.#workingDir);
     }
 
     // step 2: update base dir
-    this.#baseDir = cfg.path;
-    log.debug(`resolver baseDir is now ${this.#baseDir}`);
+    this.#rootDir = cfg.path;
+    log.debug(`resolver rootDir is now ${this.#rootDir}`);
 
     // step 3: create + cache [root .. start]
     let parent: Project | undefined = undefined;
@@ -103,7 +218,7 @@ export class Resolver {
       curr = {
         ...curr,
         path: "//" +
-          curr.path.substring(common([curr.path, this.#baseDir]).length),
+          curr.path.substring(common([curr.path, this.#rootDir]).length),
         root: needsRoot,
       };
 
