@@ -1,6 +1,6 @@
 /** */
 
-import { common, dirname, join } from "deno_std/path/mod.ts";
+import { common, dirname, join, resolve } from "deno_std/path/mod.ts";
 
 import log from "../logging.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../errors.ts";
@@ -79,6 +79,26 @@ export class Resolver {
     const { project } = await this.#resolveProject(resolved, {});
 
     return project!;
+  }
+
+  forPath(path: string | TaskPath): Resolver {
+    const dst = TaskPath.from(path).resolveFrom(this.#workingPath);
+    if (dst.isAbsolute) {
+      throw new InvalidTaskPath(dst.path, "no absolute paths allowed");
+    }
+
+    const result = new Resolver(this.#rootDir);
+    result.#root = this.#root;
+    result.#rootDir = this.#rootDir;
+    result.#cached = this.#cached;
+
+    result.#workingPath = dst;
+    result.#workingDir = dst.resolvePathFrom({
+      current: this.#workingDir,
+      root: this.#rootDir,
+    });
+
+    return result;
   }
 
   #toRootPath(path: string, base = this.#rootDir): string {

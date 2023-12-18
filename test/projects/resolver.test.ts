@@ -163,4 +163,76 @@ describe("projects/resolver", () => {
       expect(err.path).to.equal("/abs/project");
     });
   });
+
+  describe(".forPath()", () => {
+    let resolver: Resolver;
+    let loadStub: mock.Stub;
+
+    beforeEach(async () => {
+      const workingDir = "/devel/root/working";
+      const rootDir = "/devel/root";
+      loadStub = mock.stub(_internals, "load", (path: string) => {
+        if (path.endsWith("/invalid")) {
+          return Promise.resolve(undefined);
+        }
+        return Promise.resolve(
+          (path === rootDir)
+            ? {
+              path,
+              desc: "root project",
+              root: true,
+            }
+            : {
+              path,
+              desc: `${basename(path)} project`,
+            },
+        );
+      });
+
+      resolver = new Resolver(workingDir);
+      await resolver.init();
+    });
+    afterEach(() => {
+      loadStub && !loadStub.restored && loadStub.restore();
+    });
+
+    it("creates a new resolver for relative path string", () => {
+      const result = resolver.forPath("../sibling");
+      expect(result.workingDir).to.equal("/devel/root/sibling");
+      expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
+      expect(result.root).to.equal(resolver.root);
+      expect(result.rootDir).to.equal(resolver.rootDir);
+      expect(result.projects).to.deep.equal(result.projects);
+    });
+    it("creates a new resolver for a relative TaskPath", () => {
+      const result = resolver.forPath(new TaskPath("../sibling"));
+      expect(result.workingDir).to.equal("/devel/root/sibling");
+      expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
+      expect(result.root).to.equal(resolver.root);
+      expect(result.rootDir).to.equal(resolver.rootDir);
+      expect(result.projects).to.deep.equal(result.projects);
+    });
+
+    it("creates a new resolver for a root path string", () => {
+      const result = resolver.forPath("//sibling");
+      expect(result.workingDir).to.equal("/devel/root/sibling");
+      expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
+      expect(result.root).to.equal(resolver.root);
+      expect(result.rootDir).to.equal(resolver.rootDir);
+      expect(result.projects).to.deep.equal(result.projects);
+    });
+    it("creates a new resolver for a root TaskPath", () => {
+      const result = resolver.forPath(new TaskPath("//sibling"));
+      expect(result.workingDir).to.equal("/devel/root/sibling");
+      expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
+      expect(result.root).to.equal(resolver.root);
+      expect(result.rootDir).to.equal(resolver.rootDir);
+      expect(result.projects).to.deep.equal(result.projects);
+    });
+
+    it("throws if path is absolute", () => {
+      const err = (expect(() => resolver.forPath("/absolute/path")).to.throw(InvalidTaskPath)).actual;
+      expect(err.path).to.equal("/absolute/path");
+    });
+  });
 });
