@@ -7,12 +7,14 @@ import { join } from "deno_std/path/join.ts";
 import { _internals, Resolver } from "../../src/projects/resolver.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
 import { basename } from "deno_std/path/basename.ts";
+import { TaskPath } from "../../src/tasks/path.ts";
 
 describe("projects/resolver", () => {
   describe("ctor", () => {
     it("creates a uninitialized Resolver", () => {
       const result = new Resolver("/some/working/dir");
       expect(result.workingDir).to.equal("/some/working/dir");
+      expect(result.workingPath).to.deep.equal(new TaskPath("//"));
       expect(result.rootDir).to.equal("");
       expect(result.root).to.be.undefined();
       expect(result.projects).to.deep.equal([]);
@@ -22,6 +24,7 @@ describe("projects/resolver", () => {
 
   describe(".init()", () => {
     const workingDir = "/devel/root/working";
+    const rootDir = "/devel";
     let resolver: Resolver;
     let loadStub: mock.Stub;
 
@@ -47,6 +50,7 @@ describe("projects/resolver", () => {
       await resolver.init();
       expect(resolver.initialized).to.be.true();
       expect(resolver.rootDir).to.equal(resolver.workingDir);
+      expect(resolver.workingPath).to.deep.equal(new TaskPath("//"));
 
       const {
         projects,
@@ -57,7 +61,6 @@ describe("projects/resolver", () => {
       expect(loadStub).to.have.been.deep.calledWith([workingDir]);
     });
     it("initializes when rootDir is an ancestor of workingDir", async () => {
-      const rootDir = join(workingDir, "..", "..");
       loadStub = mock.stub(
         _internals,
         "load",
@@ -71,7 +74,11 @@ describe("projects/resolver", () => {
       await resolver.init();
       expect(resolver.initialized).to.be.true();
       expect(resolver.rootDir).to.equal(rootDir);
+      expect(resolver.workingPath).to.deep.equal(
+        new TaskPath("//root/working"),
+      );
       expect(resolver.projects.length).to.equal(3);
+
       expect(loadStub).to.have.been.called(3);
       expect(loadStub).to.have.been.calledWith([workingDir]);
       expect(loadStub).to.have.been.calledWith([join(workingDir, "..")]);
@@ -123,13 +130,24 @@ describe("projects/resolver", () => {
       loadStub && !loadStub.restored && loadStub.restore();
     });
 
-    it("resolves a new project", async () => {
+    it("resolves already-opened root project", async () => {
+      const result = await resolver.open("//");
+      const root = resolver.root;
+      expect(result).to.equal(root);
+    });
+    it("resolves a new sub-project", async () => {
       const result = await resolver.open("sub-working");
       const [root, working] = resolver.projects;
       expect(result.root).to.be.false();
       expect(result.path).to.equal("//working/sub-working");
       expect(result.parent).to.equal(working);
       expect(result.parent!.parent).to.equal(root);
+    });
+    it("resolves a new sibling project", async () => {
+      const result = await resolver.open("../sibling");
+      expect(result.root).to.be.false();
+      expect(result.path).to.equal("//sibling");
+      expect(result.parent).to.equal(resolver.root);
     });
     it("throws if config not found in specified path", async () => {
       const err = (await expect(resolver.open("invalid")).to.be.rejectedWith(

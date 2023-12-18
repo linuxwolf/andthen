@@ -27,6 +27,7 @@ interface ResolveProjectResult {
 
 export class Resolver {
   #workingDir: string;
+  #workingPath: TaskPath;
   #rootDir: string;
   #root?: Project;
   #cached: Record<string, Project>;
@@ -34,12 +35,17 @@ export class Resolver {
   constructor(path: string) {
     // assume base dir is an absolute path
     this.#workingDir = path;
+    this.#workingPath = new TaskPath("//");
     this.#rootDir = "";
     this.#cached = {};
   }
 
   get workingDir() {
     return this.#workingDir;
+  }
+
+  get workingPath() {
+    return this.#workingPath;
   }
 
   get rootDir() {
@@ -64,14 +70,8 @@ export class Resolver {
     }
   }
 
-  #workingPath() {
-    const working = this.#workingDir;
-    const path = working.substring(common([this.#rootDir, working]).length);
-    return new TaskPath("//" + path);
-  }
-
   async open(path: string | TaskPath): Promise<Project> {
-    const resolved = TaskPath.from(path).resolveFrom(this.#workingPath());
+    const resolved = TaskPath.from(path).resolveFrom(this.workingPath);
     if (resolved.isAbsolute) {
       throw new InvalidTaskPath(resolved.path, "no absolute paths allowed");
     }
@@ -210,8 +210,15 @@ export class Resolver {
       found.unshift(project.toConfig());
     }
 
+    // reset directories and paths
     this.#rootDir = filepath;
     log.debug(`resolver rootDir is now ${this.#rootDir}`);
+    this.#workingPath = new TaskPath(
+      "//" +
+        this.#workingDir.substring(
+          common([this.#rootDir, this.#workingDir]).length,
+        ),
+    );
 
     // step 3: recreate + cache [root .. start]
     let parent: Project | undefined = undefined;
