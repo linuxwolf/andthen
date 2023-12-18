@@ -7,7 +7,7 @@ import { ProjectConfig } from "./config.ts";
 
 export class Project {
   readonly parent?: Project;
-  readonly name: string;
+  readonly path: string;
   readonly root: boolean;
   readonly desc: string;
 
@@ -16,7 +16,7 @@ export class Project {
 
   constructor(cfg: ProjectConfig, parent?: Project) {
     if (parent && cfg.root) {
-      throw new InvalidRootProject(`${parent.path()}/${cfg.name}`);
+      throw new InvalidRootProject(`${cfg.path}`);
     }
 
     const tasks = (cfg.tasks ?? []).reduce(
@@ -28,7 +28,7 @@ export class Project {
     );
 
     this.parent = parent;
-    this.name = cfg.name;
+    this.path = cfg.path;
     this.root = cfg.root ?? false;
     this.desc = cfg.desc ?? "";
     this.#vars = collapse({
@@ -51,16 +51,11 @@ export class Project {
     const tasks = Object.values(this.#tasks);
 
     return {
-      name: this.name,
+      path: this.path,
       ...(this.desc && { desc: this.desc }),
       ...(this.root && { root: this.root }),
       ...((Object.entries(vars).length > 0) && { vars }),
       ...((tasks.length > 0) && { tasks }),
     };
-  }
-
-  path(): string {
-    const prefix = this.parent?.path() ?? "";
-    return (prefix && prefix + "/") + this.name;
   }
 }

@@ -9,6 +9,7 @@ import {
   format,
   InvalidLogLevel,
   InvalidRootProject,
+  InvalidTaskPath,
   InvalidVariableName,
   MalformedConfig,
 } from "../src/errors.ts";
@@ -156,6 +157,28 @@ describe("errors", () => {
         `config broken (path="path/with/bad-config")`,
       );
       expect(err.path).to.equal("path/with/bad-config");
+    });
+  });
+
+  describe("InvalidTaskPath", () => {
+    it("creates a InvalidTaskPath with default message", () => {
+      const err = new InvalidTaskPath("//../bad/task/path");
+      expect(err.name).to.equal("InvalidTaskPath");
+      expect(err.message).to.equal(
+        `invalid task path (path="//../bad/task/path")`,
+      );
+      expect(err.path).to.equal("//../bad/task/path");
+    });
+    it("creates a InvalidTaskPath with custom message", () => {
+      const err = new InvalidTaskPath(
+        "//../bad/task/path",
+        "no root + relative paths",
+      );
+      expect(err.name).to.equal("InvalidTaskPath");
+      expect(err.message).to.equal(
+        `no root + relative paths (path="//../bad/task/path")`,
+      );
+      expect(err.path).to.equal("//../bad/task/path");
     });
   });
 });

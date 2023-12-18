@@ -3,6 +3,8 @@ pre-push:
   exclude: ".cache,docs"
   commands:
     check-fmt:
-      run: deno fmt --check
+      glob: "*.{ts,js}"
+      run: deno fmt --check {push_files}
     lint:
-      run: deno lint
+      glob: "*.{ts,js}"
+      run: deno lint {push_files}

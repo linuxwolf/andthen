@@ -1,11 +1,11 @@
 /** */
 
-import * as path from "deno_std/path/mod.ts";
+import { join } from "deno_std/path/mod.ts";
 import { parse as yaml } from "deno_std/yaml/mod.ts";
 
 import log from "./logging.ts";
 import { asConfig, ProjectConfig } from "./projects/config.ts";
-import { ConfigNotFound, MalformedConfig } from "./errors.ts";
+import { MalformedConfig } from "./errors.ts";
 
 const CONFIG_FILES = [
   "andthen.yaml",
@@ -16,7 +16,7 @@ const CONFIG_FILES = [
 
 async function locateConfig(abs: string): Promise<string | undefined> {
   for (const fname of CONFIG_FILES) {
-    const fpath = path.join(abs, fname);
+    const fpath = join(abs, fname);
     try {
       return await Deno.readTextFile(fpath);
     } catch (e) {
@@ -33,27 +33,22 @@ function loadContent(name: string, content: string): ProjectConfig {
 }
 
 export const _internals = {
-  resolvePath: path.resolve,
-  basename: path.basename,
-  CONFIG_FILES,
   locateConfig,
   loadContent,
+  CONFIG_FILES,
 };
 
-export async function load(dir: string): Promise<ProjectConfig> {
-  const abs = _internals.resolvePath(dir);
-  const name = _internals.basename(abs);
-
-  const content = await _internals.locateConfig(abs);
+export async function load(path: string): Promise<ProjectConfig | undefined> {
+  const content = await _internals.locateConfig(path);
   if (content === undefined) {
-    log.error(`loading failed: no config found in directory (${abs})`);
-    throw new ConfigNotFound(abs);
+    log.verbose(`loading failed: no config found in directory (${path})`);
+    return undefined;
   }
 
   try {
-    return _internals.loadContent(name, content);
+    return _internals.loadContent(path, content);
   } catch (e) {
-    log.error(`loading failed: bad config (${abs}) ${Deno.inspect(e)}`);
-    throw new MalformedConfig(abs);
+    log.error(`loading failed: bad config (${path}) ${Deno.inspect(e)}`);
+    throw new MalformedConfig(path);
   }
 }

@@ -12,7 +12,7 @@ describe("projects/config", () => {
       it("returns from minimal", () => {
         const result = asConfig("my-project", {});
 
-        expect(result.name).to.equal("my-project");
+        expect(result.path).to.equal("my-project");
         expect(result.desc).to.be.undefined();
         expect(result.root).to.be.undefined();
         expect(result.vars).to.be.undefined();
@@ -42,7 +42,7 @@ describe("projects/config", () => {
           },
         });
 
-        expect(result.name).to.equal("my-project");
+        expect(result.path).to.equal("my-project");
         expect(result.desc).to.equal("my project");
         expect(result.root).to.be.true();
         expect(result.vars).to.deep.equal({
@@ -76,7 +76,7 @@ describe("projects/config", () => {
           },
         });
 
-        expect(result.name).to.equal("my-project");
+        expect(result.path).to.equal("my-project");
         expect(result.desc).to.be.undefined();
         expect(result.root).to.be.undefined();
         expect(result.vars).to.be.undefined();
