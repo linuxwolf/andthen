@@ -230,6 +230,28 @@ describe("projects/resolver", () => {
       expect(result.projects).to.deep.equal(result.projects);
     });
 
+    describe("shared resolving", () => {
+      let subResolver: Resolver;
+
+      beforeEach(() => {
+        subResolver = resolver.forPath("../sibling");
+      });
+
+      it("shares data between resolvers", async () => {
+        const result = await subResolver.open("./");
+        expect(result.path).to.equal("//sibling");
+
+        const projects = resolver.projects;
+        const subProjects = subResolver.projects;
+        expect(subProjects.find(p => p.path === "//sibling")).to.equal(result);
+        expect(projects.find(p => p.path === "//sibling")).to.equal(result);
+        expect(subProjects.length).to.equal(projects.length);
+        for (let idx = 0; idx < projects.length; idx++) {
+          expect(subProjects[idx]).to.equal(projects[idx]);
+        }
+      });
+    });
+
     it("throws if path is absolute", () => {
       const err = (expect(() => resolver.forPath("/absolute/path")).to.throw(InvalidTaskPath)).actual;
       expect(err.path).to.equal("/absolute/path");
