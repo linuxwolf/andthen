@@ -1,6 +1,6 @@
 /** */
 
-import { common, dirname, join, resolve } from "deno_std/path/mod.ts";
+import { common, dirname, join } from "deno_std/path/mod.ts";
 
 import log from "../logging.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../errors.ts";

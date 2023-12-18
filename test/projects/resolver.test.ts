@@ -243,8 +243,10 @@ describe("projects/resolver", () => {
 
         const projects = resolver.projects;
         const subProjects = subResolver.projects;
-        expect(subProjects.find(p => p.path === "//sibling")).to.equal(result);
-        expect(projects.find(p => p.path === "//sibling")).to.equal(result);
+        expect(subProjects.find((p) => p.path === "//sibling")).to.equal(
+          result,
+        );
+        expect(projects.find((p) => p.path === "//sibling")).to.equal(result);
         expect(subProjects.length).to.equal(projects.length);
         for (let idx = 0; idx < projects.length; idx++) {
           expect(subProjects[idx]).to.equal(projects[idx]);
@@ -253,7 +255,9 @@ describe("projects/resolver", () => {
     });
 
     it("throws if path is absolute", () => {
-      const err = (expect(() => resolver.forPath("/absolute/path")).to.throw(InvalidTaskPath)).actual;
+      const err = (expect(() => resolver.forPath("/absolute/path")).to.throw(
+        InvalidTaskPath,
+      )).actual;
       expect(err.path).to.equal("/absolute/path");
     });
   });
