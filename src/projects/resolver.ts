@@ -40,7 +40,10 @@ export interface ProjectResolver {
   open(path: string | TaskPath): Promise<Project>;
 }
 
-export async function create(registry: TaskRegistry, path: string): Promise<ProjectResolver> {
+export async function create(
+  registry: TaskRegistry,
+  path: string,
+): Promise<ProjectResolver> {
   const resolver = new ResolverImpl(registry, path);
   return await resolver.init();
 }

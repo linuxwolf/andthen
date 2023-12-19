@@ -17,9 +17,11 @@ import {
 
 class MockRegistry implements TaskRegistry {
   get(path: string | TaskPath): Promise<Task> {
-    return Promise.resolve(new Task({
-      name: TaskPath.from(path).task,
-    }));
+    return Promise.resolve(
+      new Task({
+        name: TaskPath.from(path).task,
+      }),
+    );
   }
 }
 
@@ -74,7 +76,9 @@ describe("projects/resolver", () => {
       expect(projects.length).to.equal(1);
       expect(projects[0]).to.equal(resolver.rootProject);
       expect(resolver.rootProject).to.be.an.instanceOf(ResolvedProject);
-      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(resolver);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(
+        resolver,
+      );
 
       expect(loadStub).to.have.been.deep.calledWith([workingDir]);
     });
@@ -96,7 +100,9 @@ describe("projects/resolver", () => {
         new TaskPath("//root/working"),
       );
       expect(resolver.projects.length).to.equal(3);
-      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(resolver);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(
+        resolver,
+      );
 
       expect(loadStub).to.have.been.called(3);
       expect(loadStub).to.have.been.calledWith([workingDir]);
