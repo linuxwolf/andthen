@@ -46,7 +46,7 @@ export class RegistryImpl implements TaskRegistry {
       throw new TaskNotFound(resolvedPath);
     }
 
-    //TODO: templtes!
+    //TODO: templates!
     this.#cache[resolved.task] = result = new Task(cfg, project);
 
     return result;
