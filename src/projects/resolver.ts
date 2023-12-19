@@ -45,6 +45,15 @@ export async function create(registry: TaskRegistry, path: string): Promise<Proj
   return await resolver.init();
 }
 
+export class ResolvedProject extends Project {
+  readonly resolver: ProjectResolver;
+
+  constructor(resolver: ProjectResolver, cfg: ProjectConfig, parent?: Project) {
+    super(cfg, parent);
+    this.resolver = resolver;
+  }
+}
+
 export class ResolverImpl implements ProjectResolver {
   readonly registry: TaskRegistry;
 
@@ -176,7 +185,7 @@ export class ResolverImpl implements ProjectResolver {
           root: true,
         };
       }
-      prj = new Project(cfg, parent);
+      prj = new ResolvedProject(this, cfg, parent);
       if (caching) {
         this.#cached[prj.path] = prj;
       }
@@ -262,7 +271,7 @@ export class ResolverImpl implements ProjectResolver {
       log.debug(`resolver creating project at ${curr.path} ...`);
 
       // create project
-      const prj: Project = new Project(curr, parent);
+      const prj: Project = new ResolvedProject(this, curr, parent);
       if (needsRoot) {
         this.#rootProject = prj;
       }

@@ -4,15 +4,16 @@ import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "../mocking.ts";
 
 import { basename, join } from "deno_std/path/mod.ts";
-import {
-  _internals,
-  create,
-  ResolverImpl,
-} from "../../src/projects/resolver.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
 import { TaskPath } from "../../src/tasks/path.ts";
 import { Task } from "../../src/tasks/impl.ts";
 import { TaskRegistry } from "../../src/tasks/registry.ts";
+import {
+  _internals,
+  create,
+  ResolvedProject,
+  ResolverImpl,
+} from "../../src/projects/resolver.ts";
 
 class MockRegistry implements TaskRegistry {
   get(path: string | TaskPath): Promise<Task> {
@@ -72,6 +73,8 @@ describe("projects/resolver", () => {
       } = resolver;
       expect(projects.length).to.equal(1);
       expect(projects[0]).to.equal(resolver.rootProject);
+      expect(resolver.rootProject).to.be.an.instanceOf(ResolvedProject);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(resolver);
 
       expect(loadStub).to.have.been.deep.calledWith([workingDir]);
     });
@@ -93,6 +96,7 @@ describe("projects/resolver", () => {
         new TaskPath("//root/working"),
       );
       expect(resolver.projects.length).to.equal(3);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(resolver);
 
       expect(loadStub).to.have.been.called(3);
       expect(loadStub).to.have.been.calledWith([workingDir]);
@@ -156,12 +160,16 @@ describe("projects/resolver", () => {
       expect(result.path).to.equal("//working/sub-working");
       expect(result.parent).to.equal(working);
       expect(result.parent!.parent).to.equal(root);
+      expect(result).to.be.an.instanceOf(ResolvedProject);
+      expect((result as ResolvedProject).resolver).to.equal(resolver);
     });
     it("resolves a new sibling project", async () => {
       const result = await resolver.open("../sibling");
       expect(result.root).to.be.false();
       expect(result.path).to.equal("//sibling");
       expect(result.parent).to.equal(resolver.rootProject);
+      expect(result).to.be.an.instanceOf(ResolvedProject);
+      expect((result as ResolvedProject).resolver).to.equal(resolver);
     });
     it("throws if config not found in specified path", async () => {
       const err = (await expect(resolver.open("invalid")).to.be.rejectedWith(
