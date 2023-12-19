@@ -4,7 +4,11 @@ import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "../mocking.ts";
 
 import { basename, join } from "deno_std/path/mod.ts";
-import { _internals, create, ProjectResolver, ResolverImpl } from "../../src/projects/resolver.ts";
+import {
+  _internals,
+  create,
+  ResolverImpl,
+} from "../../src/projects/resolver.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
 import { TaskPath } from "../../src/tasks/path.ts";
 
