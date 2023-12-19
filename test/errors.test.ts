@@ -12,6 +12,7 @@ import {
   InvalidTaskPath,
   InvalidVariableName,
   MalformedConfig,
+  TaskNotFound,
 } from "../src/errors.ts";
 
 describe("errors", () => {
@@ -179,6 +180,25 @@ describe("errors", () => {
         `no root + relative paths (path="//../bad/task/path")`,
       );
       expect(err.path).to.equal("//../bad/task/path");
+    });
+  });
+
+  describe("TaskNotFound", () => {
+    it("creates a TaskNotFound with default message", () => {
+      const err = new TaskNotFound("//project:non-task");
+      expect(err.name).to.equal("TaskNotFound");
+      expect(err.message).to.equal(
+        'task not found (path="//project:non-task")',
+      );
+      expect(err.path).to.equal("//project:non-task");
+    });
+    it("creates a TaskNotFound with custom message", () => {
+      const err = new TaskNotFound("//project:non-task", "task does not exist");
+      expect(err.name).to.equal("TaskNotFound");
+      expect(err.message).to.equal(
+        'task does not exist (path="//project:non-task")',
+      );
+      expect(err.path).to.equal("//project:non-task");
     });
   });
 });
