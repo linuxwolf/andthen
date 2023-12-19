@@ -5,9 +5,10 @@ import { common, dirname, join } from "deno_std/path/mod.ts";
 import log from "../logging.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../errors.ts";
 import { load } from "../loader.ts";
-import { TaskPath } from "../tasks/path.ts";
 import { ProjectConfig } from "./config.ts";
 import { Project } from "./impl.ts";
+import { TaskPath } from "../tasks/path.ts";
+import { TaskRegistry } from "../tasks/registry.ts";
 
 export const _internals = {
   load,
@@ -26,6 +27,8 @@ interface ResolverResult {
 }
 
 export interface ProjectResolver {
+  readonly registry: TaskRegistry;
+
   readonly workingDir: string;
   readonly workingPath: TaskPath;
 
@@ -37,19 +40,23 @@ export interface ProjectResolver {
   open(path: string | TaskPath): Promise<Project>;
 }
 
-export async function create(path: string): Promise<ProjectResolver> {
-  const resolver = new ResolverImpl(path);
+export async function create(registry: TaskRegistry, path: string): Promise<ProjectResolver> {
+  const resolver = new ResolverImpl(registry, path);
   return await resolver.init();
 }
 
 export class ResolverImpl implements ProjectResolver {
+  readonly registry: TaskRegistry;
+
   #workingDir: string;
   #workingPath: TaskPath;
   #rootDir: string;
   #rootProject?: Project;
   #cached: Record<string, Project>;
 
-  constructor(path: string) {
+  constructor(registry: TaskRegistry, path: string) {
+    this.registry = registry;
+
     // assume base dir is an absolute path
     this.#workingDir = path;
     this.#workingPath = new TaskPath("//");

@@ -11,11 +11,23 @@ import {
 } from "../../src/projects/resolver.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
 import { TaskPath } from "../../src/tasks/path.ts";
+import { Task } from "../../src/tasks/impl.ts";
+import { TaskRegistry } from "../../src/tasks/registry.ts";
+
+class MockRegistry implements TaskRegistry {
+  get(path: string | TaskPath): Promise<Task> {
+    return Promise.resolve(new Task({
+      name: TaskPath.from(path).task,
+    }));
+  }
+}
 
 describe("projects/resolver", () => {
+  const registry = new MockRegistry();
+
   describe("ctor", () => {
     it("creates a uninitialized Resolver", () => {
-      const result = new ResolverImpl("/some/working/dir");
+      const result = new ResolverImpl(registry, "/some/working/dir");
       expect(result.workingDir).to.equal("/some/working/dir");
       expect(result.workingPath).to.deep.equal(new TaskPath("//"));
       expect(result.rootDir).to.equal("");
@@ -32,7 +44,7 @@ describe("projects/resolver", () => {
     let loadStub: mock.Stub;
 
     beforeEach(() => {
-      resolver = new ResolverImpl(workingDir);
+      resolver = new ResolverImpl(registry, workingDir);
     });
 
     afterEach(() => {
@@ -126,7 +138,7 @@ describe("projects/resolver", () => {
         );
       });
 
-      resolver = await create(workingDir) as ResolverImpl;
+      resolver = await create(registry, workingDir) as ResolverImpl;
     });
     afterEach(() => {
       loadStub && !loadStub.restored && loadStub.restore();
