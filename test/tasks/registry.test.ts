@@ -19,6 +19,7 @@ import { TaskNotFound } from "../../src/errors.ts";
 
 const PROJECT_CONFIG = {
   tasks: [
+    { name: "default" },
     { name: "build" },
     { name: "test" },
     { name: "clean" },
@@ -60,7 +61,7 @@ class MockResolver implements ProjectResolver {
   }
 
   open(path: string | TaskPath): Promise<Project> {
-    path = TaskPath.from(path).resolveFrom(this.workingPath).toString();
+    path = "//" + TaskPath.from(path).resolveFrom(this.workingPath).path;
 
     return Promise.resolve(
       new ResolvedProject(this, {
@@ -134,19 +135,64 @@ describe("tasks/registry", () => {
       it("creates a task found in the 'current' project", async () => {
         const result = await registry.get(":build");
         expect(result.name).to.equal("build");
+        expect(result.parent).to.be.an.instanceOf(Project);
+        expect((result.parent as Project).toConfig()).to.deep.equal({
+          path: "//working",
+          ...PROJECT_CONFIG,
+        });
 
         expect(resolverOpenSpy).to.have.been.deep.calledWith([
           new TaskPath("//working:build"),
         ]);
       });
+      it("creates a task in a sub-project", async () => {
+        const result = await registry.get("sub-working:build");
+        expect(result.name).to.equal("build");
+        expect(result.parent).to.be.an.instanceOf(Project);
+        expect((result.parent as Project).toConfig()).to.deep.equal({
+          path: "//working/sub-working",
+          ...PROJECT_CONFIG,
+        });
+
+        expect(resolverOpenSpy).to.have.been.deep.calledWith([
+          new TaskPath("//working/sub-working:build"),
+        ]);
+      });
+
+      it("creates a task from a sibling", async () => {
+        const result = await registry.get("../sibling:build");
+        expect(result.name).to.equal("build");
+        expect(result.parent).to.be.an.instanceOf(Project);
+        expect((result.parent as Project).toConfig()).to.deep.equal({
+          path: "//sibling",
+          ...PROJECT_CONFIG,
+        });
+      });
+
+      it("creates a default task", async () => {
+        const result = await registry.get("sub-working");
+        expect(result.name).to.equal("default");
+        expect(result.parent).to.be.an.instanceOf(Project);
+        expect((result.parent as Project).toConfig()).to.deep.equal({
+          path: "//working/sub-working",
+          ...PROJECT_CONFIG,
+        });
+      });
+
       it("creates a task from a rooted path", async () => {
         const result = await registry.get("//working:build");
         expect(result.name).to.equal("build");
+        expect(result.parent).to.be.an.instanceOf(Project);
+        expect((result.parent as Project).toConfig()).to.deep.equal({
+          path: "//working",
+          ...PROJECT_CONFIG,
+        });
 
         expect(resolverOpenSpy).to.have.been.deep.calledWith([
           new TaskPath("//working:build"),
         ]);
       });
+
       it("returns a cached task", async () => {
         const first = await registry.get("//working:build");
 

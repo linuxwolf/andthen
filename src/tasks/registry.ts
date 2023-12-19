@@ -46,8 +46,17 @@ export class RegistryImpl implements TaskRegistry {
     return this.#resolver!;
   }
 
+  #canonicalPath(path: string | TaskPath): TaskPath {
+    let resolved = TaskPath.from(path).resolveFrom(this.resolver.workingPath);
+    if (!resolved.task) {
+      resolved = TaskPath.from(":default").resolveFrom(resolved);
+    }
+
+    return resolved;
+  }
+
   async get(path: string | TaskPath): Promise<Task> {
-    const resolved = TaskPath.from(path).resolveFrom(this.resolver.workingPath);
+    const resolved = this.#canonicalPath(path);
     const resolvedPath = resolved.toString();
 
     let result = this.#cache[resolvedPath];
