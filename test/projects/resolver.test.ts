@@ -3,20 +3,19 @@
 import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "../mocking.ts";
 
-import { join } from "deno_std/path/join.ts";
-import { _internals, Resolver } from "../../src/projects/resolver.ts";
+import { basename, join } from "deno_std/path/mod.ts";
+import { _internals, create, ProjectResolver, ResolverImpl } from "../../src/projects/resolver.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
-import { basename } from "deno_std/path/basename.ts";
 import { TaskPath } from "../../src/tasks/path.ts";
 
 describe("projects/resolver", () => {
   describe("ctor", () => {
     it("creates a uninitialized Resolver", () => {
-      const result = new Resolver("/some/working/dir");
+      const result = new ResolverImpl("/some/working/dir");
       expect(result.workingDir).to.equal("/some/working/dir");
       expect(result.workingPath).to.deep.equal(new TaskPath("//"));
       expect(result.rootDir).to.equal("");
-      expect(result.root).to.be.undefined();
+      expect(result.rootProject).to.be.undefined();
       expect(result.projects).to.deep.equal([]);
       expect(result.initialized).to.be.false();
     });
@@ -25,11 +24,11 @@ describe("projects/resolver", () => {
   describe(".init()", () => {
     const workingDir = "/devel/root/working";
     const rootDir = "/devel";
-    let resolver: Resolver;
+    let resolver: ResolverImpl;
     let loadStub: mock.Stub;
 
     beforeEach(() => {
-      resolver = new Resolver(workingDir);
+      resolver = new ResolverImpl(workingDir);
     });
 
     afterEach(() => {
@@ -56,7 +55,7 @@ describe("projects/resolver", () => {
         projects,
       } = resolver;
       expect(projects.length).to.equal(1);
-      expect(projects[0]).to.equal(resolver.root);
+      expect(projects[0]).to.equal(resolver.rootProject);
 
       expect(loadStub).to.have.been.deep.calledWith([workingDir]);
     });
@@ -99,7 +98,7 @@ describe("projects/resolver", () => {
   });
 
   describe(".open()", () => {
-    let resolver: Resolver;
+    let resolver: ResolverImpl;
     let loadStub: mock.Stub;
 
     beforeEach(async () => {
@@ -123,8 +122,7 @@ describe("projects/resolver", () => {
         );
       });
 
-      resolver = new Resolver(workingDir);
-      await resolver.init();
+      resolver = await create(workingDir) as ResolverImpl;
     });
     afterEach(() => {
       loadStub && !loadStub.restored && loadStub.restore();
@@ -132,7 +130,7 @@ describe("projects/resolver", () => {
 
     it("resolves already-opened root project", async () => {
       const result = await resolver.open("//");
-      const root = resolver.root;
+      const root = resolver.rootProject;
       expect(result).to.equal(root);
     });
     it("resolves a new sub-project", async () => {
@@ -147,7 +145,7 @@ describe("projects/resolver", () => {
       const result = await resolver.open("../sibling");
       expect(result.root).to.be.false();
       expect(result.path).to.equal("//sibling");
-      expect(result.parent).to.equal(resolver.root);
+      expect(result.parent).to.equal(resolver.rootProject);
     });
     it("throws if config not found in specified path", async () => {
       const err = (await expect(resolver.open("invalid")).to.be.rejectedWith(
@@ -165,7 +163,7 @@ describe("projects/resolver", () => {
   });
 
   describe(".forPath()", () => {
-    let resolver: Resolver;
+    let resolver: ResolverImpl;
     let loadStub: mock.Stub;
 
     beforeEach(async () => {
@@ -189,8 +187,7 @@ describe("projects/resolver", () => {
         );
       });
 
-      resolver = new Resolver(workingDir);
-      await resolver.init();
+      resolver = await create(workingDir) as ResolverImpl;
     });
     afterEach(() => {
       loadStub && !loadStub.restored && loadStub.restore();
@@ -200,7 +197,7 @@ describe("projects/resolver", () => {
       const result = resolver.forPath("../sibling");
       expect(result.workingDir).to.equal("/devel/root/sibling");
       expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
-      expect(result.root).to.equal(resolver.root);
+      expect(result.rootProject).to.equal(resolver.rootProject);
       expect(result.rootDir).to.equal(resolver.rootDir);
       expect(result.projects).to.deep.equal(result.projects);
     });
@@ -208,7 +205,7 @@ describe("projects/resolver", () => {
       const result = resolver.forPath(new TaskPath("../sibling"));
       expect(result.workingDir).to.equal("/devel/root/sibling");
       expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
-      expect(result.root).to.equal(resolver.root);
+      expect(result.rootProject).to.equal(resolver.rootProject);
       expect(result.rootDir).to.equal(resolver.rootDir);
       expect(result.projects).to.deep.equal(result.projects);
     });
@@ -217,7 +214,7 @@ describe("projects/resolver", () => {
       const result = resolver.forPath("//sibling");
       expect(result.workingDir).to.equal("/devel/root/sibling");
       expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
-      expect(result.root).to.equal(resolver.root);
+      expect(result.rootProject).to.equal(resolver.rootProject);
       expect(result.rootDir).to.equal(resolver.rootDir);
       expect(result.projects).to.deep.equal(result.projects);
     });
@@ -225,13 +222,13 @@ describe("projects/resolver", () => {
       const result = resolver.forPath(new TaskPath("//sibling"));
       expect(result.workingDir).to.equal("/devel/root/sibling");
       expect(result.workingPath).to.deep.equal(new TaskPath("//sibling"));
-      expect(result.root).to.equal(resolver.root);
+      expect(result.rootProject).to.equal(resolver.rootProject);
       expect(result.rootDir).to.equal(resolver.rootDir);
       expect(result.projects).to.deep.equal(result.projects);
     });
 
     describe("shared resolving", () => {
-      let subResolver: Resolver;
+      let subResolver: ResolverImpl;
 
       beforeEach(() => {
         subResolver = resolver.forPath("../sibling");

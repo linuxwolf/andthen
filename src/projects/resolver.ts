@@ -13,23 +13,40 @@ export const _internals = {
   load,
 };
 
-interface ResolveProjectOpts {
+interface ResolverOptions {
   baseDir?: string;
   strict?: boolean;
   rootPath?: boolean;
   caching?: boolean;
 }
 
-interface ResolveProjectResult {
+interface ResolverResult {
   project?: Project;
   filepath: string;
 }
 
-export class Resolver {
+export interface ProjectResolver {
+  readonly workingDir: string;
+  readonly workingPath: TaskPath;
+
+  readonly rootDir: string;
+  readonly rootProject: Project;
+
+  readonly projects: Project[];
+
+  open(path: string | TaskPath): Promise<Project>;
+}
+
+export async function create(path: string): Promise<ProjectResolver> {
+  const resolver = new ResolverImpl(path);
+  return await resolver.init();
+}
+
+export class ResolverImpl implements ProjectResolver {
   #workingDir: string;
   #workingPath: TaskPath;
   #rootDir: string;
-  #root?: Project;
+  #rootProject?: Project;
   #cached: Record<string, Project>;
 
   constructor(path: string) {
@@ -52,8 +69,8 @@ export class Resolver {
     return this.#rootDir;
   }
 
-  get root(): Project {
-    return this.#root!;
+  get rootProject(): Project {
+    return this.#rootProject!;
   }
 
   get projects(): Project[] {
@@ -61,13 +78,14 @@ export class Resolver {
   }
 
   get initialized(): boolean {
-    return this.#root !== undefined;
+    return this.#rootProject !== undefined;
   }
 
-  async init(): Promise<void> {
-    if (!this.#root) {
+  async init(): Promise<ResolverImpl> {
+    if (!this.#rootProject) {
       await this.#resolveRoot();
     }
+    return this;
   }
 
   async open(path: string | TaskPath): Promise<Project> {
@@ -81,14 +99,14 @@ export class Resolver {
     return project!;
   }
 
-  forPath(path: string | TaskPath): Resolver {
+  forPath(path: string | TaskPath): ResolverImpl {
     const dst = TaskPath.from(path).resolveFrom(this.#workingPath);
     if (dst.isAbsolute) {
       throw new InvalidTaskPath(dst.path, "no absolute paths allowed");
     }
 
-    const result = new Resolver(this.#rootDir);
-    result.#root = this.#root;
+    const result = new ResolverImpl(this.#rootDir);
+    result.#rootProject = this.#rootProject;
     result.#rootDir = this.#rootDir;
     result.#cached = this.#cached;
 
@@ -107,9 +125,9 @@ export class Resolver {
 
   async #resolveProject(
     path: string | TaskPath,
-    opts: ResolveProjectOpts,
-  ): Promise<ResolveProjectResult> {
-    const options: Required<ResolveProjectOpts> = {
+    opts: ResolverOptions,
+  ): Promise<ResolverResult> {
+    const options: Required<ResolverOptions> = {
       baseDir: this.#rootDir,
       strict: true,
       rootPath: true,
@@ -185,9 +203,9 @@ export class Resolver {
 
   async #resolveConfig(
     path: string,
-    opts: ResolveProjectOpts,
+    opts: ResolverOptions,
   ): Promise<ProjectConfig | undefined> {
-    const options: Required<ResolveProjectOpts> = {
+    const options: Required<ResolverOptions> = {
       baseDir: this.#rootDir,
       strict: false,
       rootPath: true,
@@ -243,7 +261,7 @@ export class Resolver {
     // step 3: recreate + cache [root .. start]
     let parent: Project | undefined = undefined;
     for (let curr of found) {
-      const needsRoot = !this.#root;
+      const needsRoot = !this.#rootProject;
 
       log.debug(`${curr.path} is forced to root?: ${needsRoot}`);
 
@@ -259,7 +277,7 @@ export class Resolver {
       // create project
       const prj: Project = new Project(curr, parent);
       if (needsRoot) {
-        this.#root = prj;
+        this.#rootProject = prj;
       }
       parent = prj;
 
