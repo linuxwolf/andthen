@@ -11,11 +11,21 @@ import { TaskRegistry } from "../../src/tasks/registry.ts";
 import {
   _internals,
   create,
+  ProjectResolver,
   ResolvedProject,
   ResolverImpl,
 } from "../../src/projects/resolver.ts";
 
 class MockRegistry implements TaskRegistry {
+  #resolver?: ProjectResolver = undefined;
+
+  get resolver(): ProjectResolver {
+    return this.#resolver!;
+  }
+  set resolver(r: ProjectResolver) {
+    this.#resolver = r;
+  }
+
   get(path: string | TaskPath): Promise<Task> {
     return Promise.resolve(
       new Task({

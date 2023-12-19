@@ -13,6 +13,8 @@ export const _internals = {
 };
 
 export interface TaskRegistry {
+  readonly resolver: ProjectResolver;
+
   get(path: string | TaskPath): Promise<Task>;
 }
 
