@@ -75,3 +75,12 @@ export class InvalidTaskPath extends ErrorBase {
     this.path = path;
   }
 }
+
+export class TaskNotFound extends ErrorBase {
+  readonly path: string;
+
+  constructor(path: string, msg = "task not found") {
+    super(msg, { path });
+    this.path = path;
+  }
+}

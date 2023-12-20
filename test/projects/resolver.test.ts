@@ -4,18 +4,43 @@ import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "../mocking.ts";
 
 import { basename, join } from "deno_std/path/mod.ts";
+import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
+import { TaskPath } from "../../src/tasks/path.ts";
+import { Task } from "../../src/tasks/impl.ts";
+import { TaskRegistry } from "../../src/tasks/registry.ts";
 import {
   _internals,
   create,
+  ProjectResolver,
+  ResolvedProject,
   ResolverImpl,
 } from "../../src/projects/resolver.ts";
-import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
-import { TaskPath } from "../../src/tasks/path.ts";
+
+class MockRegistry implements TaskRegistry {
+  #resolver?: ProjectResolver = undefined;
+
+  get resolver(): ProjectResolver {
+    return this.#resolver!;
+  }
+  set resolver(r: ProjectResolver) {
+    this.#resolver = r;
+  }
+
+  get(path: string | TaskPath): Promise<Task> {
+    return Promise.resolve(
+      new Task({
+        name: TaskPath.from(path).task,
+      }),
+    );
+  }
+}
 
 describe("projects/resolver", () => {
+  const registry = new MockRegistry();
+
   describe("ctor", () => {
     it("creates a uninitialized Resolver", () => {
-      const result = new ResolverImpl("/some/working/dir");
+      const result = new ResolverImpl(registry, "/some/working/dir");
       expect(result.workingDir).to.equal("/some/working/dir");
       expect(result.workingPath).to.deep.equal(new TaskPath("//"));
       expect(result.rootDir).to.equal("");
@@ -32,7 +57,7 @@ describe("projects/resolver", () => {
     let loadStub: mock.Stub;
 
     beforeEach(() => {
-      resolver = new ResolverImpl(workingDir);
+      resolver = new ResolverImpl(registry, workingDir);
     });
 
     afterEach(() => {
@@ -60,6 +85,10 @@ describe("projects/resolver", () => {
       } = resolver;
       expect(projects.length).to.equal(1);
       expect(projects[0]).to.equal(resolver.rootProject);
+      expect(resolver.rootProject).to.be.an.instanceOf(ResolvedProject);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(
+        resolver,
+      );
 
       expect(loadStub).to.have.been.deep.calledWith([workingDir]);
     });
@@ -81,6 +110,9 @@ describe("projects/resolver", () => {
         new TaskPath("//root/working"),
       );
       expect(resolver.projects.length).to.equal(3);
+      expect((resolver.rootProject as ResolvedProject).resolver).to.equal(
+        resolver,
+      );
 
       expect(loadStub).to.have.been.called(3);
       expect(loadStub).to.have.been.calledWith([workingDir]);
@@ -126,7 +158,7 @@ describe("projects/resolver", () => {
         );
       });
 
-      resolver = await create(workingDir) as ResolverImpl;
+      resolver = await create(registry, workingDir) as ResolverImpl;
     });
     afterEach(() => {
       loadStub && !loadStub.restored && loadStub.restore();
@@ -144,12 +176,16 @@ describe("projects/resolver", () => {
       expect(result.path).to.equal("//working/sub-working");
       expect(result.parent).to.equal(working);
       expect(result.parent!.parent).to.equal(root);
+      expect(result).to.be.an.instanceOf(ResolvedProject);
+      expect((result as ResolvedProject).resolver).to.equal(resolver);
     });
     it("resolves a new sibling project", async () => {
       const result = await resolver.open("../sibling");
       expect(result.root).to.be.false();
       expect(result.path).to.equal("//sibling");
       expect(result.parent).to.equal(resolver.rootProject);
+      expect(result).to.be.an.instanceOf(ResolvedProject);
+      expect((result as ResolvedProject).resolver).to.equal(resolver);
     });
     it("throws if config not found in specified path", async () => {
       const err = (await expect(resolver.open("invalid")).to.be.rejectedWith(
