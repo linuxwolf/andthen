@@ -5,6 +5,7 @@ import { expect } from "expecto/index.ts";
 
 import { Project } from "../../src/projects/impl.ts";
 import { InvalidRootProject } from "../../src/errors.ts";
+import { TaskPath } from "../../src/tasks/path.ts";
 
 describe("projects/impl", () => {
   describe("Project", () => {
@@ -15,6 +16,7 @@ describe("projects/impl", () => {
         });
 
         expect(project.path).to.equal("my-project");
+        expect(project.taskPath).to.deep.equal(new TaskPath("my-project"));
         expect(project.parent).to.be.undefined();
         expect(project.root).to.be.false();
         expect(project.desc).to.equal("");
@@ -39,6 +41,7 @@ describe("projects/impl", () => {
         });
 
         expect(project.path).to.equal("my-project");
+        expect(project.taskPath).to.deep.equal(new TaskPath("my-project"));
         expect(project.parent).to.be.undefined();
         expect(project.desc).to.equal("my project");
         expect(project.root).to.be.true();
@@ -70,6 +73,7 @@ describe("projects/impl", () => {
         }, parent);
 
         expect(project.path).to.equal("my-project");
+        expect(project.taskPath).to.deep.equal(new TaskPath("my-project"));
         expect(project.parent).to.equal(parent);
         expect(project.root).to.be.false();
         expect(project.vars).to.deep.equal({});
@@ -96,6 +100,9 @@ describe("projects/impl", () => {
         }, parent);
 
         expect(project.path).to.equal("parent-project/my-project");
+        expect(project.taskPath).to.deep.equal(
+          new TaskPath("parent-project/my-project"),
+        );
         expect(project.parent).to.equal(parent);
         expect(project.desc).to.equal("my project");
         expect(project.root).to.be.false();
@@ -128,6 +135,19 @@ describe("projects/impl", () => {
           }, parent);
         }).to.throw(InvalidRootProject).actual;
         expect(err.project).to.equal("root-project/my-project");
+      });
+    });
+
+    describe("task()", () => {
+      it("throws for any call", async () => {
+        const project = new Project({
+          path: "my-project",
+        });
+
+        const err =
+          (await expect(project.task(":build")).to.be.rejectedWith(Error))
+            .actual;
+        expect(err.message).to.equal("not implemented");
       });
     });
   });

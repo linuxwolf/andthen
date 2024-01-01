@@ -9,6 +9,7 @@ import { ProjectConfig } from "./config.ts";
 import { Project } from "./impl.ts";
 import { TaskPath } from "../tasks/path.ts";
 import { TaskRegistry } from "../tasks/registry.ts";
+import { Task } from "../tasks/impl.ts";
 
 export const _internals = {
   load,
@@ -54,6 +55,13 @@ export class ResolvedProject extends Project {
   constructor(resolver: ProjectResolver, cfg: ProjectConfig, parent?: Project) {
     super(cfg, parent);
     this.resolver = resolver;
+  }
+
+  async task(path: string | TaskPath): Promise<Task> {
+    const registry = this.resolver.registry;
+
+    const resolved = TaskPath.from(path).resolveFrom(this.taskPath);
+    return await registry.get(resolved);
   }
 }
 
