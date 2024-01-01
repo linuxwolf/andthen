@@ -2,12 +2,15 @@
 
 import { InvalidRootProject } from "../errors.ts";
 import { TaskConfig } from "../tasks/config.ts";
+import { Task } from "../tasks/impl.ts";
+import { TaskPath, TaskPathArg } from "../tasks/path.ts";
 import { collapse, Variables } from "../vars.ts";
 import { ProjectConfig } from "./config.ts";
 
 export class Project {
   readonly parent?: Project;
   readonly path: string;
+  readonly taskPath: TaskPath;
   readonly root: boolean;
   readonly desc: string;
 
@@ -31,6 +34,8 @@ export class Project {
     this.path = cfg.path;
     this.root = cfg.root ?? false;
     this.desc = cfg.desc ?? "";
+
+    this.taskPath = TaskPath.from(this.path);
     this.#vars = collapse({
       parent,
       vars: cfg.vars || {},
@@ -44,6 +49,10 @@ export class Project {
 
   get tasks() {
     return { ...this.#tasks };
+  }
+
+  task(_path: TaskPathArg): Promise<Task> {
+    return Promise.reject(new Error("not implemented"));
   }
 
   toConfig(): ProjectConfig {

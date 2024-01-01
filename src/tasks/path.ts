@@ -10,6 +10,8 @@ enum TaskPathKind {
   RELATIVE,
 }
 
+export type TaskPathArg = string | TaskPath;
+
 // ##### HELPERS #####
 
 function findTask(input: string): [string, string] {
@@ -181,7 +183,7 @@ export class TaskPath {
     return this.#ref;
   }
 
-  static from(path: string | TaskPath): TaskPath {
+  static from(path: TaskPathArg): TaskPath {
     if (path instanceof TaskPath) {
       return path as TaskPath;
     }

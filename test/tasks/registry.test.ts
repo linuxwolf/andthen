@@ -8,7 +8,7 @@ import {
   ResolvedProject,
 } from "../../src/projects/resolver.ts";
 import { Project } from "../../src/projects/impl.ts";
-import { TaskPath } from "../../src/tasks/path.ts";
+import { TaskPath, TaskPathArg } from "../../src/tasks/path.ts";
 import {
   _internals,
   create,
@@ -60,7 +60,7 @@ class MockResolver implements ProjectResolver {
     this.#registry = registry;
   }
 
-  open(path: string | TaskPath): Promise<Project> {
+  open(path: TaskPathArg): Promise<Project> {
     path = "//" + TaskPath.from(path).resolveFrom(this.workingPath).path;
 
     return Promise.resolve(

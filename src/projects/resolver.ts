@@ -7,8 +7,9 @@ import { ConfigNotFound, InvalidTaskPath } from "../errors.ts";
 import { load } from "../loader.ts";
 import { ProjectConfig } from "./config.ts";
 import { Project } from "./impl.ts";
-import { TaskPath } from "../tasks/path.ts";
+import { TaskPath, TaskPathArg } from "../tasks/path.ts";
 import { TaskRegistry } from "../tasks/registry.ts";
+import { Task } from "../tasks/impl.ts";
 
 export const _internals = {
   load,
@@ -37,7 +38,7 @@ export interface ProjectResolver {
 
   readonly projects: Project[];
 
-  open(path: string | TaskPath): Promise<Project>;
+  open(path: TaskPathArg): Promise<Project>;
 }
 
 export async function create(
@@ -54,6 +55,13 @@ export class ResolvedProject extends Project {
   constructor(resolver: ProjectResolver, cfg: ProjectConfig, parent?: Project) {
     super(cfg, parent);
     this.resolver = resolver;
+  }
+
+  async task(path: TaskPathArg): Promise<Task> {
+    const registry = this.resolver.registry;
+
+    const resolved = TaskPath.from(path).resolveFrom(this.taskPath);
+    return await registry.get(resolved);
   }
 }
 
@@ -107,7 +115,7 @@ export class ResolverImpl implements ProjectResolver {
     return this;
   }
 
-  async open(path: string | TaskPath): Promise<Project> {
+  async open(path: TaskPathArg): Promise<Project> {
     const resolved = TaskPath.from(path).resolveFrom(this.workingPath);
     if (resolved.isAbsolute) {
       throw new InvalidTaskPath(resolved.path, "no absolute paths allowed");
@@ -123,7 +131,7 @@ export class ResolverImpl implements ProjectResolver {
   }
 
   async #resolveProject(
-    path: string | TaskPath,
+    path: TaskPathArg,
     opts: ResolverOptions,
   ): Promise<ResolverResult> {
     const options: Required<ResolverOptions> = {
