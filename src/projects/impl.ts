@@ -3,7 +3,7 @@
 import { InvalidRootProject } from "../errors.ts";
 import { TaskConfig } from "../tasks/config.ts";
 import { Task } from "../tasks/impl.ts";
-import { TaskPath } from "../tasks/path.ts";
+import { TaskPath, TaskPathArg } from "../tasks/path.ts";
 import { collapse, Variables } from "../vars.ts";
 import { ProjectConfig } from "./config.ts";
 
@@ -51,7 +51,7 @@ export class Project {
     return { ...this.#tasks };
   }
 
-  task(_path: string | TaskPath): Promise<Task> {
+  task(_path: TaskPathArg): Promise<Task> {
     return Promise.reject(new Error("not implemented"));
   }
 

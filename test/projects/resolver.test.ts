@@ -5,7 +5,7 @@ import { expect, mock } from "../mocking.ts";
 
 import { basename, join } from "deno_std/path/mod.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
-import { TaskPath } from "../../src/tasks/path.ts";
+import { TaskPath, TaskPathArg } from "../../src/tasks/path.ts";
 import { Task } from "../../src/tasks/impl.ts";
 import { TaskRegistry } from "../../src/tasks/registry.ts";
 import {
@@ -30,7 +30,7 @@ class MockResolver implements ProjectResolver {
     this.registry = registry;
   }
 
-  open(_path: string | TaskPath): Promise<Project> {
+  open(_path: TaskPathArg): Promise<Project> {
     throw new Error("Method not implemented.");
   }
 }
@@ -45,7 +45,7 @@ class MockRegistry implements TaskRegistry {
     this.#resolver = r;
   }
 
-  get(path: string | TaskPath): Promise<Task> {
+  get(path: TaskPathArg): Promise<Task> {
     return Promise.resolve(
       new Task({
         name: TaskPath.from(path).task,

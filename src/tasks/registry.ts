@@ -6,7 +6,7 @@ import {
   ProjectResolver,
 } from "../projects/resolver.ts";
 import { Task } from "./impl.ts";
-import { TaskPath } from "./path.ts";
+import { TaskPath, TaskPathArg } from "./path.ts";
 
 export const _internals = {
   createResolver,
@@ -15,7 +15,7 @@ export const _internals = {
 export interface TaskRegistry {
   readonly resolver: ProjectResolver;
 
-  get(path: string | TaskPath): Promise<Task>;
+  get(path: TaskPathArg): Promise<Task>;
 }
 
 export async function create(path: string): Promise<TaskRegistry> {
@@ -46,7 +46,7 @@ export class RegistryImpl implements TaskRegistry {
     return this.#resolver!;
   }
 
-  #canonicalPath(path: string | TaskPath): TaskPath {
+  #canonicalPath(path: TaskPathArg): TaskPath {
     let resolved = TaskPath.from(path).resolveFrom(this.resolver.workingPath);
     if (!resolved.task) {
       resolved = TaskPath.from(":default").resolveFrom(resolved);
@@ -55,7 +55,7 @@ export class RegistryImpl implements TaskRegistry {
     return resolved;
   }
 
-  async get(path: string | TaskPath): Promise<Task> {
+  async get(path: TaskPathArg): Promise<Task> {
     const resolved = this.#canonicalPath(path);
     const resolvedPath = resolved.toString();
 
