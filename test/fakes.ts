@@ -26,10 +26,10 @@ export class FakeProjectResolver implements ProjectResolver {
       tasks: [
         { name: "clean" },
         { name: "build" },
-        { name: "test "},
+        { name: "test " },
         {
           name: "publish",
-          deps: [ ":build", ":test" ],
+          deps: [":build", ":test"],
         },
       ],
     });
@@ -56,4 +56,3 @@ export class FakeTaskRegistry implements TaskRegistry {
     );
   }
 }
-
