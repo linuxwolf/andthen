@@ -24,9 +24,13 @@ export class FakeProjectResolver implements ProjectResolver {
     const project = new Project({
       path: path.toString(),
       tasks: [
+        { name: "clean" },
         { name: "build" },
         { name: "test "},
-        { name: "clean" },
+        {
+          name: "publish",
+          deps: [ ":build", ":test" ],
+        },
       ],
     });
 
