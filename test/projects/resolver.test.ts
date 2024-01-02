@@ -2,68 +2,29 @@
 
 import { afterEach, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
 import { expect, mock } from "../mocking.ts";
+import { FakeProjectResolver, FakeTaskRegistry } from "../fakes.ts";
 
 import { basename, join } from "deno_std/path/mod.ts";
 import { ConfigNotFound, InvalidTaskPath } from "../../src/errors.ts";
-import { TaskPath, TaskPathArg } from "../../src/tasks/path.ts";
-import { Task } from "../../src/tasks/impl.ts";
-import { TaskRegistry } from "../../src/tasks/registry.ts";
+import { TaskPath } from "../../src/tasks/path.ts";
+
 import {
   _internals,
   create,
-  ProjectResolver,
   ResolvedProject,
   ResolverImpl,
 } from "../../src/projects/resolver.ts";
-import { Project } from "../../src/projects/impl.ts";
-
-class MockResolver implements ProjectResolver {
-  readonly registry: TaskRegistry;
-
-  workingDir = "/devel/root/project";
-  workingPath = new TaskPath("/devel/root/project");
-  rootDir = "/devel/root";
-  rootProject = new Project({ path: "//" });
-  projects = [];
-
-  constructor(registry: TaskRegistry) {
-    this.registry = registry;
-  }
-
-  open(_path: TaskPathArg): Promise<Project> {
-    throw new Error("Method not implemented.");
-  }
-}
-
-class MockRegistry implements TaskRegistry {
-  #resolver?: ProjectResolver = undefined;
-
-  get resolver(): ProjectResolver {
-    return this.#resolver!;
-  }
-  set resolver(r: ProjectResolver) {
-    this.#resolver = r;
-  }
-
-  get(path: TaskPathArg): Promise<Task> {
-    return Promise.resolve(
-      new Task({
-        name: TaskPath.from(path).task,
-      }),
-    );
-  }
-}
 
 describe("projects/resolver", () => {
-  const registry = new MockRegistry();
+  const registry = new FakeTaskRegistry();
 
   describe("ResolvedProject", () => {
-    const registry = new MockRegistry();
+    const registry = new FakeTaskRegistry();
     let project: ResolvedProject;
     let spyRegistryGet: mock.Spy;
 
     beforeEach(() => {
-      const resolver = new MockResolver(registry);
+      const resolver = new FakeProjectResolver(registry);
       project = new ResolvedProject(resolver, {
         path: "//project",
       });
