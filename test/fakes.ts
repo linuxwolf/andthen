@@ -19,8 +19,18 @@ export class FakeProjectResolver implements ProjectResolver {
     this.registry = registry;
   }
 
-  open(_path: TaskPathArg): Promise<Project> {
-    throw new Error("Method not implemented.");
+  open(path: TaskPathArg): Promise<Project> {
+    // TODO: obtain parent
+    const project = new Project({
+      path: path.toString(),
+      tasks: [
+        { name: "build" },
+        { name: "test "},
+        { name: "clean" },
+      ],
+    });
+
+    return Promise.resolve(project);
   }
 }
 
