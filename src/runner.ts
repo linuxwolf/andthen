@@ -85,12 +85,12 @@ export class Runner {
 
 export async function create(
   workingDir: string,
-  tasks: string[],
+  tasks?: string[],
 ): Promise<Runner> {
   const registry = await _internals.createRegistry(workingDir);
 
   const runner = new Runner(registry);
-  await runner.append(...tasks);
+  await runner.append(...(tasks || []));
 
   return runner;
 }

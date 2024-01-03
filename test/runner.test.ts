@@ -180,6 +180,36 @@ describe("runner", () => {
         ]);
       });
     });
+
+    describe(".task()", () => {
+      let runner: Runner;
+      let spyRegistryGet: mock.Spy;
+
+      beforeEach(async () => {
+        runner = new Runner(registry);
+        await runner.append("//:init", ":build", ":test");
+
+        spyRegistryGet = mock.spy(registry, "get");
+      });
+      afterEach(() => {
+        registry.reset();
+        spyRegistryGet.restore();
+      });
+
+      it("returns the existing task", () => {
+        const result = runner.task("//project:build");
+        expect(result).to.exist();
+        expect(result!.name).to.equal("build");
+
+        expect(spyRegistryGet).to.have.not.been.called();
+      });
+      it("returns undefined for nonexistent task", () => {
+        const result = runner.task("//project:lint");
+        expect(result).to.be.undefined();
+
+        expect(spyRegistryGet).to.have.not.been.called();
+      });
+    });
   });
 
   describe("create()", () => {
@@ -194,8 +224,18 @@ describe("runner", () => {
     });
     afterEach(() => {
       spyCreateRegistry.restore();
+      registry.reset();
     });
 
+    it("creates an empty Runner", async () => {
+      const result = await create("/devel/root/project");
+
+      expect(result.chain).to.deep.equal([]);
+
+      expect(spyCreateRegistry).to.be.deep.calledWith([
+        "/devel/root/project",
+      ]);
+    });
     it("creates an initialized Runner", async () => {
       const result = await create("/devel/root/project", [":build", ":test"]);
 
