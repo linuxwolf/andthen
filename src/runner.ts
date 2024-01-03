@@ -75,7 +75,7 @@ export class Runner {
       pending: new Set<string>(),
       defined: this.#tasks,
       chain: this.#chain,
-    }
+    };
     for (const path of paths) {
       const resolved = TaskPath.from(path).resolveFrom(workingPath);
       await this.#appendTask(state, resolved);

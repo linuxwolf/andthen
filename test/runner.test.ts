@@ -10,19 +10,20 @@ import {
 import { expect, mock } from "./mocking.ts";
 
 import { FakeProjectResolver, FakeTaskRegistry } from "./fakes.ts";
-import { Runner } from "../src/runner.ts";
+import { _internals, create, Runner } from "../src/runner.ts";
 import { TaskPath } from "../src/tasks/path.ts";
 import { CircularDependency } from "../src/errors.ts";
+import { TaskRegistry } from "../src/tasks/registry.ts";
 
 describe("runner", () => {
+  const registry = new FakeTaskRegistry();
+  const resolver = new FakeProjectResolver(registry);
+
+  beforeAll(() => {
+    registry.resolver = resolver;
+  });
+
   describe("Runner", () => {
-    const registry = new FakeTaskRegistry();
-    const resolver = new FakeProjectResolver(registry);
-
-    beforeAll(() => {
-      registry.resolver = resolver;
-    });
-
     describe("ctor", () => {
       it("creates an empty Runner", () => {
         const runner = new Runner(registry);
@@ -178,6 +179,34 @@ describe("runner", () => {
           "//project:build",
         ]);
       });
+    });
+  });
+
+  describe("create()", () => {
+    let spyCreateRegistry: mock.Spy;
+
+    beforeEach(() => {
+      spyCreateRegistry = mock.stub(
+        _internals,
+        "createRegistry",
+        (_: string): Promise<TaskRegistry> => Promise.resolve(registry),
+      );
+    });
+    afterEach(() => {
+      spyCreateRegistry.restore();
+    });
+
+    it("creates an initialized Runner", async () => {
+      const result = await create("/devel/root/project", [":build", ":test"]);
+
+      expect(result.chain).to.deep.equal([
+        "//project:build",
+        "//project:test",
+      ]);
+
+      expect(spyCreateRegistry).to.be.deep.calledWith([
+        "/devel/root/project",
+      ]);
     });
   });
 });
