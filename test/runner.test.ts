@@ -1,11 +1,18 @@
 /** */
 
-import { afterEach, beforeAll, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  it,
+} from "deno_std/testing/bdd.ts";
 import { expect, mock } from "./mocking.ts";
 
 import { FakeProjectResolver, FakeTaskRegistry } from "./fakes.ts";
 import { Runner } from "../src/runner.ts";
 import { TaskPath } from "../src/tasks/path.ts";
+import { CircularDependency } from "../src/errors.ts";
 
 describe("runner", () => {
   describe("Runner", () => {
@@ -66,6 +73,45 @@ describe("runner", () => {
         ]);
         expect(spyRegistryGet).to.be.deep.calledWith([
           new TaskPath("//project:init"),
+        ]);
+      });
+
+      it("throws on self circular dependency", async () => {
+        registry.defined["//project:build"] = {
+          name: "build",
+          deps: [":build"],
+        };
+
+        const err = (await expect(runner.append(":build")).to.be.rejectedWith(
+          CircularDependency,
+        )).actual;
+        expect(err.paths).to.deep.equal([
+          "//project:build",
+        ]);
+      });
+      it("throws on deep circular dependency", async () => {
+        registry.defined = {
+          "//project:build": {
+            name: "build",
+            deps: [":init"],
+          },
+          "//project:init": {
+            name: "init",
+            deps: ["//tools:init"],
+          },
+          "//tools:init": {
+            name: "init",
+            deps: ["//project:build"],
+          },
+        };
+
+        const result = runner.append(":build");
+        const err =
+          (await expect(result).to.be.rejectedWith(CircularDependency)).actual;
+        expect(err.paths).to.deep.equal([
+          "//tools:init",
+          "//project:init",
+          "//project:build",
         ]);
       });
     });

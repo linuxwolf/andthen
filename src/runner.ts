@@ -1,5 +1,6 @@
 /** */
 
+import { CircularDependency } from "./errors.ts";
 import { Project } from "./projects/impl.ts";
 import { Task } from "./tasks/impl.ts";
 import { TaskPath, TaskPathArg } from "./tasks/path.ts";
@@ -42,8 +43,9 @@ export class Runner {
     if (state.defined.has(pathStr)) {
       return state;
     } else if (state.pending.has(pathStr)) {
-      // TODO: custom error
-      throw new Error("circular dependency");
+      // assumes Set maintains insertion order
+      const pending = [...state.pending.values()].reverse();
+      throw new CircularDependency(pending);
     }
 
     state.pending.add(pathStr);
