@@ -1,10 +1,11 @@
 /** */
 
-import { beforeAll, describe, it } from "deno_std/testing/bdd.ts";
-import { expect } from "./mocking.ts";
+import { afterEach, beforeAll, beforeEach, describe, it } from "deno_std/testing/bdd.ts";
+import { expect, mock } from "./mocking.ts";
 
 import { FakeProjectResolver, FakeTaskRegistry } from "./fakes.ts";
 import { Runner } from "../src/runner.ts";
+import { TaskPath } from "../src/tasks/path.ts";
 
 describe("runner", () => {
   describe("Runner", () => {
@@ -24,6 +25,23 @@ describe("runner", () => {
     });
 
     describe(".append()", () => {
+      let runner: Runner;
+      let spyRegistryGet: mock.Spy;
+
+      beforeEach(() => {
+        spyRegistryGet = mock.spy(registry, "get");
+        runner = new Runner(registry);
+      });
+      afterEach(() => {
+        spyRegistryGet.restore();
+      });
+
+      it("builds a simple chain", async () => {
+        await runner.append(":build");
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:build"),
+        ]);
+      });
     });
   });
 });
