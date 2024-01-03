@@ -84,3 +84,12 @@ export class TaskNotFound extends ErrorBase {
     this.path = path;
   }
 }
+
+export class CircularDependency extends ErrorBase {
+  readonly paths: string[];
+
+  constructor(paths: string[], msg = "circular dependency") {
+    super(msg, { paths });
+    this.paths = paths;
+  }
+}

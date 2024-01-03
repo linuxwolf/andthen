@@ -4,6 +4,7 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import {
+  CircularDependency,
   ConfigNotFound,
   ErrorBase,
   format,
@@ -199,6 +200,57 @@ describe("errors", () => {
         'task does not exist (path="//project:non-task")',
       );
       expect(err.path).to.equal("//project:non-task");
+    });
+  });
+
+  describe("CircularDependency", () => {
+    it("creates a 1-path CircularDependency with default message", () => {
+      const err = new CircularDependency(["//project:build"]);
+      expect(err.name).to.equal("CircularDependency");
+      expect(err.message).to.equal(
+        'circular dependency (paths=[ "//project:build" ])',
+      );
+      expect(err.paths).to.deep.equal([
+        "//project:build",
+      ]);
+    });
+    it("creates a multi-path CircularDependency with default message", () => {
+      const err = new CircularDependency(["//project:build", "//project:init"]);
+      expect(err.name).to.equal("CircularDependency");
+      expect(err.message).to.equal(
+        'circular dependency (paths=[ "//project:build", "//project:init" ])',
+      );
+      expect(err.paths).to.deep.equal([
+        "//project:build",
+        "//project:init",
+      ]);
+    });
+    it("creates a 1-path CircularDependency with custom message", () => {
+      const err = new CircularDependency(
+        ["//project:build"],
+        "task goes round and round",
+      );
+      expect(err.name).to.equal("CircularDependency");
+      expect(err.message).to.equal(
+        'task goes round and round (paths=[ "//project:build" ])',
+      );
+      expect(err.paths).to.deep.equal([
+        "//project:build",
+      ]);
+    });
+    it("creates a multi-path CircularDependency with custom message", () => {
+      const err = new CircularDependency(
+        ["//project:build", "//project:init"],
+        "task goes round and round",
+      );
+      expect(err.name).to.equal("CircularDependency");
+      expect(err.message).to.equal(
+        'task goes round and round (paths=[ "//project:build", "//project:init" ])',
+      );
+      expect(err.paths).to.deep.equal([
+        "//project:build",
+        "//project:init",
+      ]);
     });
   });
 });
