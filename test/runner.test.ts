@@ -34,12 +34,38 @@ describe("runner", () => {
       });
       afterEach(() => {
         spyRegistryGet.restore();
+        registry.reset();
       });
 
-      it("builds a simple chain", async () => {
+      it("builds a single-task chain", async () => {
         await runner.append(":build");
+        expect(runner.chain).to.deep.equal([
+          "//project:build",
+        ]);
+
         expect(spyRegistryGet).to.be.deep.calledWith([
           new TaskPath("//project:build"),
+        ]);
+      });
+      it("builds a simple deps chain", async () => {
+        registry.defined = {
+          "//project:build": {
+            name: "build",
+            deps: [":init"],
+          },
+        };
+
+        await runner.append(":build");
+        expect(runner.chain).to.deep.equal([
+          "//project:init",
+          "//project:build",
+        ]);
+
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:build"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:init"),
         ]);
       });
     });

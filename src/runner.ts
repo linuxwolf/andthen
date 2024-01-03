@@ -10,7 +10,7 @@ export const _internals = {
 };
 
 interface RunnerChainState {
-  chain: Task[];
+  chain: string[];
   defined: Map<string, Task>;
   pending: Set<string>;
 }
@@ -18,7 +18,8 @@ interface RunnerChainState {
 export class Runner {
   readonly registry: TaskRegistry;
 
-  #chain: Task[] = [];
+  #tasks = new Map<string, Task>();
+  #chain: string[] = [];
 
   constructor(registry: TaskRegistry) {
     this.registry = registry;
@@ -26,6 +27,10 @@ export class Runner {
 
   get chain() {
     return [...this.#chain];
+  }
+
+  task(path: TaskPathArg): Task | undefined {
+    return this.#tasks.get(path.toString());
   }
 
   async #appendTask(
@@ -55,7 +60,7 @@ export class Runner {
     }
 
     state.defined.set(pathStr, task);
-    state.chain.push(task);
+    state.chain.push(pathStr);
     state.pending.delete(pathStr);
 
     return state;
