@@ -75,11 +75,75 @@ describe("runner", () => {
           new TaskPath("//project:init"),
         ]);
       });
+      it("builds a relative deps chain", async () => {
+        registry.defined = {
+          "//project:build": {
+            name: "build",
+            deps: [":init", "sub-project:build", "../side-project:build"],
+          },
+        };
+
+        await runner.append(":build");
+        expect(runner.chain).to.deep.equal([
+          "//project:init",
+          "//project/sub-project:build",
+          "//side-project:build",
+          "//project:build",
+        ]);
+
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:build"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:init"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project/sub-project:build"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//side-project:build"),
+        ]);
+      });
+      it("builds an optimized chain", async () => {
+        registry.defined = {
+          "//project:build": {
+            name: "build",
+            deps: [":init"],
+          },
+          "//project:test": {
+            name: "test",
+            deps: [":init"],
+          },
+        };
+
+        await runner.append(
+          ":build",
+          ":test",
+        );
+        expect(runner.chain).to.deep.equal([
+          "//project:init",
+          "//project:build",
+          "//project:test",
+        ]);
+
+        expect(spyRegistryGet).to.be.called(3);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:build"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:init"),
+        ]);
+        expect(spyRegistryGet).to.be.deep.calledWith([
+          new TaskPath("//project:test"),
+        ]);
+      });
 
       it("throws on self circular dependency", async () => {
-        registry.defined["//project:build"] = {
-          name: "build",
-          deps: [":build"],
+        registry.defined = {
+          "//project:build": {
+            name: "build",
+            deps: [":build"],
+          },
         };
 
         const err = (await expect(runner.append(":build")).to.be.rejectedWith(

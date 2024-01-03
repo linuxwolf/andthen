@@ -68,14 +68,18 @@ export class Runner {
     return state;
   }
 
-  async append(path: TaskPathArg): Promise<void> {
+  async append(...paths: TaskPathArg[]): Promise<void> {
     const workingPath = this.registry.resolver.workingPath;
-    const resolved = TaskPath.from(path).resolveFrom(workingPath);
-    await this.#appendTask({
-      pending: new Set(),
-      defined: new Map(),
+
+    const state = {
+      pending: new Set<string>(),
+      defined: this.#tasks,
       chain: this.#chain,
-    }, resolved);
+    }
+    for (const path of paths) {
+      const resolved = TaskPath.from(path).resolveFrom(workingPath);
+      await this.#appendTask(state, resolved);
+    }
   }
 }
 
@@ -86,8 +90,7 @@ export async function create(
   const registry = await _internals.createRegistry(workingDir);
 
   const runner = new Runner(registry);
-  const pending = tasks.map((path) => runner.append(path));
-  await Promise.all(pending);
+  await runner.append(...tasks);
 
   return runner;
 }
