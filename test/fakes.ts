@@ -10,7 +10,7 @@ export class FakeProjectResolver implements ProjectResolver {
   readonly registry: TaskRegistry;
 
   workingDir = "/devel/root/project";
-  workingPath = new TaskPath("/devel/root/project");
+  workingPath = new TaskPath("//project");
   rootDir = "/devel/root";
   rootProject = new Project({ path: "//" });
   projects = [];
@@ -23,15 +23,6 @@ export class FakeProjectResolver implements ProjectResolver {
     // TODO: obtain parent
     const project = new Project({
       path: path.toString(),
-      tasks: [
-        { name: "clean" },
-        { name: "build" },
-        { name: "test " },
-        {
-          name: "publish",
-          deps: [":build", ":test"],
-        },
-      ],
     });
 
     return Promise.resolve(project);
@@ -48,11 +39,14 @@ export class FakeTaskRegistry implements TaskRegistry {
     this.#resolver = r;
   }
 
-  get(path: TaskPathArg): Promise<Task> {
+  async get(path: TaskPathArg): Promise<Task> {
+    const resolved = TaskPath.from(path);
+
+    const project = await this.resolver.open(resolved.path);
     return Promise.resolve(
       new Task({
         name: TaskPath.from(path).task,
-      }),
+      }, project),
     );
   }
 }
