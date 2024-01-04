@@ -28,6 +28,7 @@ describe("projects/resolver", () => {
       project = new ResolvedProject(resolver, {
         path: "//project",
       });
+      registry.resolver = resolver;
       spyRegistryGet = mock.spy(registry, "get");
     });
 
