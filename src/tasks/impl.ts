@@ -3,18 +3,19 @@
 import { Variables, VariablesContext } from "../vars.ts";
 import { TaskConfig } from "./config.ts";
 import { ActionConfig } from "../actions/config.ts";
+import { Project } from "../projects/impl.ts";
 
 export class Task implements VariablesContext {
   readonly name: string;
   readonly desc: string;
   readonly internal: boolean;
-  readonly parent?: VariablesContext;
+  readonly parent?: Project;
 
   #vars: Variables;
   #deps: string[];
   #steps: ActionConfig[];
 
-  constructor(cfg: TaskConfig, parent?: VariablesContext) {
+  constructor(cfg: TaskConfig, parent?: Project) {
     this.parent = parent;
     this.name = cfg.name;
     this.desc = cfg.desc ?? "";
