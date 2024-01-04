@@ -4,6 +4,7 @@ import { describe, it } from "deno_std/testing/bdd.ts";
 import { expect } from "expecto/index.ts";
 
 import { Task } from "../../src/tasks/impl.ts";
+import { Project } from "../../src/projects/impl.ts";
 
 describe("tasks/impl", () => {
   describe("Task", () => {
@@ -63,7 +64,9 @@ describe("tasks/impl", () => {
         });
       });
       it("constructs from a min config + parent", () => {
-        const parent = {};
+        const parent = new Project({
+          path: "//my-project",
+        });
         const task = new Task({
           name: "task-name",
         }, parent);
@@ -80,7 +83,9 @@ describe("tasks/impl", () => {
         });
       });
       it("constructs from a full config + direct parent", () => {
-        const parent = {};
+        const parent = new Project({
+          path: "//my-project",
+        });
         const task = new Task({
           name: "task-name",
           desc: "a dummy task",
