@@ -1,5 +1,7 @@
 /** */
 
+import { withoutAll } from "deno_std/collections/mod.ts";
+
 import { CircularDependency } from "./errors.ts";
 import { Project } from "./projects/impl.ts";
 import { Task } from "./tasks/impl.ts";
@@ -68,8 +70,10 @@ export class Runner {
     return state;
   }
 
-  async append(...paths: TaskPathArg[]): Promise<void> {
+  async append(...paths: TaskPathArg[]): Promise<string[]> {
     const workingPath = this.registry.resolver.workingPath;
+
+    const start = this.chain;
 
     const state = {
       pending: new Set<string>(),
@@ -80,6 +84,8 @@ export class Runner {
       const resolved = TaskPath.from(path).resolveFrom(workingPath);
       await this.#appendTask(state, resolved);
     }
+
+    return withoutAll(this.chain, start);
   }
 }
 
