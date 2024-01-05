@@ -5,6 +5,7 @@ import { expect } from "expecto/index.ts";
 
 import { Task } from "../../src/tasks/impl.ts";
 import { Project } from "../../src/projects/impl.ts";
+import { TaskPath } from "../../src/tasks/path.ts";
 
 describe("tasks/impl", () => {
   describe("Task", () => {
@@ -20,6 +21,9 @@ describe("tasks/impl", () => {
         expect(task.vars).to.deep.equal({});
         expect(task.deps).to.deep.equal([]);
         expect(task.steps).to.deep.equal([]);
+        expect(task.taskPath).to.deep.equal(
+          TaskPath.from(":task-name"),
+        );
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
@@ -49,6 +53,9 @@ describe("tasks/impl", () => {
         expect(task.steps).to.deep.equal([
           { type: "shell", cmd: "do some cmd" },
         ]);
+        expect(task.taskPath).to.deep.equal(
+          TaskPath.from(":task-name"),
+        );
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
@@ -77,6 +84,9 @@ describe("tasks/impl", () => {
         expect(task.vars).to.deep.equal({});
         expect(task.deps).to.deep.equal([]);
         expect(task.steps).to.deep.equal([]);
+        expect(task.taskPath).to.deep.equal(
+          TaskPath.from("//my-project:task-name"),
+        );
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
@@ -109,6 +119,9 @@ describe("tasks/impl", () => {
         expect(task.steps).to.deep.equal([
           { type: "shell", cmd: "do some cmd" },
         ]);
+        expect(task.taskPath).to.deep.equal(
+          TaskPath.from("//my-project:task-name"),
+        );
 
         expect(task.toConfig()).to.deep.equal({
           name: "task-name",
