@@ -93,3 +93,24 @@ export class CircularDependency extends ErrorBase {
     this.paths = paths;
   }
 }
+
+export class ShellActionFailed extends ErrorBase {
+  readonly command: string;
+  readonly code: number;
+
+  constructor(
+    command: string,
+    code: number,
+    cause?: Error,
+    msg = "shell action failed",
+  ) {
+    super(msg, {
+      command,
+      code,
+      ...(cause && { cause }),
+    });
+    this.command = command;
+    this.code = code;
+    this.cause = cause;
+  }
+}

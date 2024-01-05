@@ -13,6 +13,7 @@ import {
   InvalidTaskPath,
   InvalidVariableName,
   MalformedConfig,
+  ShellActionFailed,
   TaskNotFound,
 } from "../src/errors.ts";
 
@@ -251,6 +252,65 @@ describe("errors", () => {
         "//project:build",
         "//project:init",
       ]);
+    });
+  });
+
+  describe("ShellActionFailed", () => {
+    it("creates a ShellActionFailed with no cause and default message", () => {
+      const err = new ShellActionFailed("no-such-prog", 255);
+      expect(err.name).to.equal("ShellActionFailed");
+      expect(err.message).to.equal(
+        'shell action failed (command="no-such-prog", code=255)',
+      );
+      expect(err.command).to.equal("no-such-prog");
+      expect(err.code).to.equal(255);
+      expect(err.cause).to.be.undefined();
+    });
+    it("creates a ShellActionFailed with cause and default message", () => {
+      const cause = new Deno.errors.NotFound();
+      const err = new ShellActionFailed("no-such-prog", 255, cause);
+      expect(err.name).to.equal("ShellActionFailed");
+      expect(err.message).to.equal(
+        `shell action failed (command="no-such-prog", code=255, cause=${
+          Deno.inspect(cause)
+        })`,
+      );
+      expect(err.command).to.equal("no-such-prog");
+      expect(err.code).to.equal(255);
+      expect(err.cause).to.equal(cause);
+    });
+    it("creates a ShellActionFailed with no cause and custom message", () => {
+      const err = new ShellActionFailed(
+        "no-such-prog",
+        255,
+        undefined,
+        "exec not found",
+      );
+      expect(err.name).to.equal("ShellActionFailed");
+      expect(err.message).to.equal(
+        'exec not found (command="no-such-prog", code=255)',
+      );
+      expect(err.command).to.equal("no-such-prog");
+      expect(err.code).to.equal(255);
+      expect(err.cause).to.be.undefined();
+    });
+    it("creates a ShellActionFailed with cause and custom message", () => {
+      const cause = new Deno.errors.NotFound();
+      const err = new ShellActionFailed(
+        "no-such-prog",
+        255,
+        cause,
+        "exec not found",
+      );
+      expect(err.name).to.equal("ShellActionFailed");
+      expect(err.message).to.equal(
+        `exec not found (command="no-such-prog", code=255, cause=${
+          Deno.inspect(cause)
+        })`,
+      );
+      expect(err.command).to.equal("no-such-prog");
+      expect(err.code).to.equal(255);
+      expect(err.cause).to.equal(cause);
     });
   });
 });
