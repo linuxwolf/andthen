@@ -9,6 +9,15 @@ export const BaseActionSchema = z.object({
 });
 export type BaseActionConfig = z.infer<typeof BaseActionSchema>;
 
+export interface ActionState {
+  cwd: string;
+  env: Variables;
+}
+
+export interface ActionResult {
+  readonly exported: Variables;
+}
+
 export abstract class Action {
   #vars: Variables;
 
@@ -19,6 +28,12 @@ export abstract class Action {
   abstract get type(): string;
   get vars() {
     return { ...this.#vars };
+  }
+
+  run(_state: ActionState): Promise<ActionResult> {
+    return Promise.resolve({
+      exported: {},
+    });
   }
 
   toConfig(): BaseActionConfig {
