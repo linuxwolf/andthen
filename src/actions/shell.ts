@@ -2,13 +2,16 @@
 
 import { z } from "zod";
 
-import { Action, BaseActionSchema } from "./base.ts";
-import { VariablesContext } from "../vars.ts";
+import { Action, ActionResult, ActionState, BaseActionSchema } from "./base.ts";
+import { Variables, VariablesContext, resolve } from "../vars.ts";
+import log from "../logging.ts";
+import { ShellActionFailed } from "../errors.ts";
 
 export const ShellActionSchema = BaseActionSchema.extend({
   type: z.literal("shell"),
   cmd: z.string(),
   exec: z.string().optional(),
+  exports: z.string().optional(),
 });
 
 export type ShellActionConfig = z.infer<typeof ShellActionSchema>;
@@ -16,6 +19,7 @@ export type ShellActionConfig = z.infer<typeof ShellActionSchema>;
 export class ShellAction extends Action implements VariablesContext {
   readonly cmd: string;
   readonly exec: string;
+  readonly exports?: string;
 
   constructor(cfg: ShellActionConfig) {
     super(cfg);
@@ -26,6 +30,59 @@ export class ShellAction extends Action implements VariablesContext {
 
   get type(): string {
     return "shell";
+  }
+
+  async run(state: ActionState): Promise<ActionResult> {
+    const exec = this.exec || Deno.env.get("SHELL") || "sh";
+    const args = [
+      "-euo",
+      "pipefail",
+      "-c",
+      this.cmd,
+    ];
+
+    // apply any vars to envs
+    let { env } = state;
+    env = resolve(this.vars, env);
+
+    const {
+      cwd,
+    } = state;
+
+    // runnit!
+    const cmd = new Deno.Command(exec, {
+      args,
+      cwd,
+      env,
+      clearEnv: true,
+    });
+
+    const result = await cmd.output();
+    if (result.stderr.length > 0) {
+      // always log stderr
+      const stderr = new TextDecoder().decode(result.stderr);
+      log.warn(stderr);
+    }
+
+    const stdout = new TextDecoder().decode(result.stdout).trim();
+    if (stdout) {
+      // log if not empty
+      log.info(stdout);
+    }
+
+    // deal with exported value
+    const exported: Variables = {};
+    if (this.exports) {
+      exported[this.exports] = stdout;
+    }
+
+    if (!result.success) {
+      throw new ShellActionFailed(this.cmd, result.code);
+    }
+
+    return {
+      exported,
+    };
   }
 
   toConfig(): ShellActionConfig {
