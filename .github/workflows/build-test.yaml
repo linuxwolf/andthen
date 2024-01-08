@@ -71,7 +71,7 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VER }}
       - name: "Run unit tests"
-        run: deno test --coverage
+        run: deno test -A --coverage
       - name: "Generate coverage reports"
         run: |
           deno coverage \

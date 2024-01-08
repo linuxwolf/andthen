@@ -11,6 +11,6 @@
     "exclude": [".cache", "docs"]
   },
   "tasks": {
-    "cov": "git clean -dfx coverage && deno test --coverage && deno coverage --exclude=test --html coverage"
+    "cov": "git clean -dfx coverage && deno test -A --coverage && deno coverage --exclude=test --html coverage && deno coverage --exclude=test coverage"
   }
 }
