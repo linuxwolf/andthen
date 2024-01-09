@@ -7,6 +7,11 @@ import { Variables, VariablesContext, resolve } from "../vars.ts";
 import log from "../logging.ts";
 import { ShellActionFailed } from "../errors.ts";
 
+export const _internals = {
+  env: Deno.env,
+  Command: Deno.Command,
+}
+
 export const ShellActionSchema = BaseActionSchema.extend({
   type: z.literal("shell"),
   cmd: z.string(),
@@ -33,7 +38,7 @@ export class ShellAction extends Action implements VariablesContext {
   }
 
   async run(state: ActionState): Promise<ActionResult> {
-    const exec = this.exec || Deno.env.get("SHELL") || "sh";
+    const exec = this.exec || _internals.env.get("SHELL") || "sh";
     const args = [
       "-euo",
       "pipefail",
@@ -50,17 +55,23 @@ export class ShellAction extends Action implements VariablesContext {
     } = state;
 
     // runnit!
-    const cmd = new Deno.Command(exec, {
-      args,
-      cwd,
-      env,
-      clearEnv: true,
-    });
+    let result: Deno.CommandOutput;
+    try {
+      const cmd = new _internals.Command(exec, {
+        args,
+        cwd,
+        env,
+        clearEnv: true,
+      });
 
-    const result = await cmd.output();
+      result = await cmd.output();
+    } catch (e) {
+      throw new ShellActionFailed(this.cmd, -1, e);
+    }
+
     if (result.stderr.length > 0) {
       // always log stderr
-      const stderr = new TextDecoder().decode(result.stderr);
+      const stderr = new TextDecoder().decode(result.stderr).trim();
       log.warn(stderr);
     }
 
