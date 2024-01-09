@@ -3,14 +3,14 @@
 import { z } from "zod";
 
 import { Action, ActionResult, ActionState, BaseActionSchema } from "./base.ts";
-import { Variables, VariablesContext, resolve } from "../vars.ts";
+import { resolve, Variables, VariablesContext } from "../vars.ts";
 import log from "../logging.ts";
 import { ShellActionFailed } from "../errors.ts";
 
 export const _internals = {
   env: Deno.env,
   Command: Deno.Command,
-}
+};
 
 export const ShellActionSchema = BaseActionSchema.extend({
   type: z.literal("shell"),

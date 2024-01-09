@@ -110,7 +110,7 @@ describe("actions/shell", () => {
           const state = {
             cwd: "/tmp",
             env: {},
-          }
+          };
           const result = await action.run(state);
           expect(result.exported).to.deep.equal({});
 
@@ -156,7 +156,9 @@ describe("actions/shell", () => {
             cmd: "false",
           });
 
-          const err = (await expect(action.run(state)).to.be.rejectedWith(ShellActionFailed)).actual;
+          const err = (await expect(action.run(state)).to.be.rejectedWith(
+            ShellActionFailed,
+          )).actual;
           expect(err.command).to.equal("false");
           expect(err.code).to.equal(1);
           expect(err.cause).to.be.undefined();
@@ -179,7 +181,9 @@ describe("actions/shell", () => {
             exec: "/tmp/not-a-real-program",
           });
 
-          const err = (await expect(action.run(state)).to.be.rejectedWith(ShellActionFailed)).actual;
+          const err = (await expect(action.run(state)).to.be.rejectedWith(
+            ShellActionFailed,
+          )).actual;
           expect(err.command).to.equal("true");
           expect(err.code).to.equal(-1);
           expect(err.cause).to.exist();
