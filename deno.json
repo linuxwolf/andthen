@@ -1,0 +1,7 @@
+{
+  "name": "@linuxwolf/andthen",
+  "version": "0.1.0",
+  "test": {
+    "include": ["test/**/*.test.ts"]
+  }
+}
