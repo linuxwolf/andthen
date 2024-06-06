@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [main]
 env:
-  DENO_DIR: ./.cache
+  DENO_DIR: ${{ github.workspace }}/.cache
   DENO_VER: "1.44.0"
 jobs:
   coding-checks:
