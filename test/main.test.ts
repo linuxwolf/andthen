@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 import { expect, mock } from "./setup.ts";
 
-import { main, _internals } from "../src/main.ts";
+import { _internals, main } from "../src/main.ts";
 import pkg from "../deno.json" with { type: "json" };
 
 describe("main", () => {

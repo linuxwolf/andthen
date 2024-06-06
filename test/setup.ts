@@ -3,7 +3,4 @@ import mocked, { mock } from "expecto/mocked.ts";
 
 use(mocked);
 
-export {
-  expect,
-  mock,
-};
+export { expect, mock };
