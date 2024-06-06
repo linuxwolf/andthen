@@ -1,6 +1,15 @@
 {
   "name": "@linuxwolf/andthen",
   "version": "0.1.0",
+  "exclude": [
+    ".cache/**"
+  ],
+  "fmt": {
+    "exclude": ["docs/**"]
+  },
+  "lint": {
+    "exclude": ["docs/**"]
+  },
   "test": {
     "include": ["test/**/*.test.ts"]
   },
