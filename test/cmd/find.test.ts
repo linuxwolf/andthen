@@ -9,6 +9,7 @@ describe("cmd/find", () => {
     it("Creates the `find` command", () => {
       const cmd = command();
       expect(cmd).to.be.an.instanceOf(Command);
+      expect(cmd.getDescription()).to.equal("find tasks to run");
 
       let opt;
       opt = cmd.getOption("task-name");
