@@ -3,5 +3,10 @@
   "version": "0.1.0",
   "test": {
     "include": ["test/**/*.test.ts"]
+  },
+  "imports": {
+    "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.4",
+    "@std/testing": "jsr:@std/testing@^0.225.0",
+    "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/"
   }
 }
