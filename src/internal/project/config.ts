@@ -18,17 +18,24 @@ const schema = z.object({
   ).optional(),
 });
 
-export const DEFAULTS: ProjectConfig = {
+export const DEFAULTS: Partial<ProjectConfig> = {
   root: false,
   defaults: {
     task: ":default",
   },
 };
 
-export type ProjectConfig = z.infer<typeof schema>;
+export interface ProjectConfig extends z.infer<typeof schema> {
+  path: string;
+}
 
-export function parse(data: unknown): ProjectConfig {
+export function parse(path: string, data: unknown): ProjectConfig {
   const parsed = schema.parse(data);
 
-  return deepMerge(DEFAULTS, parsed);
+  const config = deepMerge(DEFAULTS, parsed);
+
+  return {
+    ...config,
+    path,
+  };
 }
