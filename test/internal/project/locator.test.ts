@@ -136,18 +136,21 @@ describe("internal/locator", () => {
         await locator.init();
         expect(locator.initialized).to.be.true();
         expect(locator.rootDir).to.equal("/src/root");
+        expect(locator.projectPaths).to.deep.equal(["//"]);
       });
       it("initializes from a sub-directory", async () => {
         const locator = new Locator("/src/root/sub-project-1/sub-a");
         await locator.init();
         expect(locator.initialized).to.be.true();
         expect(locator.rootDir).to.equal("/src/root");
+        expect(locator.projectPaths).to.deep.equal(["//", "//sub-project-1", "//sub-project-1/sub-a"]);
       });
       it("initializes with an implied root", async () => {
         const locator = new Locator("/src/project/sub-project-1/sub-a");
         await locator.init();
         expect(locator.initialized).to.be.true();
         expect(locator.rootDir).to.equal("/src/project");
+        expect(locator.projectPaths).to.deep.equal(["//", "//sub-project-1", "//sub-project-1/sub-a"]);
       });
 
       it("fails if no projects are found", async () => {

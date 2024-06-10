@@ -70,6 +70,10 @@ export class Locator {
     return this.#inited;
   }
 
+  get projectPaths() {
+    return Object.keys(this.#cache).sort();
+  }
+
   async init() {
     const root = await this.#findRoot();
     this.#rewire(root.path);
