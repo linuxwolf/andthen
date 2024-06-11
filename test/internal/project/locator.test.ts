@@ -7,6 +7,7 @@ import {
   locate,
   Locator,
 } from "../../../src/internal/project/locator.ts";
+import { ProjectNotFound } from "../../../src/internal/errors.ts";
 
 const BASE_YAML = {
   tasks: {
@@ -166,8 +167,9 @@ describe("internal/locator", () => {
 
       it("fails if no projects are found", async () => {
         const locator = new Locator("/src/app/project-1");
-        const err = (await expect(locator.init()).to.be.rejected()).actual;
-        expect(err.message).to.equal("no root found");
+        const err = (await expect(locator.init()).to.be.rejectedWith(ProjectNotFound)).actual;
+        expect(err.message).to.equal('no root found: ( path: "/src/app/project-1" )');
+        expect(err.path).to.equal("/src/app/project-1");
       });
     });
   });

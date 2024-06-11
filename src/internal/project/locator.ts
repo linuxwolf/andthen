@@ -1,6 +1,7 @@
 import { dirname, join, relative } from "@std/path";
 import { parse as parseYaml } from "@std/yaml";
 import { parse as parseProject, ProjectConfig } from "./config.ts";
+import { ProjectNotFound } from "../errors.ts";
 
 export const _internals = {
   readTextFile: Deno.readTextFile,
@@ -99,7 +100,7 @@ export class Locator {
     } while (!(found?.root));
 
     if (!found) {
-      throw new Error("no root found");
+      throw new ProjectNotFound(this.execDir, "no root found");
     }
     return found;
   }
