@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 import { expect, mock } from "../../setup.ts";
 
 import { stringify } from "@std/yaml";
-import { _internals, locate, Locator } from "../../../src/internal/project/locator.ts";
+import {
+  _internals,
+  locate,
+  Locator,
+} from "../../../src/internal/project/locator.ts";
 
 const BASE_YAML = {
   tasks: {
@@ -10,7 +14,7 @@ const BASE_YAML = {
     ":test": {},
     ":doc": {},
   },
-}
+};
 
 function stubReadTextFile(path: string | URL): Promise<string> {
   switch (path.toString()) {
@@ -27,11 +31,11 @@ function stubReadTextFile(path: string | URL): Promise<string> {
       return Promise.resolve(stringify({
         ...BASE_YAML,
       }));
-      case "/src/root/sub-project-2/.andthen.yaml":
+    case "/src/root/sub-project-2/.andthen.yaml":
       return Promise.resolve(stringify({
         ...BASE_YAML,
       }));
-    
+
     // implied root projects
     case "/src/project/andthen.yaml":
       return Promise.resolve(stringify({
@@ -45,11 +49,10 @@ function stubReadTextFile(path: string | URL): Promise<string> {
       return Promise.resolve(stringify({
         ...BASE_YAML,
       }));
-      case "/src/project/sub-project-2/.andthen.yaml":
+    case "/src/project/sub-project-2/.andthen.yaml":
       return Promise.resolve(stringify({
         ...BASE_YAML,
       }));
-    
 
     default:
       return Promise.reject(new Deno.errors.NotFound());
@@ -113,7 +116,7 @@ describe("internal/locator", () => {
           ":test": {},
           ":doc": {},
         },
-      })
+      });
     });
 
     it("return undefined when not found", async () => {
@@ -143,14 +146,22 @@ describe("internal/locator", () => {
         await locator.init();
         expect(locator.initialized).to.be.true();
         expect(locator.rootDir).to.equal("/src/root");
-        expect(locator.projectPaths).to.deep.equal(["//", "//sub-project-1", "//sub-project-1/sub-a"]);
+        expect(locator.projectPaths).to.deep.equal([
+          "//",
+          "//sub-project-1",
+          "//sub-project-1/sub-a",
+        ]);
       });
       it("initializes with an implied root", async () => {
         const locator = new Locator("/src/project/sub-project-1/sub-a");
         await locator.init();
         expect(locator.initialized).to.be.true();
         expect(locator.rootDir).to.equal("/src/project");
-        expect(locator.projectPaths).to.deep.equal(["//", "//sub-project-1", "//sub-project-1/sub-a"]);
+        expect(locator.projectPaths).to.deep.equal([
+          "//",
+          "//sub-project-1",
+          "//sub-project-1/sub-a",
+        ]);
       });
 
       it("fails if no projects are found", async () => {

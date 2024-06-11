@@ -1,6 +1,6 @@
 import { dirname, join, relative } from "@std/path";
 import { parse as parseYaml } from "@std/yaml";
-import { ProjectConfig, parse as parseProject } from "./config.ts";
+import { parse as parseProject, ProjectConfig } from "./config.ts";
 
 export const _internals = {
   readTextFile: Deno.readTextFile,
@@ -11,7 +11,7 @@ const MANIFESTS = [
   "andthen.yml",
   ".andthen.yaml",
   ".andthen.yml",
-]
+];
 
 async function loadFrom(path: string) {
   for (const entry of MANIFESTS) {
@@ -96,7 +96,7 @@ export class Locator {
       this.#cache[found.path] = config;
       prevPath = found.path;
       currPath = dirname(prevPath);
-    } while(!(found?.root));
+    } while (!(found?.root));
 
     if (!found) {
       throw new Error("no root found");
@@ -110,7 +110,7 @@ export class Locator {
 
     for (const k of Object.keys(cache)) {
       const path = "//" + relative(rootPath, k);
-      const root = (path === "//");
+      const root = path === "//";
       result[path] = {
         ...cache[k],
         path,
