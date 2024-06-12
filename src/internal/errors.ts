@@ -27,3 +27,9 @@ export class ProjectNotFoundError extends ErrorBase {
     this.path = path;
   }
 }
+
+export class NotReadyError extends ErrorBase {
+  constructor(msg = "not ready") {
+    super(msg);
+  }
+}

@@ -64,4 +64,17 @@ describe("internal/errors", () => {
       );
     });
   });
+
+  describe("NotReadyError", () => {
+    it("creates a NotReadyError with default message", () => {
+      const result = new errors.NotReadyError();
+      expect(result.name).to.equal("NotReadyError");
+      expect(result.message).to.equal("not ready");
+    });
+    it("creates a NotReadyError with custom message", () => {
+      const result = new errors.NotReadyError("needs initialization");
+      expect(result.name).to.equal("NotReadyError");
+      expect(result.message).to.equal("needs initialization");
+    });
+  });
 });
