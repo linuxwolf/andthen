@@ -30,10 +30,6 @@ async function loadFrom(path: string) {
   return undefined;
 }
 
-function toRootPath(rootDir: string, path: string) {
-  return "//" + relative(rootDir, path);
-}
-
 export async function locate(path: string, exact = false) {
   let data: unknown | undefined;
   let current = path;
@@ -98,7 +94,7 @@ export class Locator {
       const config = await locate(path, true);
       if (!config) { continue; }
 
-      path = toRootPath(this.rootDir, path);
+      path = this.#toRootPath(path);
       if (path in this.#cache) { continue; }
 
       this.applyConfig(path, config);
@@ -115,6 +111,10 @@ export class Locator {
       path,
       root: (path === "//"),
     };
+  }
+
+  #toRootPath(path: string) {
+    return `//${relative(this.rootDir, path)}`;
   }
 
   async #findRoot() {
@@ -146,7 +146,7 @@ export class Locator {
     this.#cache = {};
     this.#rootDir = rootPath;
     for (const k of Object.keys(cache)) {
-      const path = toRootPath(rootPath, k);
+      const path = this.#toRootPath(k);
       this.applyConfig(path, cache[k]);
     }
 
