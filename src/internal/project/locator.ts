@@ -1,10 +1,12 @@
+import { walk } from "@std/fs";
 import { dirname, join, relative } from "@std/path";
 import { parse as parseYaml } from "@std/yaml";
 import { parse as parseProject, ProjectConfig } from "./config.ts";
-import { ProjectNotFoundError } from "../errors.ts";
+import { NotReadyError, ProjectNotFoundError } from "../errors.ts";
 
 export const _internals = {
   readTextFile: Deno.readTextFile,
+  walk,
 };
 
 const MANIFESTS = [
@@ -28,7 +30,11 @@ async function loadFrom(path: string) {
   return undefined;
 }
 
-export async function locate(path: string) {
+function toRootPath(rootDir: string, path: string) {
+  return "//" + relative(rootDir, path);
+}
+
+export async function locate(path: string, exact = false) {
   let data: unknown | undefined;
   let current = path;
   let prev = current;
@@ -38,7 +44,7 @@ export async function locate(path: string) {
     data = await loadFrom(current);
     prev = current;
     current = dirname(current);
-    done = (data !== undefined) || (current === prev);
+    done = exact || (data !== undefined) || (current === prev);
   }
 
   if (data === undefined) {
@@ -82,6 +88,35 @@ export class Locator {
     this.#inited = true;
   }
 
+  async walk() {
+    if (!this.initialized) {
+      throw new NotReadyError("locator not initialized");
+    }
+
+    for await (const entry of _internals.walk(this.rootDir)) {
+      let { path } = entry;
+      const config = await locate(path, true);
+      if (!config) { continue; }
+
+      path = toRootPath(this.rootDir, path);
+      if (path in this.#cache) { continue; }
+
+      this.applyConfig(path, config);
+    }
+  }
+
+  applyConfig(path: string, config: ProjectConfig) {
+    if (path in this.#cache) {
+      return;
+    }
+
+    this.#cache[path] = {
+      ...config,
+      path,
+      root: (path === "//"),
+    };
+  }
+
   async #findRoot() {
     let found: ProjectConfig | undefined;
     let currPath = this.#execDir;
@@ -107,20 +142,14 @@ export class Locator {
 
   #rewire(rootPath: string) {
     const cache = this.#cache;
-    const result: typeof cache = {};
 
+    this.#cache = {};
+    this.#rootDir = rootPath;
     for (const k of Object.keys(cache)) {
-      const path = "//" + relative(rootPath, k);
-      const root = path === "//";
-      result[path] = {
-        ...cache[k],
-        path,
-        root,
-      };
+      const path = toRootPath(rootPath, k);
+      this.applyConfig(path, cache[k]);
     }
 
-    this.#cache = result;
-    this.#rootDir = rootPath;
     this.#rootProject = this.#cache["//"];
   }
 }
