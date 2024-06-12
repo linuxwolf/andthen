@@ -166,8 +166,13 @@ describe("internal/locator", () => {
       });
     });
 
-    it("return undefined when not found", async () => {
+    it("returns undefined when not found", async () => {
       const result = await locate("/app/project");
+      expect(result).to.be.undefined();
+    });
+
+    it("returns undefined when exact path has no config", async () => {
+      const result = await locate("/src/root/sub-project-2/sub-a", true);
       expect(result).to.be.undefined();
     });
   });

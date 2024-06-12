@@ -102,15 +102,12 @@ export class Locator {
   }
 
   applyConfig(path: string, config: ProjectConfig) {
-    if (path in this.#cache) {
-      return;
-    }
-
-    this.#cache[path] = {
+    config = {
       ...config,
       path,
       root: (path === "//"),
     };
+    this.#cache[path] = config;
   }
 
   #toRootPath(path: string) {
