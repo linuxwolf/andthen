@@ -19,7 +19,7 @@ export abstract class ErrorBase extends Error {
   }
 }
 
-export class ProjectNotFound extends ErrorBase {
+export class ProjectNotFoundError extends ErrorBase {
   readonly path: string;
 
   constructor(path: string, msg = "no project found") {
