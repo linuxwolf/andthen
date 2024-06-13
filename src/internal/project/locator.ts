@@ -132,7 +132,7 @@ export class Locator {
     } while (!(found?.root));
 
     if (!found) {
-      throw new ProjectNotFoundError(this.execDir, "no root found");
+      throw new ProjectNotFoundError(this.execDir, "root project not found");
     }
     return found;
   }

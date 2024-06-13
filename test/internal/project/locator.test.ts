@@ -227,7 +227,7 @@ describe("internal/locator", () => {
         ))
           .actual;
         expect(err.message).to.equal(
-          'no root found: ( path: "/src/app/project-1" )',
+          'root project not found: ( path: "/src/app/project-1" )',
         );
         expect(err.path).to.equal("/src/app/project-1");
       });
