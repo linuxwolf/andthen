@@ -9,7 +9,10 @@ import {
   locate,
   Locator,
 } from "../../../src/internal/project/locator.ts";
-import { NotReadyError, ProjectNotFoundError } from "../../../src/internal/errors.ts";
+import {
+  NotReadyError,
+  ProjectNotFoundError,
+} from "../../../src/internal/errors.ts";
 
 const BASE_YAML = {
   tasks: {
@@ -219,9 +222,10 @@ describe("internal/locator", () => {
 
       it("fails if no projects are found", async () => {
         const locator = new Locator("/src/app/project-1");
-        const err =
-          (await expect(locator.init()).to.be.rejectedWith(ProjectNotFoundError))
-            .actual;
+        const err = (await expect(locator.init()).to.be.rejectedWith(
+          ProjectNotFoundError,
+        ))
+          .actual;
         expect(err.message).to.equal(
           'no root found: ( path: "/src/app/project-1" )',
         );
@@ -248,7 +252,9 @@ describe("internal/locator", () => {
 
       it("fails if not initialized", async () => {
         const locator = await makeLocator("/src/root", false);
-        const err = (await expect(locator.walk()).to.be.rejectedWith(NotReadyError)).actual;
+        const err =
+          (await expect(locator.walk()).to.be.rejectedWith(NotReadyError))
+            .actual;
         expect(err.message).to.equal("locator not initialized");
       });
 
@@ -263,7 +269,9 @@ describe("internal/locator", () => {
         ]);
         expect(spyApplyConfig.calls.length).to.equal(3);
         expect(spyApplyConfig.calls[0].args[0]).to.equal("//sub-project-1");
-        expect(spyApplyConfig.calls[1].args[0]).to.equal("//sub-project-1/sub-a");
+        expect(spyApplyConfig.calls[1].args[0]).to.equal(
+          "//sub-project-1/sub-a",
+        );
         expect(spyApplyConfig.calls[2].args[0]).to.equal("//sub-project-2");
       });
       it("walks the rootDir descendants, with cache hits", async () => {
@@ -276,7 +284,9 @@ describe("internal/locator", () => {
           "//sub-project-2",
         ]);
         expect(spyApplyConfig.calls.length).to.equal(2);
-        expect(spyApplyConfig.calls[0].args[0]).to.equal("//sub-project-1/sub-a");
+        expect(spyApplyConfig.calls[0].args[0]).to.equal(
+          "//sub-project-1/sub-a",
+        );
         expect(spyApplyConfig.calls[1].args[0]).to.equal("//sub-project-2");
       });
     });

@@ -92,10 +92,10 @@ export class Locator {
     for await (const entry of _internals.walk(this.rootDir)) {
       let { path } = entry;
       const config = await locate(path, true);
-      if (!config) { continue; }
+      if (!config) continue;
 
       path = this.#toRootPath(path);
-      if (path in this.#cache) { continue; }
+      if (path in this.#cache) continue;
 
       this.applyConfig(path, config);
     }
