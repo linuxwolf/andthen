@@ -45,23 +45,36 @@ describe("internal/errors", () => {
     });
   });
 
-  describe("ProjectNotFound", () => {
-    it("creates a ProjectNotFound with default message", () => {
-      const result = new errors.ProjectNotFound("/root/no/project");
-      expect(result.name).to.equal("ProjectNotFound");
+  describe("ProjectNotFoundError", () => {
+    it("creates a ProjectNotFoundError with default message", () => {
+      const result = new errors.ProjectNotFoundError("/root/no/project");
+      expect(result.name).to.equal("ProjectNotFoundError");
       expect(result.message).to.equal(
         'no project found: ( path: "/root/no/project" )',
       );
     });
-    it("creates a ProjectNotFound with custom message", () => {
-      const result = new errors.ProjectNotFound(
+    it("creates a ProjectNotFoundError with custom message", () => {
+      const result = new errors.ProjectNotFoundError(
         "/root/no/project",
         "could not find a project",
       );
-      expect(result.name).to.equal("ProjectNotFound");
+      expect(result.name).to.equal("ProjectNotFoundError");
       expect(result.message).to.equal(
         'could not find a project: ( path: "/root/no/project" )',
       );
+    });
+  });
+
+  describe("NotReadyError", () => {
+    it("creates a NotReadyError with default message", () => {
+      const result = new errors.NotReadyError();
+      expect(result.name).to.equal("NotReadyError");
+      expect(result.message).to.equal("not ready");
+    });
+    it("creates a NotReadyError with custom message", () => {
+      const result = new errors.NotReadyError("needs initialization");
+      expect(result.name).to.equal("NotReadyError");
+      expect(result.message).to.equal("needs initialization");
     });
   });
 });

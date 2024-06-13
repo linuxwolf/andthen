@@ -1,10 +1,12 @@
+import { walk } from "@std/fs";
 import { dirname, join, relative } from "@std/path";
 import { parse as parseYaml } from "@std/yaml";
 import { parse as parseProject, ProjectConfig } from "./config.ts";
-import { ProjectNotFound } from "../errors.ts";
+import { NotReadyError, ProjectNotFoundError } from "../errors.ts";
 
 export const _internals = {
   readTextFile: Deno.readTextFile,
+  walk,
 };
 
 const MANIFESTS = [
@@ -28,7 +30,7 @@ async function loadFrom(path: string) {
   return undefined;
 }
 
-export async function locate(path: string) {
+export async function locate(path: string, exact = false) {
   let data: unknown | undefined;
   let current = path;
   let prev = current;
@@ -38,7 +40,7 @@ export async function locate(path: string) {
     data = await loadFrom(current);
     prev = current;
     current = dirname(current);
-    done = (data !== undefined) || (current === prev);
+    done = exact || (data !== undefined) || (current === prev);
   }
 
   if (data === undefined) {
@@ -82,6 +84,36 @@ export class Locator {
     this.#inited = true;
   }
 
+  async walk() {
+    if (!this.initialized) {
+      throw new NotReadyError("locator not initialized");
+    }
+
+    for await (const entry of _internals.walk(this.rootDir)) {
+      let { path } = entry;
+      const config = await locate(path, true);
+      if (!config) continue;
+
+      path = this.#toRootPath(path);
+      if (path in this.#cache) continue;
+
+      this.applyConfig(path, config);
+    }
+  }
+
+  applyConfig(path: string, config: ProjectConfig) {
+    config = {
+      ...config,
+      path,
+      root: (path === "//"),
+    };
+    this.#cache[path] = config;
+  }
+
+  #toRootPath(path: string) {
+    return `//${relative(this.rootDir, path)}`;
+  }
+
   async #findRoot() {
     let found: ProjectConfig | undefined;
     let currPath = this.#execDir;
@@ -100,27 +132,21 @@ export class Locator {
     } while (!(found?.root));
 
     if (!found) {
-      throw new ProjectNotFound(this.execDir, "no root found");
+      throw new ProjectNotFoundError(this.execDir, "root project not found");
     }
     return found;
   }
 
   #rewire(rootPath: string) {
     const cache = this.#cache;
-    const result: typeof cache = {};
 
+    this.#cache = {};
+    this.#rootDir = rootPath;
     for (const k of Object.keys(cache)) {
-      const path = "//" + relative(rootPath, k);
-      const root = path === "//";
-      result[path] = {
-        ...cache[k],
-        path,
-        root,
-      };
+      const path = this.#toRootPath(k);
+      this.applyConfig(path, cache[k]);
     }
 
-    this.#cache = result;
-    this.#rootDir = rootPath;
     this.#rootProject = this.#cache["//"];
   }
 }

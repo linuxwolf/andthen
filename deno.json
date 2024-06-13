@@ -16,6 +16,7 @@
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.4",
     "@std/collections": "jsr:@std/collections@^0.224.2",
+    "@std/fs": "jsr:@std/fs@^0.229.3",
     "@std/path": "jsr:@std/path@^0.225.2",
     "@std/testing": "jsr:@std/testing@^0.225.0",
     "@std/yaml": "jsr:@std/yaml@^0.224.1",

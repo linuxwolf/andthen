@@ -19,11 +19,17 @@ export abstract class ErrorBase extends Error {
   }
 }
 
-export class ProjectNotFound extends ErrorBase {
+export class ProjectNotFoundError extends ErrorBase {
   readonly path: string;
 
   constructor(path: string, msg = "no project found") {
     super(msg, { path });
     this.path = path;
+  }
+}
+
+export class NotReadyError extends ErrorBase {
+  constructor(msg = "not ready") {
+    super(msg);
   }
 }
