@@ -77,4 +77,24 @@ describe("internal/errors", () => {
       expect(result.message).to.equal("needs initialization");
     });
   });
+
+  describe("InvalidTaskNameError", () => {
+    it("creates an InvalidTaskNameError with default message", () => {
+      const result = new errors.InvalidTaskNameError("bad name");
+      expect(result.name).to.equal("InvalidTaskNameError");
+      expect(result.message).to.equal(
+        'invalid task name: ( taskName: "bad name" )',
+      );
+    });
+    it("creates an InvalidTaskNameError with custom message", () => {
+      const result = new errors.InvalidTaskNameError(
+        "bad name",
+        "task name is bad",
+      );
+      expect(result.name).to.equal("InvalidTaskNameError");
+      expect(result.message).to.equal(
+        'task name is bad: ( taskName: "bad name" )',
+      );
+    });
+  });
 });
