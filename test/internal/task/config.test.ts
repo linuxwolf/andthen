@@ -1,6 +1,5 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "../../setup.ts";
-import { deepMerge } from "@std/collections";
 
 import { DEFAULTS, parse } from "../../../src/internal/task/config.ts";
 import { InvalidTaskNameError } from "../../../src/internal/errors.ts";
@@ -47,7 +46,9 @@ describe("internal/task", () => {
     });
 
     it("throws if name is invalid", () => {
-      const err = expect(() => parse("bad name", {})).to.throw(InvalidTaskNameError).actual;
+      const err =
+        expect(() => parse("bad name", {})).to.throw(InvalidTaskNameError)
+          .actual;
       expect(err.taskName).to.equal("bad name");
     });
   });
