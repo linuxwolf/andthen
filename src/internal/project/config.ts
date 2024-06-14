@@ -1,19 +1,17 @@
 import { deepMerge } from "@std/collections";
 import { z } from "zod";
 
-const taskNameSchema = z.string().startsWith(":");
-
 const taskSchema = z.object({});
 
 const defaultsSchema = z.object({
-  task: taskNameSchema.optional(),
+  task: z.string().optional(),
 });
 
 const schema = z.object({
   root: z.boolean().optional(),
   defaults: defaultsSchema.optional(),
   tasks: z.record(
-    taskNameSchema,
+    z.string(),
     taskSchema.optional(),
   ).optional(),
 });
@@ -26,12 +24,11 @@ export const DEFAULTS: Partial<ProjectConfig> = {
 };
 
 export interface ProjectConfig extends z.infer<typeof schema> {
-  path: string;
+  readonly path: string;
 }
 
 export function parse(path: string, data: unknown): ProjectConfig {
   const parsed = schema.parse(data);
-
   const config = deepMerge(DEFAULTS, parsed);
 
   return {
