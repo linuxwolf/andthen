@@ -4,7 +4,7 @@ import { deepMerge } from "@std/collections";
 
 import { DEFAULTS, parse } from "../../../src/internal/project/config.ts";
 
-describe("internal/project", () => {
+describe("internal/project/config", () => {
   describe("parse()", () => {
     it("parses an empty object", () => {
       const result = parse("//project-1", {});
@@ -32,7 +32,9 @@ describe("internal/project", () => {
         defaults: {
           task: ":build",
         },
-        tasks: {},
+        tasks: {
+          ":build": {},
+        },
       });
       expect(result).to.deep.equal({
         path: "//",
@@ -40,7 +42,13 @@ describe("internal/project", () => {
         defaults: {
           task: ":build",
         },
-        tasks: {},
+        tasks: {
+          ":build": {
+            name: ":build",
+            desc: "",
+            deps: [],
+          },
+        },
       });
     });
   });
