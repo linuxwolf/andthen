@@ -4,7 +4,7 @@ import { expect } from "../../setup.ts";
 import { DEFAULTS, parse } from "../../../src/internal/task/config.ts";
 import { InvalidTaskNameError } from "../../../src/internal/errors.ts";
 
-describe("internal/task", () => {
+describe("internal/task/config", () => {
   describe("parse()", () => {
     it("parses an empty object", () => {
       const result = parse(":build", {});
