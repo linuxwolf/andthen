@@ -1,21 +1,30 @@
-import { deepMerge } from "@std/collections";
 import { z } from "zod";
 
-const taskNameSchema = z.string().startsWith(":");
-
-const taskSchema = z.object({});
+import {
+  parse as parseTask,
+  schema as taskSchema,
+  TaskConfig,
+} from "../task/config.ts";
 
 const defaultsSchema = z.object({
-  task: taskNameSchema.optional(),
+  task: z.string().optional(),
 });
 
 const schema = z.object({
   root: z.boolean().optional(),
   defaults: defaultsSchema.optional(),
   tasks: z.record(
-    taskNameSchema,
+    z.string(),
     taskSchema.optional(),
-  ).optional(),
+  ).optional().transform((tasks) => {
+    const result: Record<string, TaskConfig> = {};
+
+    for (const [name, config] of Object.entries(tasks || {})) {
+      result[name] = parseTask(name, config);
+    }
+
+    return result;
+  }),
 });
 
 export const DEFAULTS: Partial<ProjectConfig> = {
@@ -23,19 +32,24 @@ export const DEFAULTS: Partial<ProjectConfig> = {
   defaults: {
     task: ":default",
   },
+  tasks: {},
 };
 
 export interface ProjectConfig extends z.infer<typeof schema> {
-  path: string;
+  readonly path: string;
 }
 
 export function parse(path: string, data: unknown): ProjectConfig {
   const parsed = schema.parse(data);
-
-  const config = deepMerge(DEFAULTS, parsed);
-
-  return {
-    ...config,
+  const config = {
     path,
+    defaults: {
+      ...DEFAULTS.defaults,
+      ...parsed.defaults,
+    },
+    root: parsed.root ?? DEFAULTS.root,
+    tasks: parsed.tasks,
   };
+
+  return config;
 }

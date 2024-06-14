@@ -33,3 +33,12 @@ export class NotReadyError extends ErrorBase {
     super(msg);
   }
 }
+
+export class InvalidTaskNameError extends ErrorBase {
+  readonly taskName: string;
+
+  constructor(taskName: string, msg = "invalid task name") {
+    super(msg, { taskName });
+    this.taskName = taskName;
+  }
+}

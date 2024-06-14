@@ -106,7 +106,7 @@ function stubReadTextFile(path: string | URL): Promise<string> {
   }
 }
 
-describe("internal/locator", () => {
+describe("internal/project/locator", () => {
   let spyReadTextFile: mock.Spy;
   let spyWalk: mock.Spy;
 
@@ -131,9 +131,21 @@ describe("internal/locator", () => {
           task: ":default",
         },
         tasks: {
-          ":build": {},
-          ":test": {},
-          ":doc": {},
+          ":build": {
+            name: ":build",
+            desc: "",
+            deps: [],
+          },
+          ":test": {
+            name: ":test",
+            desc: "",
+            deps: [],
+          },
+          ":doc": {
+            name: ":doc",
+            desc: "",
+            deps: [],
+          },
         },
       });
     });
@@ -147,9 +159,21 @@ describe("internal/locator", () => {
           task: ":default",
         },
         tasks: {
-          ":build": {},
-          ":test": {},
-          ":doc": {},
+          ":build": {
+            name: ":build",
+            desc: "",
+            deps: [],
+          },
+          ":test": {
+            name: ":test",
+            desc: "",
+            deps: [],
+          },
+          ":doc": {
+            name: ":doc",
+            desc: "",
+            deps: [],
+          },
         },
       });
     });
@@ -162,9 +186,21 @@ describe("internal/locator", () => {
           task: ":default",
         },
         tasks: {
-          ":build": {},
-          ":test": {},
-          ":doc": {},
+          ":build": {
+            name: ":build",
+            desc: "",
+            deps: [],
+          },
+          ":test": {
+            name: ":test",
+            desc: "",
+            deps: [],
+          },
+          ":doc": {
+            name: ":doc",
+            desc: "",
+            deps: [],
+          },
         },
       });
     });
