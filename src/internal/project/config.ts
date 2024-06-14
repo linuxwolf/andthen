@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { TaskConfig, parse as parseTask, schema as taskSchema } from "../task/config.ts";
+import {
+  parse as parseTask,
+  schema as taskSchema,
+  TaskConfig,
+} from "../task/config.ts";
 
 const defaultsSchema = z.object({
   task: z.string().optional(),
@@ -45,7 +49,7 @@ export function parse(path: string, data: unknown): ProjectConfig {
     },
     root: parsed.root ?? DEFAULTS.root,
     tasks: parsed.tasks,
-  }
+  };
 
   return config;
 }
