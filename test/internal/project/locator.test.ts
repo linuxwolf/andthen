@@ -106,7 +106,7 @@ function stubReadTextFile(path: string | URL): Promise<string> {
   }
 }
 
-describe("internal/project/config", () => {
+describe("internal/project/locator", () => {
   let spyReadTextFile: mock.Spy;
   let spyWalk: mock.Spy;
 
