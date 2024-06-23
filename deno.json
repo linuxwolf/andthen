@@ -22,5 +22,8 @@
     "@std/yaml": "jsr:@std/yaml@^0.224.1",
     "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/",
     "zod": "https://deno.land/x/zod@v3.23.8/mod.ts"
+  },
+  "tasks": {
+    "cover": "deno test --clean --coverage coverage test && deno coverage --exclude=test/setup.ts --html coverage"
   }
 }
