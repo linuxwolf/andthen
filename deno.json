@@ -1,6 +1,8 @@
 {
   "name": "@linuxwolf/andthen",
+  "short_name": "andthen",
   "version": "0.1.0",
+  "exports": "./src/main.ts",
   "exclude": [
     ".cache/**"
   ],
@@ -13,7 +15,11 @@
   "test": {
     "include": ["test/**/*.test.ts"]
   },
-  "imports": {},
+  "imports": {
+    "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.5",
+    "@std/testing": "jsr:@std/testing@^1.0.2",
+    "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/"
+  },
   "tasks": {
     "cover": "deno test --clean --coverage coverage test && deno coverage --exclude=test/setup.ts --html coverage"
   }
