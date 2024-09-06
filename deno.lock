@@ -1,0 +1,147 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "jsr:@cliffy/command@^1.0.0-rc.5": "jsr:@cliffy/command@1.0.0-rc.5",
+      "jsr:@cliffy/flags@1.0.0-rc.5": "jsr:@cliffy/flags@1.0.0-rc.5",
+      "jsr:@cliffy/internal@1.0.0-rc.5": "jsr:@cliffy/internal@1.0.0-rc.5",
+      "jsr:@cliffy/table@1.0.0-rc.5": "jsr:@cliffy/table@1.0.0-rc.5",
+      "jsr:@std/assert@^1.0.4": "jsr:@std/assert@1.0.4",
+      "jsr:@std/cli@1.0.0-rc.2": "jsr:@std/cli@1.0.0-rc.2",
+      "jsr:@std/data-structures@^1.0.2": "jsr:@std/data-structures@1.0.2",
+      "jsr:@std/fmt@~0.225.4": "jsr:@std/fmt@0.225.6",
+      "jsr:@std/fs@^1.0.3": "jsr:@std/fs@1.0.3",
+      "jsr:@std/internal@^1.0.3": "jsr:@std/internal@1.0.3",
+      "jsr:@std/path@^1.0.4": "jsr:@std/path@1.0.4",
+      "jsr:@std/testing@^1.0.2": "jsr:@std/testing@1.0.2",
+      "jsr:@std/text@1.0.0-rc.1": "jsr:@std/text@1.0.0-rc.1"
+    },
+    "jsr": {
+      "@cliffy/command@1.0.0-rc.5": {
+        "integrity": "55e00a1d0ae38152fb275a89494a81ffb9b144eb9060107c0be5af46e1ba736c",
+        "dependencies": [
+          "jsr:@cliffy/flags@1.0.0-rc.5",
+          "jsr:@cliffy/internal@1.0.0-rc.5",
+          "jsr:@cliffy/table@1.0.0-rc.5",
+          "jsr:@std/fmt@~0.225.4",
+          "jsr:@std/text@1.0.0-rc.1"
+        ]
+      },
+      "@cliffy/flags@1.0.0-rc.5": {
+        "integrity": "bd33b7b399e0af353f5516d87a2d552d46ee7e7f4a6f0c0bc65fcce750710217",
+        "dependencies": [
+          "jsr:@std/text@1.0.0-rc.1"
+        ]
+      },
+      "@cliffy/internal@1.0.0-rc.5": {
+        "integrity": "1e8dca4fcfba1815bf1a899bb880e09f8b45284c352465ef8fb015887c1fc126"
+      },
+      "@cliffy/table@1.0.0-rc.5": {
+        "integrity": "2b3e1b4764bbb56b0c39aeba95bc0bb551d9bd4475fbb6d1ce368c08b7ef9eb3",
+        "dependencies": [
+          "jsr:@std/cli@1.0.0-rc.2",
+          "jsr:@std/fmt@~0.225.4"
+        ]
+      },
+      "@std/assert@1.0.4": {
+        "integrity": "d4c767ea578e5bc09c15b6e503376003e5b2d1f4c0cdf08524a92101ff4d7b96",
+        "dependencies": [
+          "jsr:@std/internal@^1.0.3"
+        ]
+      },
+      "@std/cli@1.0.0-rc.2": {
+        "integrity": "97dfae82b9f0e189768ebfa7a5da53375955b94bad0a1804f8e3b73563b03787"
+      },
+      "@std/data-structures@1.0.2": {
+        "integrity": "d586efced05ed91923514a192996d23673f32f695f7ebc37f0cc1e17928be600"
+      },
+      "@std/fmt@0.225.6": {
+        "integrity": "aba6aea27f66813cecfd9484e074a9e9845782ab0685c030e453a8a70b37afc8"
+      },
+      "@std/fs@1.0.3": {
+        "integrity": "3cb839b1360b0a42d8b367c3093bfe4071798e6694fa44cf1963e04a8edba4fe",
+        "dependencies": [
+          "jsr:@std/path@^1.0.4"
+        ]
+      },
+      "@std/internal@1.0.3": {
+        "integrity": "208e9b94a3d5649bd880e9ca38b885ab7651ab5b5303a56ed25de4755fb7b11e"
+      },
+      "@std/path@1.0.4": {
+        "integrity": "48dd5d8389bcfcd619338a01bdf862cb7799933390146a54ae59356a0acc7105"
+      },
+      "@std/testing@1.0.2": {
+        "integrity": "9e8a7f4e26c219addabe7942d09c3450fa0a74e9662341961bc0ef502274dec3",
+        "dependencies": [
+          "jsr:@std/assert@^1.0.4",
+          "jsr:@std/data-structures@^1.0.2",
+          "jsr:@std/fs@^1.0.3",
+          "jsr:@std/internal@^1.0.3",
+          "jsr:@std/path@^1.0.4"
+        ]
+      },
+      "@std/text@1.0.0-rc.1": {
+        "integrity": "34c722203e87ee12792c8d4a0cd2ee0e001341cbce75b860fc21be19d62232b0"
+      }
+    }
+  },
+  "remote": {
+    "https://deno.land/std@0.210.0/assert/_constants.ts": "8a9da298c26750b28b326b297316cdde860bc237533b07e1337c021379e6b2a9",
+    "https://deno.land/std@0.210.0/assert/_diff.ts": "2c9371f17cf08cbb843c924bc31ca77af422ec4fe162f73d42c651d547573fa8",
+    "https://deno.land/std@0.210.0/assert/_format.ts": "335ce8e15c65b679ad142dbc9e5e97e5d58602c39dd3c9175cef6c85fe22d6d5",
+    "https://deno.land/std@0.210.0/assert/assert.ts": "e265ad50a9341f3b40e51dd4cb41ab253d976943ba78a977106950e52e0302ab",
+    "https://deno.land/std@0.210.0/assert/assert_almost_equals.ts": "a70d637856e1c6128dc733346d32aa73c67058489495116ca85091c39a60c767",
+    "https://deno.land/std@0.210.0/assert/assert_array_includes.ts": "59d005d8897c1fbcbd5792170833f13a867f6a5ecd5a6b34a3d86b4b430de63c",
+    "https://deno.land/std@0.210.0/assert/assert_equals.ts": "991b0c2b437a015d623654f758e48bfd931068211a52e8131b397cdf005c595f",
+    "https://deno.land/std@0.210.0/assert/assert_exists.ts": "f24ecb0d3febad358a6cee235f012551077e07692517ebfe0630a561ba40a703",
+    "https://deno.land/std@0.210.0/assert/assert_false.ts": "99cf237fe374cabf57072d2fb41b3eaff389029f850fbb96f643c875792f10ce",
+    "https://deno.land/std@0.210.0/assert/assert_greater.ts": "e0bba9ac76a780573a864ab6eeb8b9fd71435b750bdd36d56a270e22ab9a79d9",
+    "https://deno.land/std@0.210.0/assert/assert_greater_or_equal.ts": "aea1c7dc868926ba55f1e59f8c3560bb44706b5e3b6b009453ee4064eecf6746",
+    "https://deno.land/std@0.210.0/assert/assert_instance_of.ts": "7c093d36b1a86666d5a60a8c290c91a51a627153b821a5a4dc40b24cab69f1e7",
+    "https://deno.land/std@0.210.0/assert/assert_is_error.ts": "a8a758581661edec514c453910bee2f9c91b1346a515c58404963b130d81cd80",
+    "https://deno.land/std@0.210.0/assert/assert_less.ts": "855aa58e49afa6a9e825f1abcd5947dc789c5878fc1b6f48b8a08115d48da32b",
+    "https://deno.land/std@0.210.0/assert/assert_less_or_equal.ts": "2ae5246bd0e83da26e5c8e2815d1493252f71f7dc02afb83dc2fc0e0fb0bd894",
+    "https://deno.land/std@0.210.0/assert/assert_match.ts": "e541a9769cf5726312ff9e15031e2faa2df3c59fbdc5573c8758b1f4668ccc62",
+    "https://deno.land/std@0.210.0/assert/assert_not_equals.ts": "6bce4b28f3316029c0aef107f8390796798835c382d31c1004160baef0b80db0",
+    "https://deno.land/std@0.210.0/assert/assert_not_instance_of.ts": "866243fd28bc6665e2ffcc027a9df1d2a69cb644aef1e9b8d1ce34377c6b8a84",
+    "https://deno.land/std@0.210.0/assert/assert_not_match.ts": "59707eceb0d2b16d6892fbf92ec86f92fd76fcfc55f8b61508299db7d2972cab",
+    "https://deno.land/std@0.210.0/assert/assert_not_strict_equals.ts": "c84b8e229450e8dfc44b9910d602788313ff7333d67d5bd8528371567b6a3632",
+    "https://deno.land/std@0.210.0/assert/assert_object_match.ts": "ebeff248d48e5810f787e8742ae4f6b39904f4640edc2f69796596ceb6dbcdf8",
+    "https://deno.land/std@0.210.0/assert/assert_rejects.ts": "f7e83272d816e1b39710012a0597ed950db2de6b193adcc5e50ddbcd9e177767",
+    "https://deno.land/std@0.210.0/assert/assert_strict_equals.ts": "4007dabef1c2e9d6f1bb0e948ba7ba99ec9b1bee97ba34d67f7c10e7e5d794f7",
+    "https://deno.land/std@0.210.0/assert/assert_string_includes.ts": "108a30d9348e5ff7a8b0b7cc836cf0a8cff27d5b33e861b8c56b52cc60b8219a",
+    "https://deno.land/std@0.210.0/assert/assert_throws.ts": "a8767e6a06e94bac42ca9eebdad5d4e2decbc0c48bc892da7e06aa1fe0b388ba",
+    "https://deno.land/std@0.210.0/assert/assertion_error.ts": "26ed1863d905005f00785c89750c001c3522c5417e4f58f95044b8143cfc1593",
+    "https://deno.land/std@0.210.0/assert/equal.ts": "6f81c8a3b12c08bdc3510c8a1293b4db1c083692219d7e3828d2234b448d3d3d",
+    "https://deno.land/std@0.210.0/assert/fail.ts": "f56fc64f9a141f98c1be5ff1005ddf158db888b7b206510e955bb3fedc69021c",
+    "https://deno.land/std@0.210.0/assert/mod.ts": "37c49a26aae2b254bbe25723434dc28cd7532e444cf0b481a97c045d110ec085",
+    "https://deno.land/std@0.210.0/assert/unimplemented.ts": "4e3e504792c87c485dbc5f4020489d8806ef697741403af2008dfa7b5a4711e8",
+    "https://deno.land/std@0.210.0/assert/unreachable.ts": "1af8c99421cc5fb7332454b2b9eca074a4e394895a180bc837750dedcca75338",
+    "https://deno.land/std@0.210.0/fmt/colors.ts": "2685c524bef9b16b3059a417daf6860c754eb755e19e812762ef5dff62f24481",
+    "https://deno.land/std@0.210.0/testing/asserts.ts": "605bbd2ef0695e2a4324d810c4ad22e56041d51afb9584fc0b4e81084b14b1d6",
+    "https://deno.land/std@0.210.0/testing/mock.ts": "350211037129efa675592a3d7cdccbca3825000168ebebb3862a70b5af3b2f20",
+    "https://deno.land/x/expecto@v0.1.4/deps/src/asserts.ts": "70f36748cebe44b4762657bd6650983ad84349511d56dcf951102ee9885fc7df",
+    "https://deno.land/x/expecto@v0.1.4/deps/src/mock.ts": "f440d870c54aa8495527b1f16801b96298cca740593a238df4caa5b566e3fed5",
+    "https://deno.land/x/expecto@v0.1.4/mod/index.ts": "906fdfd6dd07195a36af8676452070c6a1da392ed66e41074903bb5fd71cdf66",
+    "https://deno.land/x/expecto@v0.1.4/mod/mocked.ts": "7dcc606dcb1c1bc1e0cfc17497cdc4694feab800ecb3a98474d1465b6bd4d6e9",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/_std.ts": "22db884e08c4b772119a6990efe5b329ab0fd5e7ddf7e2c5c69fc31df880b77f",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/core.ts": "e916be6ffefad46508c1abf0d0b504f0d7f2ac423d3ccf438089ef6d38d3233c",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/membership.ts": "15616b88424e27452ec751be57ab4383b44b5705c5b1a4d521d1bdaa0c21b021",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/mocked.ts": "a151bbcd0d05b4965b776833e239dc45df2ee68005aa98189c4befdf0daf9621",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/promised.ts": "b3e5890a355e5d530bd5d1ef5316657944b61c27cc71813023aa37b497ea01a2",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/stringed.ts": "9fcd44e9fe577ea52651831702b340dbedd159680ce5464daf961b7d90f22433",
+    "https://deno.land/x/expecto@v0.1.4/src/assertions/typing.ts": "39948cdd1371c31f20647330f034076e5c394ce246e62e502eb19dd4c3967dd8",
+    "https://deno.land/x/expecto@v0.1.4/src/base.ts": "770e1c51b4b9a5148239632f8d7059223c5f99a269a22fd0893716366f359968",
+    "https://deno.land/x/expecto@v0.1.4/src/flags.ts": "ab3373ff5bcd8f100fa671a39c722eeafe2c1ad0e2a7c3666c5c38565b458edb",
+    "https://deno.land/x/expecto@v0.1.4/src/main.ts": "8fb78a67c6068cbc685708c78fdf15c2cc7810cacbe2067149c992628c8bfa49",
+    "https://deno.land/x/expecto@v0.1.4/src/registry.ts": "8a8f49e0f1e53d5da90396058f4bf441914981af3e4da03d02eb6eb6d95d17bb",
+    "https://deno.land/x/expecto@v0.1.4/src/util/promising.ts": "205d0c9c5a10cf9e9a49abe37e8d9be69020202089e00cb6134c4428b5cc3cf9",
+    "https://deno.land/x/expecto@v0.1.4/src/util/props.ts": "e2802f2170f9616ea7e97c5f58a57b5469a80d3598b808845236b642fc304639"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@cliffy/command@^1.0.0-rc.5",
+      "jsr:@std/testing@^1.0.2"
+    ]
+  }
+}
