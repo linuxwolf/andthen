@@ -1,0 +1,6 @@
+pre-push:
+  commands:
+    check-lint:
+      run: deno lint
+    check-format:
+      run: deno fmt --check

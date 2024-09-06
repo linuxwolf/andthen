@@ -1,0 +1,20 @@
+{
+  "name": "@linuxwolf/andthen",
+  "version": "0.1.0",
+  "exclude": [
+    ".cache/**"
+  ],
+  "fmt": {
+    "exclude": ["docs/**"]
+  },
+  "lint": {
+    "exclude": ["docs/**"]
+  },
+  "test": {
+    "include": ["test/**/*.test.ts"]
+  },
+  "imports": {},
+  "tasks": {
+    "cover": "deno test --clean --coverage coverage test && deno coverage --exclude=test/setup.ts --html coverage"
+  }
+}

@@ -1,0 +1,57 @@
+name: Build and Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+env:
+  DENO_DIR: ${{ github.workspace }}/.cache
+  DENO_VER: "1.46.3"
+jobs:
+  coding-checks:
+    name: "Coding Checks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v4
+      - name: "Setup cache"
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.json', 'deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Lint check"
+        run: deno lint
+      - name: "Format check"
+        run: deno fmt --check
+  unit-test:
+    name: "Testing"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v4
+      - name: "Setup cache"
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Run unit tests"
+        run: deno test --coverage
+      - name: "Generate coverage reports"
+        run: |
+          deno coverage \
+            --exclude=test \
+            --lcov --output=coverage/lcov \
+            coverage
+      - name: "Report coverage"
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
