@@ -18,7 +18,8 @@
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.5",
     "@std/testing": "jsr:@std/testing@^1.0.2",
-    "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/"
+    "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/",
+    "zod": "npm:zod@^3.23.8"
   },
   "tasks": {
     "cover": "deno test --clean --coverage coverage test && deno coverage --exclude=test/setup.ts --html coverage"
