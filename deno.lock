@@ -14,7 +14,8 @@
       "jsr:@std/internal@^1.0.3": "jsr:@std/internal@1.0.3",
       "jsr:@std/path@^1.0.4": "jsr:@std/path@1.0.4",
       "jsr:@std/testing@^1.0.2": "jsr:@std/testing@1.0.2",
-      "jsr:@std/text@1.0.0-rc.1": "jsr:@std/text@1.0.0-rc.1"
+      "jsr:@std/text@1.0.0-rc.1": "jsr:@std/text@1.0.0-rc.1",
+      "npm:zod@^3.23.8": "npm:zod@3.23.8"
     },
     "jsr": {
       "@cliffy/command@1.0.0-rc.5": {
@@ -83,6 +84,12 @@
       "@std/text@1.0.0-rc.1": {
         "integrity": "34c722203e87ee12792c8d4a0cd2ee0e001341cbce75b860fc21be19d62232b0"
       }
+    },
+    "npm": {
+      "zod@3.23.8": {
+        "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==",
+        "dependencies": {}
+      }
     }
   },
   "remote": {
@@ -141,7 +148,8 @@
   "workspace": {
     "dependencies": [
       "jsr:@cliffy/command@^1.0.0-rc.5",
-      "jsr:@std/testing@^1.0.2"
+      "jsr:@std/testing@^1.0.2",
+      "npm:zod@^3.23.8"
     ]
   }
 }
