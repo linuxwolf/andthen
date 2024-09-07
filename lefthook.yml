@@ -1,6 +1,8 @@
 pre-push:
   commands:
     check-lint:
-      run: deno lint
+      glob: "*.{js,jsx,ts,tsx}"
+      run: deno lint {push_files}
     check-format:
-      run: deno fmt --check
+      glob: "*.{js,jsx,ts,tsx}"
+      run: deno fmt --check {push_files}
