@@ -50,10 +50,11 @@ jobs:
             --exclude=test \
             --lcov --output=coverage/lcov \
             coverage
+          ls -lhA coverage
       - name: "Report test results"
         uses: codecov/test-results-action@v1
         with:
-          files: report.xml
+          files: junit.xml
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: "Report coverage"
         uses: codecov/codecov-action@v4
