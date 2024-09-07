@@ -44,17 +44,17 @@ jobs:
           deno-version: ${{ env.DENO_VER }}
       - name: "Run unit tests"
         run: deno test --coverage
-      - name: "Report test results"
-        uses: codecov/test-results-action@v1
-        with:
-          files: coverage/report.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
       - name: "Generate coverage reports"
         run: |
           deno coverage \
             --exclude=test \
             --lcov --output=coverage/lcov \
             coverage
+      - name: "Report test results"
+        uses: codecov/test-results-action@v1
+        with:
+          files: report.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: "Report coverage"
         uses: codecov/codecov-action@v4
         with:
