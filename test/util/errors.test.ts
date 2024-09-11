@@ -1,9 +1,9 @@
 /** */
 
 import { describe, it } from "@std/testing/bdd";
-import { expect } from "./setup.ts";
+import { expect } from "../setup.ts";
 
-import { ErrorBase, format } from "../src/errors.ts";
+import { ErrorBase, format } from "../../src/util/errors.ts";
 
 describe("errors", () => {
   describe("format()", () => {
