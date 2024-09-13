@@ -51,6 +51,7 @@ jobs:
             --lcov --output=coverage/lcov \
             coverage
       - name: "Report test results"
+        if: success() || failure()
         uses: codecov/test-results-action@v1
         with:
           files: report.xml
