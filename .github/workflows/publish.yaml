@@ -1,0 +1,12 @@
+name: publish
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and publish
+    uses: ./.github/workflows/build.yaml
+    with:
+      distribute: true

@@ -4,9 +4,16 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
+    inputs:
+      distribute:
+        type: boolean
+        default: false
+  
 env:
   DENO_DIR: ${{ github.workspace }}/.cache
   DENO_VER: "1.46.3"
+
 jobs:
   coding-checks:
     name: "Coding Checks"
@@ -43,7 +50,10 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VER }}
       - name: "Run unit tests"
-        run: deno test --coverage --junit-path report.xml
+        run: |
+          deno test \
+            --coverage \
+            --junit-path coverage/report.xml
       - name: "Generate coverage reports"
         run: |
           deno coverage \
@@ -51,9 +61,10 @@ jobs:
             --lcov --output=coverage/lcov \
             coverage
       - name: "Report test results"
+        if: success() || failure()
         uses: codecov/test-results-action@v1
         with:
-          files: report.xml
+          files: coverage/report.xml
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: "Report coverage"
         uses: codecov/codecov-action@v4
