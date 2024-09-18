@@ -5,7 +5,7 @@ import { expect } from "../setup.ts";
 
 import { ErrorBase, format } from "../../src/util/errors.ts";
 
-describe("errors", () => {
+describe("util/errors", () => {
   describe("format()", () => {
     it("formats a boolean", () => {
       let result: string;
