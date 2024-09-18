@@ -11,7 +11,7 @@ import pkg from "../deno.json" with { type: "json" };
 
 export const _internals: Internals = {
   command,
-  main: import.meta.main,
+  runnit: import.meta.main,
 };
 
 export function command(): Command {
@@ -23,7 +23,7 @@ export function command(): Command {
 }
 
 export async function main() {
-  if (!_internals.main) return;
+  if (!_internals.runnit) return;
 
   const cmd = _internals.command();
   await cmd.parse(Deno.args);
