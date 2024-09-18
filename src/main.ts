@@ -7,6 +7,11 @@
 import { Command } from "@cliffy/command";
 import pkg from "../deno.json" with { type: "json" };
 
+export const _internals = {
+  command,
+  main: import.meta.main,
+};
+
 export function command(): Command {
   const cmd = new Command()
     .name(pkg.short_name)
@@ -16,10 +21,10 @@ export function command(): Command {
 }
 
 export async function main() {
-  const cmd = command();
+  if (!_internals.main) { return; }
+
+  const cmd = _internals.command();
   await cmd.parse(Deno.args);
 }
 
-if (import.meta.main) {
-  await main();
-}
+await main();
