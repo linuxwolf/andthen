@@ -4,8 +4,15 @@
  * @copyright Matthew A. Miller 2024
  */
 
+import type { Internals } from "./util/types.ts";
+
 import { Command } from "@cliffy/command";
 import pkg from "../deno.json" with { type: "json" };
+
+export const _internals: Internals = {
+  command,
+  runnit: import.meta.main,
+};
 
 export function command(): Command {
   const cmd = new Command()
@@ -16,10 +23,10 @@ export function command(): Command {
 }
 
 export async function main() {
-  const cmd = command();
+  if (!_internals.runnit) return;
+
+  const cmd = _internals.command();
   await cmd.parse(Deno.args);
 }
 
-if (import.meta.main) {
-  await main();
-}
+await main();
