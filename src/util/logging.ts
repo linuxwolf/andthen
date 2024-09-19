@@ -85,10 +85,26 @@ export default function logger(...category: string[]): Logger {
   return getLogger(["app", ...category]);
 }
 
-export async function setup() {
-  // TODO: parameterize
-  const level = "info";
+export interface LoggingOptions {
+  readonly quiet?: boolean;
+  readonly verbose?: boolean;
+}
+
+const LOGGING_OPTIONS_DEFAULTS: LoggingOptions = {
+  quiet: false,
+  verbose: false,
+}
+
+export async function setup(opts: LoggingOptions) {
+  opts = {
+    ...LOGGING_OPTIONS_DEFAULTS,
+    ...opts,
+  }
+
+  const level = (opts.quiet && "warning") || (opts.verbose && "debug") || "info";
+  // TODO: parameterize formatter
   const formatter = simpleFormatter;
+  // QUESTION: parameterize sink
   const stdio = makeStdioSink({
     writer: Deno.stderr,
     formatter,
