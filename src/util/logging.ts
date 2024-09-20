@@ -93,15 +93,16 @@ export interface LoggingOptions {
 const LOGGING_OPTIONS_DEFAULTS: LoggingOptions = {
   quiet: false,
   verbose: false,
-}
+};
 
 export async function setup(opts: LoggingOptions) {
   opts = {
     ...LOGGING_OPTIONS_DEFAULTS,
     ...opts,
-  }
+  };
 
-  const level = (opts.quiet && "warning") || (opts.verbose && "debug") || "info";
+  const level = (opts.quiet && "warning") || (opts.verbose && "debug") ||
+    "info";
   // TODO: parameterize formatter
   const formatter = simpleFormatter;
   // QUESTION: parameterize sink

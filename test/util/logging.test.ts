@@ -189,7 +189,7 @@ describe("util/logging", () => {
         logger.warn`this is a warning log message`;
         logger.error`this is an error log message`;
         logger.fatal`this is a fatal log message`;
-  
+
         expect(spyStderrWriteSync).to.have.been.called(3);
         expect(spyStderrWriteSync).to.have.been.deep.calledWith([
           new TextEncoder().encode("this is a warning log message\n"),
@@ -213,7 +213,7 @@ describe("util/logging", () => {
         logger.warn`this is a warning log message`;
         logger.error`this is an error log message`;
         logger.fatal`this is a fatal log message`;
-  
+
         expect(spyStderrWriteSync).to.have.been.called(5);
         expect(spyStderrWriteSync).to.have.been.deep.calledWith([
           new TextEncoder().encode("this is a debug log message\n"),

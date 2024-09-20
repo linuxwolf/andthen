@@ -1,4 +1,4 @@
 /** */
 
 // deno-lint-ignore no-empty-interface
-export interface InternalsBase {};
+export interface InternalsBase {}
