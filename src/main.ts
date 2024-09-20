@@ -9,7 +9,9 @@ import { HelpCommand } from "@cliffy/command/help";
 
 import pkg from "../deno.json" with { type: "json" };
 import type { InternalsBase } from "./util/types.ts";
-import logger, { type LoggingOptions, setup as setupLogging } from "./util/logging.ts";
+import { type LoggingOptions, setup as setupLogging } from "./util/logging.ts";
+
+import { VersionCommand } from "./cmd/version.ts";
 
 interface Internals extends InternalsBase {
   command: () => Command<void | Options>;
@@ -28,7 +30,8 @@ export const _internals: Internals = {
   exit: Deno.exit,
 };
 
-type Options = Record<string, unknown>
+type Options =
+  & Record<string, unknown>
   & LoggingOptions;
 export function command(): Command<void | Options> {
   let cmd = new Command()
@@ -44,8 +47,13 @@ export function command(): Command<void | Options> {
     // initializer
     .globalAction(_internals.initialize);
 
-    // sub-commands
-    cmd = cmd.command("help", new HelpCommand()).reset();
+  // sub-commands
+  cmd = cmd.command("help", new HelpCommand())
+    .noExit()
+    .reset();
+  cmd = cmd.command("version", new VersionCommand())
+    .noExit()
+    .reset();
 
   return cmd;
 }
@@ -53,8 +61,6 @@ export function command(): Command<void | Options> {
 async function initialize(opts: Options) {
   // configure logging
   await setupLogging(opts);
-  const log = logger();
-  log.debug`logging configured`;
 }
 
 export async function main() {
