@@ -9,7 +9,10 @@ import { HelpCommand } from "@cliffy/command/help";
 
 import pkg from "../deno.json" with { type: "json" };
 import type { InternalsBase } from "./util/types.ts";
-import { type LoggingOptions, setup as setupLogging } from "./util/logging.ts";
+import logger, {
+  type LoggingOptions,
+  setup as setupLogging,
+} from "./util/logging.ts";
 
 import { VersionCommand } from "./cmd/version.ts";
 
@@ -37,6 +40,7 @@ export function command(): Command<void | Options> {
   let cmd = new Command()
     .name(pkg.short_name)
     .version(pkg.version)
+    .versionOption(false)
     // global -- logging
     .globalOption("-q, --quiet", "only print warnings and errors", {
       conflicts: ["verbose"],
@@ -61,6 +65,7 @@ export function command(): Command<void | Options> {
 async function initialize(opts: Options) {
   // configure logging
   await setupLogging(opts);
+  logger().warn`logging configured`;
 }
 
 export async function main() {

@@ -3,9 +3,10 @@
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 import { expect, mock } from "./setup.ts";
 
+import pkg from "../deno.json" with { type: "json" };
 import { Command } from "@cliffy/command";
 import { HelpCommand } from "@cliffy/command/help";
-import pkg from "../deno.json" with { type: "json" };
+import { VersionCommand } from "../src/cmd/version.ts";
 import { _internals, command, main } from "../src/main.ts";
 
 describe("main", () => {
@@ -22,6 +23,7 @@ describe("main", () => {
     let spyInitialize: mock.Spy;
     let spyParse: mock.Spy;
     let spyHelpExecute: mock.Spy;
+    let spyVersionExecute: mock.Spy;
 
     beforeEach(() => {
       spyCommand = mock.spy(_internals, "command");
@@ -30,6 +32,8 @@ describe("main", () => {
 
       // deno-lint-ignore no-explicit-any -- stubbing "private" method
       spyHelpExecute = mock.stub(HelpCommand.prototype as any, "execute");
+      // deno-lint-ignore no-explicit-any -- stubbing "private" method
+      spyVersionExecute = mock.stub(VersionCommand.prototype as any, "execute");
     });
 
     afterEach(() => {
@@ -37,20 +41,8 @@ describe("main", () => {
       spyInitialize.restore();
       spyParse.restore();
       spyHelpExecute.restore();
+      spyVersionExecute.restore();
     });
-
-    /*
-    it("executes main with no command", async () => {
-      _internals.runnit = true;
-      _internals.arguments = [];
-
-      await main();
-
-      expect(spyCommand).to.have.been.called();
-      expect(spyParse).to.have.been.called();
-      expect(spyFallback).to.have.been.called();
-    });
-    //*/
 
     it("executes main with `help`", async () => {
       _internals.runnit = true;
@@ -61,6 +53,17 @@ describe("main", () => {
       expect(spyCommand).to.have.been.called();
       expect(spyParse).to.have.been.called();
       expect(spyHelpExecute).to.have.been.called();
+    });
+
+    it("executes main with `version`", async () => {
+      _internals.runnit = true;
+      _internals.arguments = ["version"];
+
+      await main();
+
+      expect(spyCommand).to.have.been.called();
+      expect(spyParse).to.have.been.called();
+      expect(spyVersionExecute).to.have.been.called();
     });
   });
 });
