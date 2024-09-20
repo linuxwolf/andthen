@@ -1,4 +1,4 @@
 /** */
 
-// deno-lint-ignore no-explicit-any -- internal for testing
-export type Internals = Record<string, any>;
+// deno-lint-ignore no-empty-interface
+export interface InternalsBase {};
