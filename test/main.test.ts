@@ -15,6 +15,17 @@ describe("main", () => {
       const cmd = command();
       expect(cmd.getName()).to.equal(pkg.short_name);
       expect(cmd.getVersion()).to.equal(pkg.version);
+
+      let opt;
+      opt = cmd.getOption("verbose");
+      expect(opt?.description).to.equal("also print debug logs");
+      expect(opt?.conflicts).to.deep.equal(["quiet"]);
+      expect(opt?.global).to.be.true();
+
+      opt = cmd.getOption("quiet");
+      expect(opt?.description).to.equal("only print warnings and errors");
+      expect(opt?.conflicts).to.deep.equal(["verbose"]);
+      expect(opt?.global).to.be.true();
     });
   });
 
@@ -64,6 +75,16 @@ describe("main", () => {
       expect(spyCommand).to.have.been.called();
       expect(spyParse).to.have.been.called();
       expect(spyVersionExecute).to.have.been.called();
+    });
+
+    it("executes main with no command", async () => {
+      _internals.runnit = true;
+      _internals.arguments = [];
+
+      await main();
+
+      expect(spyCommand).to.have.been.called();
+      expect(spyParse).to.have.been.called();
     });
   });
 });

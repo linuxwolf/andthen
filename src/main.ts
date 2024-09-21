@@ -37,7 +37,7 @@ type Options =
   & Record<string, unknown>
   & LoggingOptions;
 export function command(): Command<void | Options> {
-  let cmd = new Command()
+  const cmd = new Command()
     .name(pkg.short_name)
     .version(pkg.version)
     .versionOption(false)
@@ -45,17 +45,16 @@ export function command(): Command<void | Options> {
     .globalOption("-q, --quiet", "only print warnings and errors", {
       conflicts: ["verbose"],
     })
-    .globalOption("-v, --verbose", "also print debug events", {
+    .globalOption("-v, --verbose", "also print debug logs", {
       conflicts: ["quiet"],
     })
     // initializer
-    .globalAction(_internals.initialize);
-
-  // sub-commands
-  cmd = cmd.command("help", new HelpCommand())
+    .globalAction(_internals.initialize)
+    // sub-commands
+    .command("help", new HelpCommand())
     .noExit()
-    .reset();
-  cmd = cmd.command("version", new VersionCommand())
+    .reset()
+    .command("version", new VersionCommand())
     .noExit()
     .reset();
 
