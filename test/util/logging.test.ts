@@ -177,8 +177,64 @@ describe("util/logging", () => {
       await reset();
     });
 
+    describe("levels", () => {
+      it("initializes quiet mode", async () => {
+        await setup({
+          quiet: true,
+        });
+        const logger = getLogger(["app"]);
+
+        logger.debug`this is a debug log message`;
+        logger.info`this is an info log message`;
+        logger.warn`this is a warning log message`;
+        logger.error`this is an error log message`;
+        logger.fatal`this is a fatal log message`;
+
+        expect(spyStderrWriteSync).to.have.been.called(3);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is a warning log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is an error log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is a fatal log message\n"),
+        ]);
+      });
+
+      it("intializes with verbose mode", async () => {
+        await setup({
+          verbose: true,
+        });
+        const logger = getLogger(["app"]);
+
+        logger.debug`this is a debug log message`;
+        logger.info`this is an info log message`;
+        logger.warn`this is a warning log message`;
+        logger.error`this is an error log message`;
+        logger.fatal`this is a fatal log message`;
+
+        expect(spyStderrWriteSync).to.have.been.called(5);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is a debug log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is an info log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is a warning log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is an error log message\n"),
+        ]);
+        expect(spyStderrWriteSync).to.have.been.deep.calledWith([
+          new TextEncoder().encode("this is a fatal log message\n"),
+        ]);
+      });
+    });
+
     it("initializes with defaults", async () => {
-      await setup();
+      await setup({});
       const logger = getLogger(["app"]);
 
       logger.debug`this is a debug log message`;
@@ -205,7 +261,7 @@ describe("util/logging", () => {
 
   describe("default logger()", () => {
     beforeEach(async () => {
-      await setup();
+      await setup({});
     });
 
     afterEach(async () => {
