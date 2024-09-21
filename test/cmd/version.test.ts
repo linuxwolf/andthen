@@ -41,16 +41,26 @@ describe("cmd/version", () => {
         "Show the current version information",
       );
     });
-    it("runs the handler on parse()", async () => {
-      await cmd.parse([]);
 
-      expect(spyHandler).to.have.been.called();
-      expect(buffer.length).to.equal(1);
-      expect(buffer[0]).to.equal(
-        `${colors.bold(colors.white(pkg.short_name))} ${
-          colors.bold(colors.blue(pkg.version))
-        }`,
-      );
+    describe("execute", () => {
+      it("runs the handler with no options", async () => {
+        await cmd.parse([]);
+
+        expect(spyHandler).to.have.been.called();
+        expect(buffer.length).to.equal(1);
+        expect(buffer[0]).to.equal(pkg.version);
+      });
+      it("runs the handler with `--full`", async () => {
+        await cmd.parse(["--full"]);
+
+        expect(spyHandler).to.have.been.called();
+        expect(buffer.length).to.equal(1);
+        expect(buffer[0]).to.equal(
+          `${colors.bold(colors.white(pkg.short_name))} ${
+            colors.bold(colors.blue(pkg.version))
+          }`,
+        );
+      });
     });
   });
 });
