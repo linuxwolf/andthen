@@ -13,6 +13,7 @@ export class VersionCommand extends Command<void | Record<string, unknown>> {
     return this
       .description("Show the current version information")
       .option("--full", "print long version and metadata")
+      .noGlobals()
       .action(handler);
   }
 }
@@ -29,6 +30,7 @@ function handler(opts: VersionOptions) {
     const platform = `${Deno.build.arch}-${Deno.build.os}`;
     console.log(`
 Runtime:
-    platform ${colors.bold(colors.blue(platform))}`);
+    executable ${colors.bold(colors.blue(Deno.execPath()))}
+    platform   ${colors.bold(colors.blue(platform))}`);
   }
 }

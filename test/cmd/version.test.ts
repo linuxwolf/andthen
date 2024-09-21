@@ -10,6 +10,7 @@ import { VersionCommand } from "../../src/cmd/version.ts";
 describe("cmd/version", () => {
   let buffer: string[];
   let spyConsoleLog: mock.Spy;
+  let spyExecPath: mock.Spy;
 
   beforeEach(() => {
     buffer = [];
@@ -17,9 +18,11 @@ describe("cmd/version", () => {
     spyConsoleLog = mock.stub(console, "log", (...args: any[]) => {
       buffer.push(args.join(" "));
     });
+    spyExecPath = mock.stub(Deno, "execPath", () => "/test/app/executable");
   });
   afterEach(() => {
     spyConsoleLog.restore();
+    spyExecPath.restore();
   });
 
   describe("class VersionCommand", () => {
@@ -62,7 +65,8 @@ describe("cmd/version", () => {
         );
         expect(buffer[1]).to.equal(`
 Runtime:
-    platform ${
+    executable ${colors.bold(colors.blue("/test/app/executable"))}
+    platform   ${
           colors.bold(colors.blue(Deno.build.arch + "-" + Deno.build.os))
         }`);
       });
