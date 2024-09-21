@@ -1,41 +1,25 @@
 /** */
 
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
-import { configure, type LogRecord, reset } from "@logtape/logtape";
-import { simpleFormatter } from "../../src/util/logging.ts";
+import { expect, mock } from "../setup.ts";
 
 import * as colors from "@std/fmt/colors";
 import pkg from "../../deno.json" with { type: "json" };
-import { _internals, VersionCommand } from "../../src/cmd/version.ts";
-import { expect, mock } from "../setup.ts";
+import { VersionCommand } from "../../src/cmd/version.ts";
 
 describe("cmd/version", () => {
   let buffer: string[];
+  let spyConsoleLog: mock.Spy;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     buffer = [];
-
-    await configure({
-      sinks: {
-        buffer: (record: LogRecord) => {
-          buffer.push(simpleFormatter(record));
-        },
-      },
-      loggers: [
-        {
-          category: ["logtape", "meta"],
-          level: "fatal",
-        },
-        {
-          category: ["app"],
-          sinks: ["buffer"],
-          level: "debug",
-        },
-      ],
+    // deno-lint-ignore no-explicit-any
+    spyConsoleLog = mock.stub(console, "log", (...args: any[]) => {
+      buffer.push(args.join(" "));
     });
   });
-  afterEach(async () => {
-    await reset();
+  afterEach(() => {
+    spyConsoleLog.restore();
   });
 
   describe("class VersionCommand", () => {
@@ -43,7 +27,8 @@ describe("cmd/version", () => {
     let spyHandler: mock.Spy;
 
     beforeEach(() => {
-      spyHandler = mock.spy(_internals, "handler");
+      // deno-lint-ignore no-explicit-any
+      spyHandler = mock.spy(VersionCommand.prototype as any, "execute");
       cmd = new VersionCommand();
     });
 
@@ -60,17 +45,12 @@ describe("cmd/version", () => {
       await cmd.parse([]);
 
       expect(spyHandler).to.have.been.called();
-      expect(buffer.length).to.equal(2);
+      expect(buffer.length).to.equal(1);
       expect(buffer[0]).to.equal(
         `${colors.bold(colors.white(pkg.short_name))} ${
           colors.bold(colors.blue(pkg.version))
         }`,
       );
-      expect(buffer[1]).to.equal(`
-Runtime:
-    Deno:     ${Deno.version.deno}
-    Platform: ${Deno.build.arch}-${Deno.build.os}
-`);
     });
   });
 });
