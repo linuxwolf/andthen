@@ -54,12 +54,17 @@ describe("cmd/version", () => {
         await cmd.parse(["--full"]);
 
         expect(spyHandler).to.have.been.called();
-        expect(buffer.length).to.equal(1);
+        expect(buffer.length).to.equal(2);
         expect(buffer[0]).to.equal(
           `${colors.bold(colors.white(pkg.short_name))} ${
             colors.bold(colors.blue(pkg.version))
           }`,
         );
+        expect(buffer[1]).to.equal(`
+Runtime:
+    platform ${
+          colors.bold(colors.blue(Deno.build.arch + "-" + Deno.build.os))
+        }`);
       });
     });
   });

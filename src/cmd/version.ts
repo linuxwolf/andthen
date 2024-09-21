@@ -25,5 +25,10 @@ function handler(opts: VersionOptions) {
     const version = colors.bold(colors.blue(pkg.version));
 
     console.log(`${exec} ${version}`);
+
+    const platform = `${Deno.build.arch}-${Deno.build.os}`;
+    console.log(`
+Runtime:
+    platform ${colors.bold(colors.blue(platform))}`);
   }
 }
