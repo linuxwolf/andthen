@@ -22,13 +22,6 @@ export class VersionCommand extends Command {
   }
 }
 
-export function platformOS(): string {
-  return (Deno.build.os === "darwin") ? "macos" : Deno.build.os;
-}
-export function platformArch(): string {
-  return (Deno.build.arch === "aarch64") ? "arm64" : "amd64";
-}
-
 function handler() {
   const exec = colors.bold(colors.white(pkg.short_name));
   const version = colors.bold(colors.blue(pkg.version));
@@ -37,9 +30,9 @@ function handler() {
   logger().debug((log) => {
     const version = Deno.version.deno;
 
-    const os = platformOS();
-    const arch = platformArch();
-    const platform = `${os}-${arch}`;
+    const os = Deno.build.os;
+    const arch = Deno.build.arch;
+    const platform = `${arch}-${os}`;
 
     return log`
 Runtime:

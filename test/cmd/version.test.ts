@@ -6,12 +6,7 @@ import { simpleFormatter } from "../../src/util/logging.ts";
 
 import * as colors from "@std/fmt/colors";
 import pkg from "../../deno.json" with { type: "json" };
-import {
-  _internals,
-  platformArch,
-  platformOS,
-  VersionCommand,
-} from "../../src/cmd/version.ts";
+import { _internals, VersionCommand } from "../../src/cmd/version.ts";
 import { expect, mock } from "../setup.ts";
 
 describe("cmd/version", () => {
@@ -74,7 +69,7 @@ describe("cmd/version", () => {
       expect(buffer[1]).to.equal(`
 Runtime:
     Deno:     ${Deno.version.deno}
-    Platform: ${platformOS()}-${platformArch()}
+    Platform: ${Deno.build.arch}-${Deno.build.os}
 `);
     });
   });
