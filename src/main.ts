@@ -9,10 +9,7 @@ import { HelpCommand } from "@cliffy/command/help";
 
 import pkg from "../deno.json" with { type: "json" };
 import type { InternalsBase } from "./util/types.ts";
-import logger, {
-  type LoggingOptions,
-  setup as setupLogging,
-} from "./util/logging.ts";
+import { type LoggingOptions, setup as setupLogging } from "./util/logging.ts";
 
 import { VersionCommand } from "./cmd/version.ts";
 
@@ -52,10 +49,8 @@ export function command(): Command<void | Options> {
     .globalAction(_internals.initialize)
     // sub-commands
     .command("help", new HelpCommand())
-    .noExit()
     .reset()
     .command("version", new VersionCommand())
-    .noExit()
     .reset();
 
   return cmd;
@@ -64,7 +59,6 @@ export function command(): Command<void | Options> {
 async function initialize(opts: Options) {
   // configure logging
   await setupLogging(opts);
-  logger().warn`logging configured`;
 }
 
 export async function main() {
