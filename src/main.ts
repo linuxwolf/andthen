@@ -15,7 +15,7 @@ import { VersionCommand } from "./cmd/version.ts";
 
 interface Internals extends InternalsBase {
   command: () => Command<void | Options>;
-  initialize: (opts: Options) => Promise<void>;
+  initialize: (opts: LoggingOptions) => Promise<void>;
   exit: (code?: number) => void;
 
   runnit: boolean;
@@ -56,7 +56,7 @@ export function command(): Command<void | Options> {
   return cmd;
 }
 
-async function initialize(opts: Options) {
+async function initialize(opts: LoggingOptions) {
   // configure logging
   await setupLogging(opts);
 }
