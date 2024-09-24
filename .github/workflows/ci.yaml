@@ -53,7 +53,7 @@ jobs:
       - name: "Run unit tests"
         run: make test
       - name: "Generate coverage reports"
-        run: make coverage.lcov
+        run: make coverage/lcov
       - name: "Report test results"
         if: success() || failure()
         uses: codecov/test-results-action@v1
