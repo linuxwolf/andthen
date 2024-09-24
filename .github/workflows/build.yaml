@@ -94,7 +94,7 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VER }}
       - name: "Compile ${{ matrix.os }}-${{ matrix.arch }}"
-        run: deno task compile-${{ matrix.os }}-${{ matrix.arch }}
+        run: make target/${{ matrix.os }}-${{ matrix.arch }}/andthen
       - name: "Upload artifact"
         uses: actions/upload-artifact@v4
         with:

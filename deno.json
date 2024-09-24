@@ -24,12 +24,5 @@
     "expecto/": "https://deno.land/x/expecto@v0.1.4/mod/",
     "zod": "npm:zod@^3.23.8"
   },
-  "tasks": {
-    "cover": "deno test --clean --junit-path report.xml --coverage=coverage test && deno coverage --exclude=test --html coverage && deno coverage --exclude=test --lcov --output=coverage/lcov coverage",
-    "compile-darwin-x86_64": "deno compile --target=x86_64-apple-darwin --output=target/darwin-x86_64/andthen --allow-run --allow-read --allow-write --allow-sys --allow-env ./src/main.ts",
-    "compile-darwin-aarch64": "deno compile --target=aarch64-apple-darwin --output=target/darwin-aarch64/andthen --allow-run --allow-read --allow-write --allow-sys --allow-env ./src/main.ts",
-    "compile-linux-x86_64": "deno compile --target=x86_64-unknown-linux-gnu --output=target/linux-x86_64/andthen --allow-run --allow-read --allow-write --allow-sys --allow-env ./src/main.ts",
-    "compile-linux-aarch64": "deno compile --target=aarch64-unknown-linux-gnu --output=target/linux-aarch64/andthen --allow-run --allow-read --allow-write --allow-sys --allow-env ./src/main.ts",
-    "compile-all": "deno task compile-darwin-x86_64 && deno task compile-darwin-aarch64 && deno task compile-linux-x86_64 && deno task compile-linux-aarch64"
-  }
+  "tasks": {}
 }
