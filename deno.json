@@ -7,13 +7,21 @@
     ".cache/**"
   ],
   "fmt": {
-    "exclude": ["docs/**", "CHANGELOG.md"]
+    "exclude": [
+      "docs/**",
+      "CHANGELOG.md"
+    ]
   },
   "lint": {
-    "exclude": ["docs/**", "CHANGELOG.md"]
+    "exclude": [
+      "docs/**",
+      "CHANGELOG.md"
+    ]
   },
   "test": {
-    "include": ["test/**/*.test.ts"]
+    "include": [
+      "test/**/*.test.ts"
+    ]
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.5",
