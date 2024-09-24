@@ -11,3 +11,36 @@ jobs:
     with:
       distribute: true
     secrets: inherit
+  release-pr:
+    name: "Release Please"
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: "Generate access token"
+        id: gentoken
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_MANAGER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_MANAGER_PRIVATE_KEY }}
+      - name: "Check out code"
+        uses: actions/checkout@v4
+      - name: Download distribution
+        uses: actions/download-artifact@v4
+        with:
+          path: target
+          github-token: ${{ steps.gentoken.outputs.token }}
+      - name: "Create/update release PR"
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.gentoken.outputs.token }}
+      - name: Attach distribution to release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ steps.gentoken.outputs.token }}
+        run: |
+          gh release upload ${{ steps.release.outputs.tag_name }} ./target/*/andthen
