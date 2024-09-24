@@ -7,10 +7,10 @@
     ".cache/**"
   ],
   "fmt": {
-    "exclude": ["docs/**"]
+    "exclude": ["docs/**", "CHANGELOG.md"]
   },
   "lint": {
-    "exclude": ["docs/**"]
+    "exclude": ["docs/**", "CHANGELOG.md"]
   },
   "test": {
     "include": ["test/**/*.test.ts"]
