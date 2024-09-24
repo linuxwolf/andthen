@@ -1,7 +1,5 @@
 name: Build and Test
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_call:
@@ -9,6 +7,9 @@ on:
       distribute:
         type: boolean
         default: false
+    secrets:
+      CODECOV_TOKEN:
+        required: true
   
 env:
   DENO_DIR: ${{ github.workspace }}/.cache
@@ -50,16 +51,9 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VER }}
       - name: "Run unit tests"
-        run: |
-          deno test \
-            --coverage \
-            --junit-path coverage/report.xml
+        run: make test
       - name: "Generate coverage reports"
-        run: |
-          deno coverage \
-            --exclude=test \
-            --lcov --output=coverage/lcov \
-            coverage
+        run: make coverage/lcov
       - name: "Report test results"
         if: success() || failure()
         uses: codecov/test-results-action@v1
@@ -71,3 +65,34 @@ jobs:
         with:
           files: coverage/lcov
           token: ${{ secrets.CODECOV_TOKEN }}
+  compile:
+    name: "Compile binaries"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.distribute == true }}
+    needs:
+      - coding-checks
+      - unit-test
+    strategy:
+      matrix:
+        os: [darwin, linux]
+        arch: [x86_64, aarch64]
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@v4
+      - name: "Setup cache"
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Compile ${{ matrix.os }}-${{ matrix.arch }}"
+        run: make target/${{ matrix.os }}-${{ matrix.arch }}/andthen
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: andthen.${{ matrix.os }}-${{ matrix.arch }}
+          path: target/${{ matrix.os }}-${{ matrix.arch }}/andthen
+
