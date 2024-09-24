@@ -11,7 +11,7 @@
         {
           "type": "json",
           "path": "deno.json",
-          "jsonpath": ".version"
+          "jsonpath": "$.version"
         }
       ]
     }
