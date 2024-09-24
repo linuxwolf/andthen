@@ -1,7 +1,7 @@
 {
   "name": "@linuxwolf/andthen",
   "short_name": "andthen",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "exports": "./src/main.ts",
   "exclude": [
     ".cache/**"
