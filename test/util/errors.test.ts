@@ -3,7 +3,7 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "../setup.ts";
 
-import { ErrorBase, format } from "../../src/util/errors.ts";
+import errors, { ErrorBase, format } from "../../src/util/errors.ts";
 
 describe("util/errors", () => {
   describe("format()", () => {
@@ -131,6 +131,29 @@ describe("util/errors", () => {
       expect(err.name).to.equal("MockError");
       expect(err.message).to.equal(
         'my error message {timestamp=1970-01-01T00:00:00.001Z; state="failing"}',
+      );
+    });
+  });
+
+  // ##### Custom Errors #####
+  describe("errors.ConfigNotFound", () => {
+    it("creates a ConfigNotFound with default message", () => {
+      const err = new errors.ConfigNotFound("/no/project/here");
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.name).to.equal("ConfigNotFound");
+      expect(err.message).to.equal(
+        'configuration not found {path="/no/project/here"}',
+      );
+    });
+    it("creates a ConfigNotFound with custom message", () => {
+      const err = new errors.ConfigNotFound(
+        "/no/project/here",
+        "cannot locate config",
+      );
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.name).to.equal("ConfigNotFound");
+      expect(err.message).to.equal(
+        'cannot locate config {path="/no/project/here"}',
       );
     });
   });

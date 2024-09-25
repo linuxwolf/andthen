@@ -61,3 +61,16 @@ export abstract class ErrorBase extends Error {
     this.name = this.constructor.name;
   }
 }
+
+export class ConfigNotFound extends ErrorBase {
+  readonly path: string;
+
+  constructor(path: string, msg = "configuration not found") {
+    super(msg, { path });
+    this.path = path;
+  }
+}
+
+export default {
+  ConfigNotFound,
+};
