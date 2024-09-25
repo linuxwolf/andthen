@@ -5,7 +5,7 @@ import { expect } from "../../setup.ts";
 
 import { from } from "../../../src/core/project/config.ts";
 
-describe("core/project", () => {
+describe("core/project/config", () => {
   describe("from()", () => {
     it("parses a complete project config", () => {
       const result = from("//server", {
