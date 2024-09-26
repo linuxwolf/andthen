@@ -81,7 +81,7 @@ describe("core/project/loader", () => {
         path: "/src/root",
         root: true,
         tasks: {
-          "/src/root:build": {
+          ":build": {
             name: ":build",
             desc: "builds root project",
             internal: false,
@@ -95,7 +95,7 @@ describe("core/project/loader", () => {
         path: "/src/root/sub-a",
         root: false,
         tasks: {
-          "/src/root/sub-a:build": {
+          ":build": {
             name: ":build",
             desc: "builds sub-a project",
             internal: false,
@@ -109,7 +109,7 @@ describe("core/project/loader", () => {
         path: "/src/root/sub-b",
         root: false,
         tasks: {
-          "/src/root/sub-b:build": {
+          ":build": {
             name: ":build",
             desc: "builds sub-b project",
             internal: false,
@@ -123,7 +123,7 @@ describe("core/project/loader", () => {
         path: "/src/root/sub-c",
         root: false,
         tasks: {
-          "/src/root/sub-c:build": {
+          ":build": {
             name: ":build",
             desc: "builds sub-c project",
             internal: false,

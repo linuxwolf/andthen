@@ -18,10 +18,5 @@ export function from(path: string, input: unknown): Config {
   return {
     ...parsed,
     path,
-    tasks: Object.fromEntries(
-      Object.entries(parsed.tasks).map(
-        ([_, config]) => [`${path}${config.name}`, config],
-      ),
-    ),
   };
 }
