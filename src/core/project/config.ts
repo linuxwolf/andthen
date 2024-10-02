@@ -11,6 +11,7 @@ export const Schema = z.object({
 
 export interface Config extends z.infer<typeof Schema> {
   readonly path: string;
+  readonly parent?: string;
 }
 
 export function from(path: string, input: unknown): Config {
@@ -18,10 +19,5 @@ export function from(path: string, input: unknown): Config {
   return {
     ...parsed,
     path,
-    tasks: Object.fromEntries(
-      Object.entries(parsed.tasks).map(
-        ([_, config]) => [`${path}${config.name}`, config],
-      ),
-    ),
   };
 }

@@ -5,7 +5,7 @@ import { expect } from "../../setup.ts";
 
 import { from } from "../../../src/core/project/config.ts";
 
-describe("core/project", () => {
+describe("core/project/config", () => {
   describe("from()", () => {
     it("parses a complete project config", () => {
       const result = from("//server", {
@@ -26,12 +26,12 @@ describe("core/project", () => {
         path: "//server",
         root: true,
         tasks: {
-          "//server:build": {
+          ":build": {
             name: ":build",
             desc: "build some project",
             internal: false,
           },
-          "//server:compile": {
+          ":compile": {
             name: ":compile",
             desc: "compile some thing",
             internal: true,
@@ -53,12 +53,12 @@ describe("core/project", () => {
         path: "//server",
         root: false,
         tasks: {
-          "//server:build": {
+          ":build": {
             name: ":build",
             desc: "build some project",
             internal: false,
           },
-          "//server:compile": {
+          ":compile": {
             name: ":compile",
             desc: "",
             internal: false,
