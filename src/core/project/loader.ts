@@ -44,18 +44,6 @@ async function loadConfig(path: string): Promise<ProjectConfig | undefined> {
   return undefined;
 }
 
-function parentPath(path: string): string {
-  if (path === "//") {
-    return path;
-  }
-
-  const parts = path.substring(2).split("/");
-  if (parts.length > 1) {
-    return "//" + parts.slice(0, parts.length - 1).join("/");
-  }
-  return "//";
-}
-
 function reparent(cache: Record<string, ProjectConfig>, rootDir: string) {
   // assumes the following:
   // 1. all keys are absolute paths
@@ -109,6 +97,21 @@ export class Loader {
     return Object.keys(this.#cache).sort();
   }
 
+  private parentPath(path: string): string {
+    path = path.substring(1);
+    let parent: ProjectConfig | undefined;
+    while (!parent) {
+      path = dirname(path);
+      if (path === "/") {
+        parent = this.rootProject;
+      } else {
+        parent = this.#cache["/" + path];
+      }
+    }
+
+    return parent!.path;
+  }
+
   async open(path: string): Promise<ProjectConfig | undefined> {
     // assume {path} is rooted ("//")
     // check cache
@@ -125,7 +128,7 @@ export class Loader {
     }
 
     // find parent
-    const parent = parentPath(path);
+    const parent = this.parentPath(path);
     const result = {
       ...config,
       path,

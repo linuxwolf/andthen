@@ -40,6 +40,15 @@ describe("core/project/loader", () => {
               },
             });
             break;
+          case "/src/root/sub-a/non-project/sub-sub-sub-a/andthen.yml":
+            result = stringify({
+              tasks: {
+                ":build": {
+                  desc: "builds sub-sub-sub-a project",
+                },
+              },
+            });
+            break;
           case "/src/root/sub-a/subsub-a/andthen.yaml":
             result = stringify({
               tasks: {
@@ -321,6 +330,22 @@ describe("core/project/loader", () => {
           },
         });
         expect(spyLoadConfig).to.have.been.called(1);
+      });
+
+      it("opens a sub-sub project with no sub-project", async () => {
+        const result = await loader.open("//sub-a/non-project/sub-sub-sub-a");
+        expect(result).to.deep.equal({
+          parent: "//sub-a",
+          path: "//sub-a/non-project/sub-sub-sub-a",
+          root: false,
+          tasks: {
+            ":build": {
+              name: ":build",
+              desc: "builds sub-sub-sub-a project",
+              internal: false,
+            },
+          },
+        });
       });
 
       it("opens a cached project", async () => {
