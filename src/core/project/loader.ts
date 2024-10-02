@@ -113,7 +113,11 @@ export class Loader {
   }
 
   async open(path: string): Promise<ProjectConfig | undefined> {
-    // assume {path} is rooted ("//")
+    // {path} is rooted ("//")
+    if (!path.startsWith("//")) {
+      throw new errors.InvalidArgument("path", path);
+    }
+
     // check cache
     let config: ProjectConfig | undefined = this.#cache[path];
     if (config) {

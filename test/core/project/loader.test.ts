@@ -365,6 +365,15 @@ describe("core/project/loader", () => {
         expect(spyLoadConfig).to.have.not.been.called();
       });
 
+      it("fails with invalid path", async () => {
+        const err =
+          (await expect(loader.open("/not-a-valid-project")).to.be.rejectedWith(
+            errors.InvalidArgument,
+          )).actual;
+        expect(err.argument).to.equal("path");
+        expect(err.value).to.equal("/not-a-valid-project");
+      });
+
       it("fails if no project found", async () => {
         const err =
           (await expect(loader.open("//no-project")).to.be.rejectedWith(
