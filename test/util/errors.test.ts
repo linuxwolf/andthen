@@ -157,4 +157,27 @@ describe("util/errors", () => {
       );
     });
   });
+
+  describe("errors.InvalidArgument", () => {
+    it("creates a InvalidArgument with default message", () => {
+      const err = new errors.InvalidArgument("some-arg", "some value");
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.name).to.equal("InvalidArgument");
+      expect(err.message).to.equal(
+        'invalid argument {argument="some-arg"; value="some value"}',
+      );
+    });
+    it("creates a InvalidArgument with custom message", () => {
+      const err = new errors.InvalidArgument(
+        "some-arg",
+        "some value",
+        "parameter wrong",
+      );
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.name).to.equal("InvalidArgument");
+      expect(err.message).to.equal(
+        'parameter wrong {argument="some-arg"; value="some value"}',
+      );
+    });
+  });
 });

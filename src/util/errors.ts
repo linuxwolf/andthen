@@ -62,7 +62,7 @@ export abstract class ErrorBase extends Error {
   }
 }
 
-export class ConfigNotFound extends ErrorBase {
+class ConfigNotFound extends ErrorBase {
   readonly path: string;
 
   constructor(path: string, msg = "configuration not found") {
@@ -71,6 +71,18 @@ export class ConfigNotFound extends ErrorBase {
   }
 }
 
+class InvalidArgument extends ErrorBase {
+  readonly argument: string;
+  readonly value: string;
+
+  constructor(argument: string, value: string, msg = "invalid argument") {
+    super(msg, { argument, value });
+    this.argument = argument;
+    this.value = value;
+  }
+}
+
 export default {
   ConfigNotFound,
+  InvalidArgument,
 };
