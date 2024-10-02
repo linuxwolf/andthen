@@ -27,6 +27,7 @@ coverage/report.xml:  $(SOURCES) $(TESTS) $(CONFIGS)
 	deno test --clean --junit-path $@ --coverage=coverage test
 
 coverage: coverage/lcov coverage/html
+	deno coverage --exclude=test coverage
 
 coverage/lcov: coverage/report.xml
 	deno coverage --exclude=test --lcov --output=coverage/lcov coverage
