@@ -13,7 +13,7 @@ on:
   
 env:
   DENO_DIR: ${{ github.workspace }}/.cache
-  DENO_VER: "1.46.3"
+  DENO_VER: "2.1.4"
 
 jobs:
   coding-checks:
