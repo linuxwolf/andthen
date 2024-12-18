@@ -10,7 +10,7 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: true
-  
+
 env:
   DENO_DIR: ${{ github.workspace }}/.cache
   DENO_VER: "2.1.4"
@@ -95,4 +95,3 @@ jobs:
         with:
           name: andthen.${{ matrix.os }}-${{ matrix.arch }}
           path: target/${{ matrix.os }}-${{ matrix.arch }}/andthen
-
