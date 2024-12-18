@@ -37,7 +37,7 @@ async function loadConfig(path: string): Promise<ProjectConfig | undefined> {
 
       return config;
     } catch (err) {
-      log.debug`could not load from ${abs}: ${err.message}`;
+      log.debug`could not load from ${abs}: ${(err as Error).message}`;
     }
   }
 
