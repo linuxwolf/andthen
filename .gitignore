@@ -1,0 +1,8 @@
+/.cache
+/coverage
+/docs/_cache
+/docs/_site
+/node_modules
+/target
+
+.DS_Store

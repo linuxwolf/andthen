@@ -1,0 +1,41 @@
+{
+  "name": "@linuxwolf/andthen",
+  "shortName": "andthen",
+  "version": "0.0.1",
+  "workspace": [
+    "./docs"
+  ],
+  "exclude": [
+    ".cache/**"
+  ],
+  "fmt": {
+    "exclude": [
+      "docs/**",
+      "CHANGELOG.md"
+    ]
+  },
+  "lint": {
+    "exclude": [
+      "docs/**",
+      "CHANGELOG.md"
+    ]
+  },
+  "test": {
+    "include": [
+      "test/**/*.test.ts"
+    ]
+  },
+  "unstable": [
+    "temporal"
+  ],
+  "imports": {
+    "@std/testing": "jsr:@std/testing@^1.0.13",
+    "@types/chai": "npm:@types/chai@^5.2.2",
+    "@types/sinon-chai": "npm:@types/sinon-chai@^4.0.0",
+    "chai": "npm:chai@^5.2.0",
+    "chai-as-promised": "npm:chai-as-promised@^8.0.1",
+    "sinon": "npm:sinon@^20.0.0",
+    "sinon-chai": "npm:sinon-chai@^4.0.0"
+  },
+  "exports": "./src/main.ts"
+}
