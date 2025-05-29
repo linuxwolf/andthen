@@ -1,0 +1,104 @@
+# Versions:
+#   * actions/checkout @ v4.2.2 == 11bd71901bbe5b1630ceea73d27597364c9af683
+#   * actions/cache @ v4.2.3 == 5a3ec84eff668545956fd18022155c47e93e2684
+#   * actions/upload-artifact @ v4.6.2 == ea165f8d65b6e75b540449e92b4886f43607fa02
+#   * codecov/codecov-action @ v5.4.3 == 18283e04ce6e62d37312384ff67231eb8fd56d24
+#   * codecov/test-results-action @ v1.1.1 == 47f89e9acb64b76debcd5ea40642d25a4adced9f
+#   * denoland/setup-deno @ 2.0.3 == e95548e56dfa95d4e1a28d6f422fafe75c4c26fb
+name: Build and Test
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+    inputs:
+      distribute:
+        type: boolean
+        default: false
+    secrets:
+      CODECOV_TOKEN:
+        required: true
+
+env:
+  DENO_DIR: ${{ github.workspace }}/.cache
+  DENO_VER: "2.3.3"
+
+jobs:
+  coding-checks:
+    name: "Check coding standards"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: "Setup cache"
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.json', 'deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Lint check"
+        run: deno lint
+      - name: "Format check"
+        run: deno fmt --check
+  unit-test:
+    name: "Test sources"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: "Setup cache"
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Run unit tests"
+        run: make test
+      - name: "Generate coverage reports"
+        run: make coverage/lcov
+      - name: "Report test results"
+        if: success() || failure()
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f
+        with:
+          files: coverage/report.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: "Report coverage"
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
+        with:
+          files: coverage/lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
+  compile:
+    name: "Compile binaries"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.distribute == true }}
+    needs:
+      - coding-checks
+      - unit-test
+    strategy:
+      matrix:
+        os: [darwin, linux]
+        arch: [x86_64, aarch64]
+    steps:
+      - name: "Check out code"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: "Setup cache"
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: deno-${{ hashFiles('deno.lock') }}
+      - name: "Setup Deno"
+        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb
+        with:
+          deno-version: ${{ env.DENO_VER }}
+      - name: "Compile ${{ matrix.os }}-${{ matrix.arch }}"
+        run: make target/${{ matrix.os }}-${{ matrix.arch }}/andthen
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: andthen.${{ matrix.os }}-${{ matrix.arch }}
+          path: target/${{ matrix.os }}-${{ matrix.arch }}/andthen

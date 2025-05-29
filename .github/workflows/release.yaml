@@ -1,0 +1,54 @@
+# Versions:
+#   * actions/checkout @ v4.2.2 == 11bd71901bbe5b1630ceea73d27597364c9af683
+#   * actions/create-github-app-token @ v2 == df432ceedc7162793a195dd1713ff69aefc7379e
+#   * actions/download-artifact @ v4.3.0 == d3f86a106a0bac45b974a628896c90dbdf5c8093
+#   * googleapis/release-please-action @ v4.2.0 == a02a34c4d625f9be7cb89156071d8567266a2445
+
+name: Release Management
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yaml
+    with:
+      distribute: true
+    secrets: inherit
+  release-pr:
+    name: "Release please"
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Generate access token
+        id: gentoken
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e
+        with:
+          app-id: ${{ secrets.RELEASE_MANAGER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_MANAGER_PRIVATE_KEY }}
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Download distribution
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: target
+          github-token: ${{ steps.gentoken.outputs.token }}
+      - name: Create/update release PR
+        id: release
+        uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445
+        with:
+          token: ${{ steps.gentoken.outputs.token }}
+          config-file: .release/config.json
+          manifest-file: .release/manifest.json
+      - name: Attach distribution to release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ steps.gentoken.outputs.token }}
+        run: |
+          gh release upload ${{ steps.release.outputs.tag_name }} ./target/*/andthen

@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "request": "launch",
+      "name": "Debug Test",
+      "type": "node",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "runtimeExecutable": "/usr/local/bin/deno",
+      "runtimeArgs": [
+        "test",
+        "--inspect-wait",
+        "--allow-all"
+      ],
+      "attachSimplePort": 9229
+    },
+    {
+      "name": "Attach",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    }
+  ]
+}

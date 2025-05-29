@@ -1,0 +1,8 @@
+pre-push:
+  commands:
+    check-lint:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: make check-lint
+    check-format:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: make check-fmt
