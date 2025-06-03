@@ -7,6 +7,14 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": false,
+      "changelog-sections": [
+        { "type": "chore", "section": "Housekeeping", "hidden": true },
+        { "type": "deps", "section": "Dependency updates" },
+        { "type": "docs", "section": "Documentation", "hidden": true },
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug fixes" },
+        { "type": "revert", "section": "Reversions" }
+      ],
       "extra-files": [
         {
           "type": "json",

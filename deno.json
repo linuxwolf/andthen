@@ -2,9 +2,6 @@
   "name": "@linuxwolf/andthen",
   "shortName": "andthen",
   "version": "0.0.1",
-  "workspace": [
-    "./docs"
-  ],
   "exclude": [
     ".cache/**"
   ],
